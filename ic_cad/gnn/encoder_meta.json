@@ -1,5 +1,15 @@
 {
-  "timestamp": "2025-08-28T15:26:13.771464Z",
+  "method": "GRACE",
+  "hidden_dim": 64,
+  "num_layers": 2,
+  "dropout": 0.2,
+  "epochs": 250,
+  "learning_rate": 0.0005,
+  "weight_decay": 0.0001,
+  "separate_training": false,
+  "feature_dim": 23,
+  "model_file": "encoder_grace.pt",
+  "seed": 42,
   "benchmarks": [
     "c17",
     "c432",
@@ -27,18 +37,19 @@
     "s15850",
     "s38584"
   ],
-  "hidden_dim": 48,
-  "num_layers": 2,
-  "dropout": 0.1,
-  "epochs": 200,
-  "learning_rate": 0.0003,
-  "weight_decay": 1e-05,
-  "separate_training": false,
-  "feature_dim": 23,
-  "model_file": "encoder.pt",
-  "seed": 42,
-  "probe_every": 20,
-  "probe_samples": 4000,
-  "earlystop_by_probe": false,
-  "probe_graph": "s1488"
+  "probe_every": 10,
+  "probe_samples": 3000,
+  "earlystop_by_probe": true,
+  "probe_graph": "s1488",
+  "fix_probe_samples": false,
+  "final_probe_average": 0,
+  "heads_schedule": [
+    2,
+    1
+  ],
+  "tau": 0.2,
+  "feat_mask": 0.15,
+  "edge_drop": 0.15,
+  "use_proj": true,
+  "proj_dim": 64
 }

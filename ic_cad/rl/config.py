@@ -10,6 +10,7 @@
 """
 
 import os
+from typing import Optional
 from dataclasses import dataclass
 from typing import List, Dict, Any, Optional
 
@@ -19,7 +20,7 @@ class RLConfig:
     
     # === 模型參數 ===
     gnn_feature_dim: int = 23           # GNN 節點輸入特徵維度 (22 基礎特徵 + 1 cell_id)
-    gnn_embed_dim: int = 128        # GNN 嵌入維度
+    gnn_embed_dim: int = 64         # GNN 嵌入維度 (配合新模型的 64 維輸出)
     cell_embedding_dim: int = 32        # Cell type embedding 維度
     effective_feature_dim: int = 54     # 實際處理維度 (22 基礎 + 32 embedding)
     dynamic_feature_dim: int = 12   # 動態特徵維度 (worst_slack, total_power, etc.)
@@ -78,7 +79,8 @@ class RLConfig:
     goal_bonus: float = 1.5               # 目標達成獎勵 (適中)
     
     # === 檔案路徑 ===
-    gnn_model_path: str = "/root/ruan_workspace/ic_cad/gnn/encoder.pt"
+    # gnn_model_path 設為 None，讓 load_encoder 自動從 meta 中讀取
+    gnn_model_path: Optional[str] = None  
     gnn_meta_path: str = "/root/ruan_workspace/ic_cad/gnn/encoder_meta.json"
     benchmark_dir: str = "/root/ruan_workspace/ic_cad/open_ic_design"
     cell_groups_path: str = "/root/ruan_workspace/ic_cad/gnn/cell_groups.json"
@@ -114,7 +116,8 @@ class InferenceConfig:
     
     # === 模型路徑 ===
     actor_model_path: str = "/root/ruan_workspace/ic_cad/rl/models/best_actor.pth"
-    gnn_model_path: str = "/root/ruan_workspace/ic_cad/gnn/encoder.pt"
+    # gnn_model_path 設為 None，讓 load_encoder 自動從 meta 中讀取
+    gnn_model_path: Optional[str] = None
     gnn_meta_path: str = "/root/ruan_workspace/ic_cad/gnn/encoder_meta.json"
     
     # === 推論參數 ===

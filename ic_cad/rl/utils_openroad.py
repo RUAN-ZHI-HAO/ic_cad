@@ -129,6 +129,10 @@ class OpenRoadInterface:
             "LIB/asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib",
             "LIB/asap7sc7p5t_SIMPLE_SLVT_TT_nldm_211120.lib",
             "LIB/asap7sc7p5t_SIMPLE_SRAM_TT_nldm_211120.lib",
+            "LIB/sram_asap7_16x256_1rw.lib",  
+            "LIB/sram_asap7_32x256_1rw.lib",  
+            "LIB/sram_asap7_64x256_1rw.lib",  
+            "LIB/sram_asap7_64x64_1rw.lib" 
         ]:
             tech.readLiberty(f"{self.pdk_root}/{lib}")
         return tech
@@ -161,7 +165,13 @@ class OpenRoadInterface:
                 db = design.getDb()
                 block = design.getBlock()
                 inst = block.findInst(action.target_cell)
+                # print("cell_name :", action.new_cell_type)
 
+                original_master = inst.getMaster()  
+                original_cell_name = original_master.getName()  
+                # print(f"Original cell: {original_cell_name}")
+
+                print(f"original cell : {original_cell_name} new cell : {action.new_cell_type}")
                 if not inst:
                     logger.error(f"Instance {action.target_cell} not found.")
                     return False
@@ -169,7 +179,7 @@ class OpenRoadInterface:
                 if not master:
                     logger.error(f"Master cell {action.new_cell_type} not found.")
                     return False
-                inst.swapMaster(master)
+                print(inst.swapMaster(master))
                 logger.info(f"Replaced instance {action.target_cell} with master {action.new_cell_type}.")
             
             elif action.action_type == "auto_replace_cell":

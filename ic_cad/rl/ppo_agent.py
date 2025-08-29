@@ -167,17 +167,25 @@ class TwoDimensionalPolicyNetwork(nn.Module):
         # ---- 套用 candidate mask（如果提供）----
         if action_mask is not None and 'candidate_mask' in action_mask:
             cmask = torch.as_tensor(action_mask['candidate_mask'],
-                                    device=device, dtype=torch.bool)   # (C,)
-            if cmask.numel() < C:
+                                    device=device, dtype=torch.bool)   # (C_mask,)
+            
+            # 確保 mask 長度與 candidate logits 匹配
+            actual_C = cand_logits.shape[1]  # 實際的候選數量
+            if cmask.numel() < actual_C:
                 # 尺寸不足時，補 False
-                pad = torch.zeros(C - cmask.numel(), dtype=torch.bool, device=device)
+                pad = torch.zeros(actual_C - cmask.numel(), dtype=torch.bool, device=device)
                 cmask = torch.cat([cmask, pad], dim=0)
+            elif cmask.numel() > actual_C:
+                # 尺寸過大時，截斷
+                cmask = cmask[:actual_C]
+            
             invalid = ~cmask
             # 對每個 batch 套用
             cand_logits[:, invalid] = float('-inf')
             # per-batch fallback：若該 batch 全為 -inf，強制第 0 個可選
             all_masked = torch.isinf(cand_logits).all(dim=1)  # (B,)
-            cand_logits[all_masked, 0] = 0.0
+            if actual_C > 0:  # 確保有候選可選
+                cand_logits[all_masked, 0] = 0.0
 
         return cand_logits, replacement_logits
     
@@ -463,8 +471,22 @@ class TwoDimensionalPPOAgent:
             return (0, 0), {'log_prob': 0.0, 'entropy': 0.0, 'value': 0.0}
 
     def store_reward(self, reward: float, done: bool):
+        """存儲獎勵和完成狀態，確保與其他 buffer 組件同步"""
+        # 檢查 buffer 一致性
+        expected_length = len(self.buffer.get('log_probs', []))
+        current_reward_length = len(self.buffer.get('rewards', []))
+        
+        if current_reward_length >= expected_length:
+            logger.warning(f"⚠️ store_reward 被調用但 rewards 長度 ({current_reward_length}) >= log_probs 長度 ({expected_length})")
+            return
+            
         self.buffer['rewards'].append(reward)
         self.buffer['dones'].append(done)
+        
+        # 驗證所有組件長度一致性
+        lengths = {key: len(values) for key, values in self.buffer.items() if isinstance(values, list)}
+        if len(set(lengths.values())) > 1:
+            logger.warning(f"⚠️ Buffer 組件長度不一致: {lengths}")
 
     def _prepare_features(self, state):
         """將環境的 state 轉成網路輸入（fallback 改為 0 向量，避免分布飄移）"""
@@ -515,7 +537,20 @@ class TwoDimensionalPPOAgent:
         """PPO 更新（ratio + clip + entropy + multi-epoch + early KL stop）"""
         num_steps = len(self.buffer['rewards'])
         if num_steps == 0:
+            logger.warning("⚠️ PPO update 被調用但 buffer 為空，跳過更新")
             return {}
+
+        # 檢查所有必需的 buffer 組件
+        required_keys = ['rewards', 'log_probs', 'values', 'dones', 
+                        'candidate_gnn_features', 'candidate_dynamic_features', 
+                        'global_features', 'action_masks', 'actions']
+        for key in required_keys:
+            if key not in self.buffer or len(self.buffer[key]) == 0:
+                logger.error(f"❌ Buffer 缺少必需組件 '{key}' 或為空，跳過更新")
+                return {}
+            if len(self.buffer[key]) != num_steps:
+                logger.error(f"❌ Buffer 組件 '{key}' 長度 {len(self.buffer[key])} 與 rewards 長度 {num_steps} 不匹配")
+                return {}
 
         device = next(self.policy_network.parameters()).device
 

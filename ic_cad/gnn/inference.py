@@ -39,45 +39,54 @@ except ImportError as e:
     print("請確保您在正確的目錄中，並且相關模組存在")
     sys.exit(1)
 
-# === 新版 Encoder ===
+# === 與 config_train_dgi.py 一致的 Encoder 定義 ===
 class ConfigurableGATEncoder(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, num_layers=3, heads_schedule=None, dropout=0.1,
-                 cell_embedding_dim=32, num_cells=854):
+    """可配置 GAT 編碼器（附 cell embedding，concat=False 省顯存）"""
+    def __init__(self, in_channels, out_channels, num_layers=2, heads_schedule=None, dropout=0.1,
+                 cell_embedding_dim=16, num_cells=854):
         super().__init__()
         from torch_geometric.nn import GATConv
-        
-        # Cell embedding layer
         self.cell_embedding = torch.nn.Embedding(num_cells, cell_embedding_dim)
-        
-        # 計算實際輸入維度：原始特徵(22) + cell embedding(32) = 54
-        actual_in_channels = in_channels - 1 + cell_embedding_dim  # -1 移除 cell_id，+32 加入 embedding
-        
-        if heads_schedule is None:
-            heads_schedule = [4, 2, 1]
+        actual_in_channels = in_channels - 1 + cell_embedding_dim  # -1: 去除 cell_id
+
+        # heads 配置
+        if not heads_schedule:
+            if num_layers == 1:
+                heads_schedule = [1]
+            elif num_layers == 2:
+                heads_schedule = [2, 1]
+            elif num_layers == 3:
+                heads_schedule = [2, 2, 1]  # 更保守的配置
+            else:
+                heads_schedule = [2] * (num_layers - 1) + [1]
+
         self.num_layers = num_layers
         self.convs = torch.nn.ModuleList()
         self.bns = torch.nn.ModuleList()
+        
         in_dim = actual_in_channels
         for i in range(num_layers):
             heads = heads_schedule[i] if i < len(heads_schedule) else 1
-            if i == num_layers - 1:
-                out_dim = out_channels
-                concat = True
-            else:
-                out_dim = 2 * out_channels
-                concat = True
-            self.convs.append(GATConv(in_dim, out_dim, heads=heads, concat=concat, dropout=dropout))
+            self.convs.append(GATConv(in_dim, out_channels, heads=heads, concat=False, dropout=dropout))
             if i < num_layers - 1:
-                self.bns.append(torch.nn.BatchNorm1d(out_dim * heads))
-            in_dim = out_dim * heads
+                self.bns.append(torch.nn.BatchNorm1d(out_channels))
+            in_dim = out_channels
         self.dropout = dropout
 
     def forward(self, x, edge_index):
         import torch.nn.functional as F
+        base = x[:, :-1]
+        cell_ids = x[:, -1].long()
+        cell_emb = self.cell_embedding(cell_ids)
+        x = torch.cat([base, cell_emb], dim=1)
         
-        # 分離 cell_id 和其他特徵
-        base_features = x[:, :-1]  # 前22個特徵
-        cell_ids = x[:, -1].long()  # 最後一個是 cell_id
+        for i, conv in enumerate(self.convs):
+            x = conv(x, edge_index)
+            if i < len(self.convs) - 1:
+                x = self.bns[i](x)
+                x = F.elu(x)
+                x = F.dropout(x, p=self.dropout, training=self.training)
+        return x
         
         # Cell embedding
         cell_embeds = self.cell_embedding(cell_ids)

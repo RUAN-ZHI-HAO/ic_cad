@@ -126,12 +126,17 @@ class OptimizationEnvironment:
             cell_groups_json=cell_groups_json
         )
 
-        # GNN 相關
+        # GNN 相關 - 使用自動路徑檢測
         self._gnn_encoder = None
         self._gnn_meta = None
-        self.gnn_model_path = getattr(self.config, "gnn_model_path", "encoder.pt")
-        self.gnn_meta_path  = getattr(self.config, "gnn_meta_path",  "encoder_meta.json")
-        self.gnn_embed_dim  = getattr(self.config, "gnn_embed_dim", 128)
+        # 使用 GNN 目錄的完整路徑
+        gnn_dir = "/root/ruan_workspace/ic_cad/gnn"
+        self.gnn_meta_path  = getattr(self.config, "gnn_meta_path",  f"{gnn_dir}/encoder_meta.json")
+        # 不再硬編碼 gnn_model_path，讓 load_encoder 自動從 meta 中讀取
+        self.gnn_model_path = getattr(self.config, "gnn_model_path", None)  # None 表示自動檢測
+        
+        # 動態讀取 GNN 維度配置，而不是從 config 中硬編碼
+        self.gnn_embed_dim = self._get_gnn_embed_dim_from_meta()
 
         # 互動相關
         self.current_case: Optional[str] = None
@@ -349,10 +354,9 @@ class OptimizationEnvironment:
         
         # 安全修正：如果替換索引超出範圍，自動修正到有效範圍
         if replacement_idx >= len(replacement_options):
-            logger.warning(f"⚠️  替換索引 {replacement_idx} 超出範圍 {len(replacement_options)}，自動修正到 {len(replacement_options)-1}")
-            replacement_idx = min(replacement_idx, len(replacement_options) - 1)
-            replacement_idx = max(replacement_idx, 0)  # 確保不為負數
-            
+            logger.warning(f"⚠️  替換索引 {replacement_idx} 超出範圍 {len(replacement_options)}，使用 mod 運算修正到 {replacement_idx % len(replacement_options)}")
+            replacement_idx = replacement_idx % len(replacement_options)
+
         target_replacement = replacement_options[replacement_idx]
         optimization_action = OptimizationAction(
             action_type="replace_cell",
@@ -659,41 +663,61 @@ class OptimizationEnvironment:
         # 🔄 移除誤導性的基線獎勵，改用真實的改善獎勵
         base_reward = 0.0  # 不給無條件獎勵
 
-        # 📈 對稱的獎勵/懲罰機制 - 修正版
+        # 📈 對稱的獎勵/懲罰機制 - 修正版（處理除零）
         step_reward = 0.0
-        # TNS獎勵：改善和惡化使用相同權重
-        if tns_improvement > 0:  # TNS真正改善了
-            step_reward += 5.0 * (tns_improvement / abs(global_initial_tns))
-        else:  # TNS惡化了
-            step_reward += 5.0 * (tns_improvement / abs(global_initial_tns))  # 等權重負獎勵
+        # TNS獎勵：改善和惡化使用相同權重，處理除零情況
+        if abs(global_initial_tns) > 1e-6:  # 有意義的初始TNS值
+            if tns_improvement > 0:  # TNS真正改善了
+                step_reward += 5.0 * (tns_improvement / abs(global_initial_tns))
+            else:  # TNS惡化了
+                step_reward += 5.0 * (tns_improvement / abs(global_initial_tns))  # 等權重負獎勵
+        else:  # 初始TNS接近0（組合邏輯電路），使用絕對改善值
+            if abs(tns_improvement) > 1e-6:  # 有意義的TNS變化
+                step_reward += 1.0 if tns_improvement > 0 else -1.0
             
-        # WNS獎勵：改善和惡化使用相同權重
-        if wns_improvement > 0:  # WNS真正改善了
-            step_reward += 3.0 * (wns_improvement / abs(global_initial_wns))
-        else:  # WNS惡化了
-            step_reward += 3.0 * (wns_improvement / abs(global_initial_wns))  # 等權重負獎勵
+        # WNS獎勵：改善和惡化使用相同權重，處理除零情況
+        if abs(global_initial_wns) > 1e-6:  # 有意義的初始WNS值
+            if wns_improvement > 0:  # WNS真正改善了
+                step_reward += 3.0 * (wns_improvement / abs(global_initial_wns))
+            else:  # WNS惡化了
+                step_reward += 3.0 * (wns_improvement / abs(global_initial_wns))  # 等權重負獎勵
+        else:  # 初始WNS接近0，使用絕對改善值
+            if abs(wns_improvement) > 1e-6:  # 有意義的WNS變化
+                step_reward += 0.5 if wns_improvement > 0 else -0.5
             
-        # Power獎勵：改善和惡化使用相同權重
-        if power_improvement > 0:  # 功耗減少了
-            step_reward += 1.0 * (power_improvement / global_initial_power)
-        else:  # 功耗增加了
-            step_reward += 1.0 * (power_improvement / global_initial_power)  # 等權重負獎勵
+        # Power獎勵：改善和惡化使用相同權重，處理除零情況
+        if abs(global_initial_power) > 1e-9:  # 有意義的初始功耗值
+            if power_improvement > 0:  # 功耗減少了
+                step_reward += 1.0 * (power_improvement / global_initial_power)
+            else:  # 功耗增加了
+                step_reward += 1.0 * (power_improvement / global_initial_power)  # 等權重負獎勵
+        else:  # 初始功耗接近0（不太可能但防禦性編程）
+            if abs(power_improvement) > 1e-9:
+                step_reward += 0.1 if power_improvement > 0 else -0.1
 
-        # 🎖️ 里程碑獎勵：只獎勵相對於初始電路的改善
+        # 🎖️ 里程碑獎勵：只獎勵相對於初始電路的改善，處理除零情況
         milestone_reward = 0.0
         global_tns_improvement = abs(global_initial_tns) - abs(new_tns)  # 相對初始的改善
         global_wns_improvement = abs(global_initial_wns) - abs(new_wns)  # 相對初始的改善
         
-        if global_tns_improvement > 0:  # 相對初始狀態有改善
+        if global_tns_improvement > 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態有改善且有意義
             improvement_ratio = global_tns_improvement / abs(global_initial_tns)
             if improvement_ratio > 0.05:  # 5%以上改善
                 milestone_reward += 10.0
             elif improvement_ratio > 0.01:  # 1%以上改善
                 milestone_reward += 5.0
-        else:  # 相對初始狀態惡化
+        elif global_tns_improvement > 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路的改善
+            # 對於無時序約束的電路，任何有意義的TNS改善都給小獎勵
+            if abs(global_tns_improvement) > 1e-6:
+                milestone_reward += 2.0
+        elif global_tns_improvement < 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態惡化且有意義
             degradation_ratio = abs(global_tns_improvement) / abs(global_initial_tns)
             if degradation_ratio > 0.2:  # 惡化超過20%
                 milestone_reward -= 5.0
+        elif global_tns_improvement < 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路的惡化
+            # 對於無時序約束的電路，任何有意義的TNS惡化都給小懲罰
+            if abs(global_tns_improvement) > 1e-6:
+                milestone_reward -= 1.0
 
         # 🚫 移除額外懲罰機制，讓自然負獎勵發揮作用
         penalty = 0.0
@@ -796,6 +820,27 @@ class OptimizationEnvironment:
         except Exception as e:
             logger.warning(f"GNN embeddings failed for {case_name}, fallback to zeros. Detail: {e}")
             return None
+
+    def _get_gnn_embed_dim_from_meta(self) -> int:
+        """
+        從 encoder_meta.json 動態讀取 GNN 嵌入維度
+        """
+        import json
+        import os
+        
+        try:
+            if os.path.exists(self.gnn_meta_path):
+                with open(self.gnn_meta_path, 'r') as f:
+                    meta = json.load(f)
+                embed_dim = meta.get('hidden_dim', 128)  # 預設 128
+                logger.info(f"📏 從 meta 檔案讀取 GNN 嵌入維度: {embed_dim}")
+                return embed_dim
+            else:
+                logger.warning(f"⚠️ Meta 檔案不存在: {self.gnn_meta_path}, 使用預設維度 128")
+                return 128
+        except Exception as e:
+            logger.warning(f"⚠️ 讀取 meta 檔案失敗: {e}, 使用預設維度 128")
+            return 128
 
 
 # -------- Factory --------

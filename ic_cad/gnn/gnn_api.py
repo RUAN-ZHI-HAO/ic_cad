@@ -24,50 +24,46 @@ import torch
 from typing import Dict, List, Optional, Tuple
 from graph_builder import build_graph_from_case, collect_all_cell_types
 
-# === 與 inference.py 一致的 Encoder 定義 ===
+# === 與 config_train_dgi.py 一致的 Encoder 定義 ===
 class ConfigurableGATEncoder(torch.nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, num_layers: int = 3, heads_schedule=None, dropout: float = 0.1, 
-                 cell_embedding_dim: int = 32, num_cells: int = 852):
+    """可配置 GAT 編碼器（附 cell embedding，concat=False 省顯存）"""
+    def __init__(self, in_channels, out_channels, num_layers=2, heads_schedule=None, dropout=0.1,
+                 cell_embedding_dim=16, num_cells=854):
         super().__init__()
         from torch_geometric.nn import GATConv
-        
-        # Cell embedding layer - num_cells 已經包含了 terminal_NI 和 unknown
         self.cell_embedding = torch.nn.Embedding(num_cells, cell_embedding_dim)
-        
-        # 計算實際輸入維度：原始特徵(22) + cell embedding(32) = 54
-        actual_in_channels = in_channels - 1 + cell_embedding_dim  # -1 移除 cell_id，+32 加入 embedding
-        
+        actual_in_channels = in_channels - 1 + cell_embedding_dim  # -1: 去除 cell_id
+
+                # 設置 heads schedule - 使其與已訓練模型一致
         if heads_schedule is None:
-            heads_schedule = [4, 2, 1]
+            if num_layers == 1:
+                heads_schedule = [1]  # 保持與已訓練模型一致
+            elif num_layers == 2:
+                heads_schedule = [1, 1]  # 修改為與已訓練模型一致
+            elif num_layers == 3:
+                heads_schedule = [1, 1, 1]  # 與已訓練模型一致
+            else:
+                heads_schedule = [1] * num_layers  # 全部使用 1 head
+
+        self.num_layers = num_layers
         self.convs = torch.nn.ModuleList()
         self.bns = torch.nn.ModuleList()
+        
         in_dim = actual_in_channels
         for i in range(num_layers):
             heads = heads_schedule[i] if i < len(heads_schedule) else 1
-            if i == num_layers - 1:
-                out_dim = out_channels
-                concat = True
-            else:
-                out_dim = 2 * out_channels
-                concat = True
-            self.convs.append(GATConv(in_dim, out_dim, heads=heads, concat=concat, dropout=dropout))
+            self.convs.append(GATConv(in_dim, out_channels, heads=heads, concat=False, dropout=dropout))
             if i < num_layers - 1:
-                self.bns.append(torch.nn.BatchNorm1d(out_dim * heads))
-            in_dim = out_dim * heads
+                self.bns.append(torch.nn.BatchNorm1d(out_channels))
+            in_dim = out_channels
         self.dropout = dropout
 
     def forward(self, x, edge_index):
         import torch.nn.functional as F
-        
-        # 分離 cell_id 和其他特徵
-        base_features = x[:, :-1]  # 前22個特徵
-        cell_ids = x[:, -1].long()  # 最後一個是 cell_id
-        
-        # Cell embedding
-        cell_embeds = self.cell_embedding(cell_ids)
-        
-        # 拼接基礎特徵和 cell embedding
-        x = torch.cat([base_features, cell_embeds], dim=1)
+        base = x[:, :-1]
+        cell_ids = x[:, -1].long()
+        cell_emb = self.cell_embedding(cell_ids)
+        x = torch.cat([base, cell_emb], dim=1)
         
         for i, conv in enumerate(self.convs):
             x = conv(x, edge_index)
@@ -88,15 +84,45 @@ ROOT_DIR = os.environ.get('GNN_DESIGN_ROOT', '/root/ruan_workspace/gtlvl_design'
 
 # === 載入模型與 meta ===
 
-def load_encoder(model_path: str = 'encoder.pt', meta_path: Optional[str] = 'encoder_meta.json') -> Tuple[torch.nn.Module, Dict]:
+def load_encoder(model_path: Optional[str] = None, meta_path: Optional[str] = 'encoder_meta.json') -> Tuple[torch.nn.Module, Dict]:
+    """
+    載入 GNN 編碼器模型
+    
+    Args:
+        model_path: 模型檔案路徑。如果為 None，將從 meta 檔案中讀取
+        meta_path: meta 檔案路徑，包含模型配置和模型檔案路徑
+    """
     meta = {}
     if meta_path and os.path.exists(meta_path):
         with open(meta_path, 'r') as f:
             meta = json.load(f)
+        
+        # 如果沒有指定模型路徑，從 meta 檔案中讀取
+        if model_path is None:
+            model_path = meta.get('model_file', 'best_encoder_all_by_probe.pt')
+            print(f'📖 從 meta 檔案讀取模型路徑: {model_path}')
+            
+            # 如果模型路徑是相對路徑，基於 meta 檔案目錄解析
+            if not os.path.isabs(model_path):
+                meta_dir = os.path.dirname(os.path.abspath(meta_path))
+                model_path = os.path.join(meta_dir, model_path)
+                print(f'🔄 解析為絕對路徑: {model_path}')
+        
     else:
         # 嘗試推測 hidden_dim 只能靠外部提供，因此建議一定要有 meta
-        print('⚠️ 未找到 meta 檔，使用預設 hidden_dim=128,num_layers=3 (請確認)')
+        print('⚠️ 未找到 meta 檔，使用預設配置')
         meta = {'hidden_dim': 128, 'num_layers': 3, 'dropout': 0.1, 'feature_dim': 23}
+        
+        # 如果沒有指定模型路徑，使用預設
+        if model_path is None:
+            model_path = 'best_encoder_all_by_probe.pt'
+            print(f'⚠️ 使用預設模型路徑: {model_path}')
+    
+    # 確保模型檔案存在
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f'模型檔案不存在: {model_path}')
+        
+    print(f'🔄 載入模型: {model_path}')
     
     hidden_dim = meta.get('hidden_dim', 128)
     num_layers = meta.get('num_layers', 3)

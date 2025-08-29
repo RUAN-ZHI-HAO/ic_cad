@@ -47,10 +47,10 @@ lib_files = [
     "LIB/asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib",  
     "LIB/asap7sc7p5t_SIMPLE_SLVT_TT_nldm_211120.lib",  
     "LIB/asap7sc7p5t_SIMPLE_SRAM_TT_nldm_211120.lib",  
-    # "LIB/sram_asap7_16x256_1rw.lib",  
-    # "LIB/sram_asap7_32x256_1rw.lib",  
-    # "LIB/sram_asap7_64x256_1rw.lib",  
-    # "LIB/sram_asap7_64x64_1rw.lib"  
+    "LIB/sram_asap7_16x256_1rw.lib",  
+    "LIB/sram_asap7_32x256_1rw.lib",  
+    "LIB/sram_asap7_64x256_1rw.lib",  
+    "LIB/sram_asap7_64x64_1rw.lib"  
 ]  
 for lib_file in lib_files:
     tech.readLiberty(f"{pdk_path}/{lib_file}")
@@ -61,7 +61,7 @@ for lib_file in lib_files:
 #     print(f"Successfully loaded: {lib_file}")
 
 
-benchmark = "c17"
+benchmark = "s1488"
 # === 載入設計與 RC 資訊 ===
 design = Design(tech)
 design.readDef(f"{design_path}/{benchmark}/{benchmark}_placed.def")
@@ -151,39 +151,91 @@ def analyze_sta_summary():
 
     return power, tns, wns
 
+def find_equivalent_cells(tech, design, cell_name):  
+    """  
+    查找指定 cell 的所有等效 cell  
+      
+    Args:  
+        tech: Tech 物件  
+        design: Design 物件    
+        cell_name: 要查詢的 cell 名稱  
+    """  
+    from openroad import Timing  
+
+    # 建立 Timing 物件  
+    timing = Timing(design)  
+      
+    # 初始化等效 cell 對應關係  
+    timing.makeEquivCells()  
+      
+    # 取得資料庫  
+    db = tech.getDB()  
+      
+    # 尋找指定的 master  
+    target_master = db.findMaster(cell_name)  
+      
+    if not target_master:  
+        print(f"找不到 cell: {cell_name}")  
+        return
+
+    same_cell = set()
+
+    # 取得等效 cell  
+    equiv_cells = timing.equivCells(target_master)  
+      
+    # print(f"等效於 '{cell_name}' 的 cell:")  
+    # print("=" * 50)  
+      
+    if not equiv_cells:  
+        # print("沒有找到等效的 cell")  
+        return  
+      
+    for equiv_cell in equiv_cells:  
+        same_cell.add(equiv_cell.getName())
+        # print(f"  - {equiv_cell.getName()}")  
+    
+    return same_cell
+    # print(f"\n總共找到 {len(equiv_cells)} 個等效 cell")
+
 def parse_cells(text: str, valid: Set[str]) -> Set[str]:
-    pattern = re.compile(r'^\s*([A-Za-z0-9_]+)\s+[0-9.]+', re.M)
+    pattern = re.compile(r'^\s*\*?([A-Za-z0-9_]+)\s+[0-9.]+', re.M)
     return {m for m in pattern.findall(text or "") if m in valid}
 
-def create_cell_groups(tech, design, include_singletons=False):
-    # 1) 取全部 master 名稱
-    masters = []
-    for lib in tech.getDB().getLibs():
-        for master in lib.getMasters():
-            name = master.getName()
-            if name:
-                masters.append(str(name))
-    masters = sorted(set(masters))
-    valid = set(masters)
-    groups = []
-    visited = set()
-    # 2) 逐個 seed，沒分過組才查
-    for seed in masters:
-        if seed in visited:
-            continue
-        # print(f"Processing seed: {seed}")
-        out = design.evalTclString(f'tee -quiet -variable result {{ report_equiv_cells -all {seed} }}; set result')
-        eq = parse_cells(out, valid)
-        print(out)
-        if not eq:
-            eq = {seed}  # 保底：如果沒抓到，就當成單獨一組
-        else:
-            eq.add(seed)  # 以防輸出沒含自己
-        visited.update(eq)
-        if include_singletons or len(eq) > 1:
-            groups.append(sorted(eq))
-    # 大組在前
-    groups.sort(key=lambda g: (-len(g), g[0]))
+def create_cell_groups(tech, design, include_singletons=False):  
+    # 1) 取全部 master 名稱  
+    masters = []  
+    for lib in tech.getDB().getLibs():  
+        for master in lib.getMasters():  
+            name = master.getName()  
+            if name:  
+                masters.append(str(name))  
+    masters = sorted(set(masters))  
+    valid = set(masters)  
+    groups = []  
+    visited = set()  
+      
+    # 2) 逐個 seed，沒分過組才查  
+    for seed in masters:  
+        if seed in visited:  
+            continue  
+              
+        # 獲取等價 cells  
+        # out = design.evalTclString(f'tee -quiet -variable result {{ report_equiv_cells -all {seed} }}; Set result') 
+        # print(out) 
+        # eq = parse_cells(out, valid)  
+        # print(eq)
+        eq = find_equivalent_cells(tech, design, seed)
+          
+        # 移除已經被分組的 cells  
+        eq = eq - visited  
+          
+        # 如果還有剩餘的 cells，才建立群組  
+        if eq and (include_singletons or len(eq) > 1):  
+            groups.append(sorted(eq))  
+            visited.update(eq)  
+      
+    # 大組在前  
+    groups.sort(key=lambda g: (-len(g), g[0]))  
     return groups
 
 def save_groups_to_json(groups, path: str):
@@ -205,22 +257,52 @@ def save_groups_to_json(groups, path: str):
                 f.write(f"  {line}\n")
         f.write("]\n")
 
+
+
 # === 主流程 ===
 def main():
     analyze_sta_summary()
 
-    # groups = create_cell_groups(tech, design, include_singletons=True)
-    # save_groups_to_json(groups, "equiv_groups.json")
+    # find_equivalent_cells(tech, design, "O2A1O1Ixp33_ASAP7_75t_L")
 
-    # replace_instance_cell("_1_", "NAND2x1p5_ASAP7_75t_L")
+    groups = create_cell_groups(tech, design, include_singletons=True)
+    save_groups_to_json(groups, "equiv_groups.json")
+
+    # design.evalTclString("report_cell_usage")
+
+    # print(design.evalTclString('report_equiv_cells -all "O2A1O1Ixp33_ASAP7_75t_L"'))
+
+    # total_cells = 0  
+    # for lib in tech.getDB().getLibs():  
+    #     lib_cell_count = 0  
+    #     for master in lib.getMasters():  
+    #         lib_cell_count += 1  
+    #     print(f"Library {lib.getName()}: {lib_cell_count} cells")  
+    #     total_cells += lib_cell_count  
+    # print(f"Total library cells loaded: {total_cells}")
+
+    # lef_masters = Set()  
+    # for lib in tech.getDB().getLibs():  
+    #     for master in lib.getMasters():  
+    #         lef_masters.add(master.getName())  
+    
+    # # 獲取所有 Liberty cells (需要通過 STA 接口)  
+    # liberty_cells = Set()  
+    # # 這需要通過 dbNetwork 來訪問 Liberty 信息  
+    
+    # # 找出差異  
+    # missing_in_liberty = lef_masters - liberty_cells  
+    # print(f"LEF 中有但 Liberty 中沒有的 cells: {missing_in_liberty}")
+
+    # replace_instance_cell("_551_", "OAI21xp5_ASAP7_75t_SRAM")
     # print("✅ Replacing cells...")
     # replace_cells()
     # print("✅ Inserting buffers...")
     # insert_buffers()
     # print("✅ Optimizing & reporting...")
     # design.evalTclString("repair_design")
-    MAX_BUFFER_PERCENT = 10.0
-    design.evalTclString(f"repair_timing -setup -hold -max_buffer_percent {MAX_BUFFER_PERCENT} -skip_pin_swap -skip_gate_cloning -skip_buffer_removal")
+    # MAX_BUFFER_PERCENT = 10.0
+    # design.evalTclString(f"repair_timing -setup -hold -max_buffer_percent {MAX_BUFFER_PERCENT} -skip_pin_swap -skip_gate_cloning -skip_buffer_removal")
     analyze_sta_summary()
     # optimize_and_report()
     print("✅ Writing output files...")

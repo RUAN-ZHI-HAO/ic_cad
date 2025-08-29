@@ -11,6 +11,7 @@ import logging
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 from datetime import datetime
 from typing import Dict, List, Any
 
@@ -24,6 +25,13 @@ from rl.training_controller import TrainingController, TrainingMonitor
 
 logger = logging.getLogger(__name__)
 
+def pct_str(impr: float, base: float, use_abs_base: bool = True) -> str:
+    """回傳像 +12.3% 或 N/A 的字串；base 為 0（或太小）時回 N/A。"""
+    EPS = 1e-12  # 避免浮點誤差導致誤判為 0
+    denom = abs(base) if use_abs_base else base
+    if denom is None or math.isclose(denom, 0.0, abs_tol=EPS):
+        return "N/A"
+    return f"{(impr / denom) * 100:+.1f}%"
 
 class TwoDimensionalTrainingManager:
     """Training manager for 2D action space RL agents"""
@@ -38,9 +46,16 @@ class TwoDimensionalTrainingManager:
         self.config = config
         self.start_time = None
 
+        # Initialize environment first to read GNN dimensions
+        self.env = OptimizationEnvironment(config)
+        
+        # 動態讀取 GNN embedding 維度，而非硬編碼
+        gnn_embed_dim = self.env.gnn_embed_dim  # 從環境中讀取實際維度
+        logger.info(f"🔧 使用動態 GNN 嵌入維度: {gnn_embed_dim}")
+        
         # Initialize agent with complete PPO parameters
         self.agent = TwoDimensionalPPOAgent(
-            feature_dim=128,  # GNN embedding 維度 (128)
+            feature_dim=gnn_embed_dim,  # 動態 GNN embedding 維度
             hidden_dim=config.hidden_dim,  # 從 config 讀取
             max_candidates=config.max_candidates,
             max_replacements=config.max_replacements,
@@ -55,9 +70,6 @@ class TwoDimensionalTrainingManager:
             target_kl=config.target_kl,  # 目標 KL 散度
             max_grad_norm=config.max_grad_norm  # 梯度裁剪
         )
-        
-        # Initialize environment
-        self.env = OptimizationEnvironment(config)
         
         # Training statistics
         self.episode_rewards = []
@@ -176,23 +188,34 @@ class TwoDimensionalTrainingManager:
             
             # 每5回合詳細顯示與最初電路的比較，確保用戶能看到持續的vs最初比較
             if (episode + 1) % 5 == 0 or episode < 10:
+                # 防止除零錯誤
+                tns_pct = (global_tns_improvement/abs(self.global_initial_tns)*100) if self.global_initial_tns != 0 else 0.0
+                wns_pct = (global_wns_improvement/abs(self.global_initial_wns)*100) if self.global_initial_wns != 0 else 0.0
+                power_pct = (global_power_improvement/self.global_initial_power*100) if self.global_initial_power != 0 else 0.0
+                
                 logger.info(f"🔍 vs最初電路詳細比較 ({case_name}): "
                           f"TNS: {self.global_initial_tns:.1f}→{final_tns:.1f} "
-                          f"({global_tns_improvement:+.1f}ns, {global_tns_improvement/abs(self.global_initial_tns)*100:+.1f}%), "
+                          f"({global_tns_improvement:+.1f}ns, {tns_pct:+.1f}%), "
                           f"WNS: {self.global_initial_wns:.1f}→{final_wns:.1f} "
-                          f"({global_wns_improvement:+.1f}ns, {global_wns_improvement/abs(self.global_initial_wns)*100:+.1f}%), "
+                          f"({global_wns_improvement:+.1f}ns, {wns_pct:+.1f}%), "
                           f"Power: {self.global_initial_power:.6f}→{final_power:.6f} "
-                          f"({global_power_improvement:+.6f}W, {global_power_improvement/self.global_initial_power*100:+.1f}%)")
-            
+                          f"({global_power_improvement:+.6f}W, {power_pct:+.1f}%)")
+
             # 如果這是最後一個回合，一定要顯示最終的vs最初比較
             if episode + 1 == self.config.max_episodes:
-                logger.info(f"🏁 最終vs最初電路比較 ({case_name}): "
-                          f"TNS: {self.global_initial_tns:.1f}→{final_tns:.1f} "
-                          f"({global_tns_improvement:+.1f}ns, {global_tns_improvement/abs(self.global_initial_tns)*100:+.1f}%), "
-                          f"WNS: {self.global_initial_wns:.1f}→{final_wns:.1f} "
-                          f"({global_wns_improvement:+.1f}ns, {global_wns_improvement/abs(self.global_initial_wns)*100:+.1f}%), "
-                          f"Power: {self.global_initial_power:.6f}→{final_power:.6f} "
-                          f"({global_power_improvement:+.6f}W, {global_power_improvement/self.global_initial_power*100:+.1f}%)")
+                tns_pct   = pct_str(global_tns_improvement,   self.global_initial_tns,  use_abs_base=True)
+                wns_pct   = pct_str(global_wns_improvement,   self.global_initial_wns,  use_abs_base=True)
+                power_pct = pct_str(global_power_improvement, self.global_initial_power, use_abs_base=False)
+
+                logger.info(
+                    f"🏁 最終vs最初電路比較 ({case_name}): "
+                    f"TNS: {self.global_initial_tns:.1f}→{final_tns:.1f} "
+                    f"({global_tns_improvement:+.1f}ns, {tns_pct}), "
+                    f"WNS: {self.global_initial_wns:.1f}→{final_wns:.1f} "
+                    f"({global_wns_improvement:+.1f}ns, {wns_pct}), "
+                    f"Power: {self.global_initial_power:.6f}→{final_power:.6f} "
+                    f"({global_power_improvement:+.6f}W, {power_pct})"
+                )
             
             # Evaluation and saving
             if episode % self.config.save_interval == 0 and episode > 0:
