@@ -1,0 +1,25 @@
+UCLA nodes 1.0
+
+NumNodes : 20
+NumTerminals : 8
+
+           _08_              3              5
+           _09_              3              5
+           _10_              4              5
+           _11_              6              5
+           _12_              5              5
+           _13_              6              5
+           _14_              6              5
+           _15_              7              5
+           _16_              4              5
+           _17_             20              5
+           _18_             20              5
+           _19_             20              5
+             CK              0              0        terminal_NI
+             G0              0              0        terminal_NI
+             G1              0              0        terminal_NI
+            G17              0              0        terminal_NI
+             G2              0              0        terminal_NI
+             G3              0              0        terminal_NI
+            GND              0              0        terminal_NI
+            VDD              0              0        terminal_NI

@@ -1,0 +1,2587 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2025  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.54+29 (git sha1 7b0c1fe49, g++ 9.4.0-1ubuntu1~20.04.2 -fPIC -O3)
+
+-- Executing script file `mapping_s1196.tcl' --
+
+1. Executing Liberty frontend: /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib
+Ignoring cell ICGx1_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx2_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx2p67DC_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx3_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx4DC_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx4_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx5_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx5p33DC_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx6p67DC_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx8DC_ASAP7_75t_SL with missing function on output IQ.
+Ignoring cell ICGx1_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx2_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx2p67DC_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx3_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx4DC_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx4_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx5_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx5p33DC_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx6p67DC_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx8DC_ASAP7_75t_L with missing function on output IQ.
+Ignoring cell ICGx1_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx2_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx2p67DC_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx3_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx4DC_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx4_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx5_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx5p33DC_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx6p67DC_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx8DC_ASAP7_75t_SRAM with missing function on output IQ.
+Ignoring cell ICGx1_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx2_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx2p67DC_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx3_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx4DC_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx4_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx5_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx5p33DC_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx6p67DC_ASAP7_75t_R with missing function on output IQ.
+Ignoring cell ICGx8DC_ASAP7_75t_R with missing function on output IQ.
+Imported 768 cell types from liberty file.
+
+2. Executing Verilog-2005 frontend: /workspace/ic_cad/open_ic_design/ISCAS/Verilog/s1196.v
+Parsing Verilog input from `/workspace/ic_cad/open_ic_design/ISCAS/Verilog/s1196.v' to AST representation.
+Generating RTLIL representation for module `\dff'.
+Generating RTLIL representation for module `\s1196'.
+Successfully finished Verilog frontend.
+
+3. Executing PREP pass.
+
+3.1. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1.1. Finding top of design hierarchy..
+root of   1 design levels: s1196               
+root of   0 design levels: dff                 
+root of   0 design levels: XOR2xp5_ASAP7_75t_SL
+root of   0 design levels: XOR2x2_ASAP7_75t_SL 
+root of   0 design levels: XOR2x1_ASAP7_75t_SL 
+root of   0 design levels: XNOR2xp5_ASAP7_75t_SL
+root of   0 design levels: XNOR2x2_ASAP7_75t_SL
+root of   0 design levels: XNOR2x1_ASAP7_75t_SL
+root of   0 design levels: TIELOx1_ASAP7_75t_SL
+root of   0 design levels: TIEHIx1_ASAP7_75t_SL
+root of   0 design levels: OR5x2_ASAP7_75t_SL  
+root of   0 design levels: OR5x1_ASAP7_75t_SL  
+root of   0 design levels: OR4x2_ASAP7_75t_SL  
+root of   0 design levels: OR4x1_ASAP7_75t_SL  
+root of   0 design levels: OR3x4_ASAP7_75t_SL  
+root of   0 design levels: OR3x2_ASAP7_75t_SL  
+root of   0 design levels: OR3x1_ASAP7_75t_SL  
+root of   0 design levels: OR2x6_ASAP7_75t_SL  
+root of   0 design levels: OR2x4_ASAP7_75t_SL  
+root of   0 design levels: OR2x2_ASAP7_75t_SL  
+root of   0 design levels: NOR5xp2_ASAP7_75t_SL
+root of   0 design levels: NOR4xp75_ASAP7_75t_SL
+root of   0 design levels: NOR4xp25_ASAP7_75t_SL
+root of   0 design levels: NOR3xp33_ASAP7_75t_SL
+root of   0 design levels: NOR3x2_ASAP7_75t_SL 
+root of   0 design levels: NOR3x1_ASAP7_75t_SL 
+root of   0 design levels: NOR2xp67_ASAP7_75t_SL
+root of   0 design levels: NOR2xp33_ASAP7_75t_SL
+root of   0 design levels: NOR2x2_ASAP7_75t_SL 
+root of   0 design levels: NOR2x1p5_ASAP7_75t_SL
+root of   0 design levels: NOR2x1_ASAP7_75t_SL 
+root of   0 design levels: NAND5xp2_ASAP7_75t_SL
+root of   0 design levels: NAND4xp75_ASAP7_75t_SL
+root of   0 design levels: NAND4xp25_ASAP7_75t_SL
+root of   0 design levels: NAND3xp33_ASAP7_75t_SL
+root of   0 design levels: NAND3x2_ASAP7_75t_SL
+root of   0 design levels: NAND3x1_ASAP7_75t_SL
+root of   0 design levels: NAND2xp67_ASAP7_75t_SL
+root of   0 design levels: NAND2xp5_ASAP7_75t_SL
+root of   0 design levels: NAND2xp33_ASAP7_75t_SL
+root of   0 design levels: NAND2x2_ASAP7_75t_SL
+root of   0 design levels: NAND2x1p5_ASAP7_75t_SL
+root of   0 design levels: NAND2x1_ASAP7_75t_SL
+root of   0 design levels: MAJx3_ASAP7_75t_SL  
+root of   0 design levels: MAJx2_ASAP7_75t_SL  
+root of   0 design levels: MAJIxp5_ASAP7_75t_SL
+root of   0 design levels: HAxp5_ASAP7_75t_SL  
+root of   0 design levels: FAx1_ASAP7_75t_SL   
+root of   0 design levels: AND5x2_ASAP7_75t_SL 
+root of   0 design levels: AND5x1_ASAP7_75t_SL 
+root of   0 design levels: AND4x2_ASAP7_75t_SL 
+root of   0 design levels: AND4x1_ASAP7_75t_SL 
+root of   0 design levels: AND3x4_ASAP7_75t_SL 
+root of   0 design levels: AND3x2_ASAP7_75t_SL 
+root of   0 design levels: AND3x1_ASAP7_75t_SL 
+root of   0 design levels: AND2x6_ASAP7_75t_SL 
+root of   0 design levels: AND2x4_ASAP7_75t_SL 
+root of   0 design levels: AND2x2_ASAP7_75t_SL 
+root of   0 design levels: INVxp67_ASAP7_75t_SRAM
+root of   0 design levels: INVxp33_ASAP7_75t_SRAM
+root of   0 design levels: INVx8_ASAP7_75t_SRAM
+root of   0 design levels: INVx6_ASAP7_75t_SRAM
+root of   0 design levels: INVx5_ASAP7_75t_SRAM
+root of   0 design levels: INVx4_ASAP7_75t_SRAM
+root of   0 design levels: INVx3_ASAP7_75t_SRAM
+root of   0 design levels: INVx2_ASAP7_75t_SRAM
+root of   0 design levels: INVx1_ASAP7_75t_SRAM
+root of   0 design levels: INVx13_ASAP7_75t_SRAM
+root of   0 design levels: INVx11_ASAP7_75t_SRAM
+root of   0 design levels: HB4xp67_ASAP7_75t_SRAM
+root of   0 design levels: HB3xp67_ASAP7_75t_SRAM
+root of   0 design levels: HB2xp67_ASAP7_75t_SRAM
+root of   0 design levels: HB1xp67_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx9p33_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx8_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx6p67_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx5p33_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx20_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx16_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx14_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx12_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx11_ASAP7_75t_SRAM
+root of   0 design levels: CKINVDCx10_ASAP7_75t_SRAM
+root of   0 design levels: BUFx8_ASAP7_75t_SRAM
+root of   0 design levels: BUFx6f_ASAP7_75t_SRAM
+root of   0 design levels: BUFx5_ASAP7_75t_SRAM
+root of   0 design levels: BUFx4f_ASAP7_75t_SRAM
+root of   0 design levels: BUFx4_ASAP7_75t_SRAM
+root of   0 design levels: BUFx3_ASAP7_75t_SRAM
+root of   0 design levels: BUFx2_ASAP7_75t_SRAM
+root of   0 design levels: BUFx24_ASAP7_75t_SRAM
+root of   0 design levels: BUFx16f_ASAP7_75t_SRAM
+root of   0 design levels: BUFx12f_ASAP7_75t_SRAM
+root of   0 design levels: BUFx12_ASAP7_75t_SRAM
+root of   0 design levels: BUFx10_ASAP7_75t_SRAM
+root of   0 design levels: AOI33xp33_ASAP7_75t_L
+root of   0 design levels: AOI333xp33_ASAP7_75t_L
+root of   0 design levels: AOI332xp33_ASAP7_75t_L
+root of   0 design levels: AOI331xp33_ASAP7_75t_L
+root of   0 design levels: AOI32xp33_ASAP7_75t_L
+root of   0 design levels: AOI322xp5_ASAP7_75t_L
+root of   0 design levels: AOI321xp33_ASAP7_75t_L
+root of   0 design levels: AOI31xp67_ASAP7_75t_L
+root of   0 design levels: AOI31xp33_ASAP7_75t_L
+root of   0 design levels: AOI311xp33_ASAP7_75t_L
+root of   0 design levels: AOI22xp5_ASAP7_75t_L
+root of   0 design levels: AOI22xp33_ASAP7_75t_L
+root of   0 design levels: AOI22x1_ASAP7_75t_L 
+root of   0 design levels: AOI222xp33_ASAP7_75t_L
+root of   0 design levels: AOI221xp5_ASAP7_75t_L
+root of   0 design levels: AOI221x1_ASAP7_75t_L
+root of   0 design levels: AOI21xp5_ASAP7_75t_L
+root of   0 design levels: AOI21xp33_ASAP7_75t_L
+root of   0 design levels: AOI21x1_ASAP7_75t_L 
+root of   0 design levels: AOI211xp5_ASAP7_75t_L
+root of   0 design levels: AOI211x1_ASAP7_75t_L
+root of   0 design levels: AO33x2_ASAP7_75t_L  
+root of   0 design levels: AO333x2_ASAP7_75t_L 
+root of   0 design levels: AO333x1_ASAP7_75t_L 
+root of   0 design levels: AO332x2_ASAP7_75t_L 
+root of   0 design levels: AO332x1_ASAP7_75t_L 
+root of   0 design levels: AO331x2_ASAP7_75t_L 
+root of   0 design levels: AO331x1_ASAP7_75t_L 
+root of   0 design levels: AO32x2_ASAP7_75t_L  
+root of   0 design levels: AO32x1_ASAP7_75t_L  
+root of   0 design levels: AO322x2_ASAP7_75t_L 
+root of   0 design levels: AO31x2_ASAP7_75t_L  
+root of   0 design levels: AO22x2_ASAP7_75t_L  
+root of   0 design levels: AO22x1_ASAP7_75t_L  
+root of   0 design levels: AO222x2_ASAP7_75t_L 
+root of   0 design levels: AO221x2_ASAP7_75t_L 
+root of   0 design levels: AO221x1_ASAP7_75t_L 
+root of   0 design levels: AO21x2_ASAP7_75t_L  
+root of   0 design levels: AO21x1_ASAP7_75t_L  
+root of   0 design levels: AO211x2_ASAP7_75t_L 
+root of   0 design levels: A2O1A1O1Ixp25_ASAP7_75t_L
+root of   0 design levels: A2O1A1Ixp33_ASAP7_75t_L
+root of   0 design levels: OAI33xp33_ASAP7_75t_R
+root of   0 design levels: OAI333xp33_ASAP7_75t_R
+root of   0 design levels: OAI332xp33_ASAP7_75t_R
+root of   0 design levels: OAI331xp33_ASAP7_75t_R
+root of   0 design levels: OAI32xp33_ASAP7_75t_R
+root of   0 design levels: OAI322xp33_ASAP7_75t_R
+root of   0 design levels: OAI321xp33_ASAP7_75t_R
+root of   0 design levels: OAI31xp67_ASAP7_75t_R
+root of   0 design levels: OAI31xp33_ASAP7_75t_R
+root of   0 design levels: OAI311xp33_ASAP7_75t_R
+root of   0 design levels: OAI22xp5_ASAP7_75t_R
+root of   0 design levels: OAI22xp33_ASAP7_75t_R
+root of   0 design levels: OAI22x1_ASAP7_75t_R 
+root of   0 design levels: OAI222xp33_ASAP7_75t_R
+root of   0 design levels: OAI221xp5_ASAP7_75t_R
+root of   0 design levels: OAI21xp5_ASAP7_75t_R
+root of   0 design levels: OAI21xp33_ASAP7_75t_R
+root of   0 design levels: OAI21x1_ASAP7_75t_R 
+root of   0 design levels: OAI211xp5_ASAP7_75t_R
+root of   0 design levels: OA33x2_ASAP7_75t_R  
+root of   0 design levels: OA333x2_ASAP7_75t_R 
+root of   0 design levels: OA333x1_ASAP7_75t_R 
+root of   0 design levels: OA332x2_ASAP7_75t_R 
+root of   0 design levels: OA332x1_ASAP7_75t_R 
+root of   0 design levels: OA331x2_ASAP7_75t_R 
+root of   0 design levels: OA331x1_ASAP7_75t_R 
+root of   0 design levels: OA31x2_ASAP7_75t_R  
+root of   0 design levels: OA22x2_ASAP7_75t_R  
+root of   0 design levels: OA222x2_ASAP7_75t_R 
+root of   0 design levels: OA221x2_ASAP7_75t_R 
+root of   0 design levels: OA21x2_ASAP7_75t_R  
+root of   0 design levels: OA211x2_ASAP7_75t_R 
+root of   0 design levels: O2A1O1Ixp5_ASAP7_75t_R
+root of   0 design levels: O2A1O1Ixp33_ASAP7_75t_R
+root of   0 design levels: AOI33xp33_ASAP7_75t_R
+root of   0 design levels: AOI333xp33_ASAP7_75t_R
+root of   0 design levels: AOI332xp33_ASAP7_75t_R
+root of   0 design levels: AOI331xp33_ASAP7_75t_R
+root of   0 design levels: AOI32xp33_ASAP7_75t_R
+root of   0 design levels: AOI322xp5_ASAP7_75t_R
+root of   0 design levels: AOI321xp33_ASAP7_75t_R
+root of   0 design levels: AOI31xp67_ASAP7_75t_R
+root of   0 design levels: AOI31xp33_ASAP7_75t_R
+root of   0 design levels: AOI311xp33_ASAP7_75t_R
+root of   0 design levels: AOI22xp5_ASAP7_75t_R
+root of   0 design levels: AOI22xp33_ASAP7_75t_R
+root of   0 design levels: AOI22x1_ASAP7_75t_R 
+root of   0 design levels: AOI222xp33_ASAP7_75t_R
+root of   0 design levels: AOI221xp5_ASAP7_75t_R
+root of   0 design levels: AOI221x1_ASAP7_75t_R
+root of   0 design levels: AOI21xp5_ASAP7_75t_R
+root of   0 design levels: AOI21xp33_ASAP7_75t_R
+root of   0 design levels: AOI21x1_ASAP7_75t_R 
+root of   0 design levels: AOI211xp5_ASAP7_75t_R
+root of   0 design levels: AOI211x1_ASAP7_75t_R
+root of   0 design levels: AO33x2_ASAP7_75t_R  
+root of   0 design levels: AO333x2_ASAP7_75t_R 
+root of   0 design levels: AO333x1_ASAP7_75t_R 
+root of   0 design levels: AO332x2_ASAP7_75t_R 
+root of   0 design levels: AO332x1_ASAP7_75t_R 
+root of   0 design levels: AO331x2_ASAP7_75t_R 
+root of   0 design levels: AO331x1_ASAP7_75t_R 
+root of   0 design levels: AO32x2_ASAP7_75t_R  
+root of   0 design levels: AO32x1_ASAP7_75t_R  
+root of   0 design levels: AO322x2_ASAP7_75t_R 
+root of   0 design levels: AO31x2_ASAP7_75t_R  
+root of   0 design levels: AO22x2_ASAP7_75t_R  
+root of   0 design levels: AO22x1_ASAP7_75t_R  
+root of   0 design levels: AO222x2_ASAP7_75t_R 
+root of   0 design levels: AO221x2_ASAP7_75t_R 
+root of   0 design levels: AO221x1_ASAP7_75t_R 
+root of   0 design levels: AO21x2_ASAP7_75t_R  
+root of   0 design levels: AO21x1_ASAP7_75t_R  
+root of   0 design levels: AO211x2_ASAP7_75t_R 
+root of   0 design levels: A2O1A1O1Ixp25_ASAP7_75t_R
+root of   0 design levels: A2O1A1Ixp33_ASAP7_75t_R
+root of   0 design levels: SDFLx4_ASAP7_75t_R  
+root of   0 design levels: SDFLx3_ASAP7_75t_R  
+root of   0 design levels: SDFLx2_ASAP7_75t_R  
+root of   0 design levels: SDFLx1_ASAP7_75t_R  
+root of   0 design levels: SDFHx4_ASAP7_75t_R  
+root of   0 design levels: SDFHx3_ASAP7_75t_R  
+root of   0 design levels: SDFHx2_ASAP7_75t_R  
+root of   0 design levels: SDFHx1_ASAP7_75t_R  
+root of   0 design levels: DLLx3_ASAP7_75t_R   
+root of   0 design levels: DLLx2_ASAP7_75t_R   
+root of   0 design levels: DLLx1_ASAP7_75t_R   
+root of   0 design levels: DHLx3_ASAP7_75t_R   
+root of   0 design levels: DHLx2_ASAP7_75t_R   
+root of   0 design levels: DHLx1_ASAP7_75t_R   
+root of   0 design levels: DFFLQx4_ASAP7_75t_R 
+root of   0 design levels: DFFLQNx3_ASAP7_75t_R
+root of   0 design levels: DFFLQNx2_ASAP7_75t_R
+root of   0 design levels: DFFLQNx1_ASAP7_75t_R
+root of   0 design levels: DFFHQx4_ASAP7_75t_R 
+root of   0 design levels: DFFHQNx3_ASAP7_75t_R
+root of   0 design levels: DFFHQNx2_ASAP7_75t_R
+root of   0 design levels: DFFHQNx1_ASAP7_75t_R
+root of   0 design levels: DFFASRHQNx1_ASAP7_75t_R
+root of   0 design levels: AOI33xp33_ASAP7_75t_SL
+root of   0 design levels: AOI333xp33_ASAP7_75t_SL
+root of   0 design levels: AOI332xp33_ASAP7_75t_SL
+root of   0 design levels: AOI331xp33_ASAP7_75t_SL
+root of   0 design levels: AOI32xp33_ASAP7_75t_SL
+root of   0 design levels: AOI322xp5_ASAP7_75t_SL
+root of   0 design levels: AOI321xp33_ASAP7_75t_SL
+root of   0 design levels: AOI31xp67_ASAP7_75t_SL
+root of   0 design levels: AOI31xp33_ASAP7_75t_SL
+root of   0 design levels: AOI311xp33_ASAP7_75t_SL
+root of   0 design levels: AOI22xp5_ASAP7_75t_SL
+root of   0 design levels: AOI22xp33_ASAP7_75t_SL
+root of   0 design levels: AOI22x1_ASAP7_75t_SL
+root of   0 design levels: AOI222xp33_ASAP7_75t_SL
+root of   0 design levels: AOI221xp5_ASAP7_75t_SL
+root of   0 design levels: AOI221x1_ASAP7_75t_SL
+root of   0 design levels: AOI21xp5_ASAP7_75t_SL
+root of   0 design levels: AOI21xp33_ASAP7_75t_SL
+root of   0 design levels: AOI21x1_ASAP7_75t_SL
+root of   0 design levels: AOI211xp5_ASAP7_75t_SL
+root of   0 design levels: AOI211x1_ASAP7_75t_SL
+root of   0 design levels: AO33x2_ASAP7_75t_SL 
+root of   0 design levels: AO333x2_ASAP7_75t_SL
+root of   0 design levels: AO333x1_ASAP7_75t_SL
+root of   0 design levels: AO332x2_ASAP7_75t_SL
+root of   0 design levels: AO332x1_ASAP7_75t_SL
+root of   0 design levels: AO331x2_ASAP7_75t_SL
+root of   0 design levels: AO331x1_ASAP7_75t_SL
+root of   0 design levels: AO32x2_ASAP7_75t_SL 
+root of   0 design levels: AO32x1_ASAP7_75t_SL 
+root of   0 design levels: AO322x2_ASAP7_75t_SL
+root of   0 design levels: AO31x2_ASAP7_75t_SL 
+root of   0 design levels: AO22x2_ASAP7_75t_SL 
+root of   0 design levels: AO22x1_ASAP7_75t_SL 
+root of   0 design levels: AO222x2_ASAP7_75t_SL
+root of   0 design levels: AO221x2_ASAP7_75t_SL
+root of   0 design levels: AO221x1_ASAP7_75t_SL
+root of   0 design levels: AO21x2_ASAP7_75t_SL 
+root of   0 design levels: AO21x1_ASAP7_75t_SL 
+root of   0 design levels: AO211x2_ASAP7_75t_SL
+root of   0 design levels: A2O1A1O1Ixp25_ASAP7_75t_SL
+root of   0 design levels: A2O1A1Ixp33_ASAP7_75t_SL
+root of   0 design levels: INVxp67_ASAP7_75t_R 
+root of   0 design levels: INVxp33_ASAP7_75t_R 
+root of   0 design levels: INVx8_ASAP7_75t_R   
+root of   0 design levels: INVx6_ASAP7_75t_R   
+root of   0 design levels: INVx5_ASAP7_75t_R   
+root of   0 design levels: INVx4_ASAP7_75t_R   
+root of   0 design levels: INVx3_ASAP7_75t_R   
+root of   0 design levels: INVx2_ASAP7_75t_R   
+root of   0 design levels: INVx1_ASAP7_75t_R   
+root of   0 design levels: INVx13_ASAP7_75t_R  
+root of   0 design levels: INVx11_ASAP7_75t_R  
+root of   0 design levels: HB4xp67_ASAP7_75t_R 
+root of   0 design levels: HB3xp67_ASAP7_75t_R 
+root of   0 design levels: HB2xp67_ASAP7_75t_R 
+root of   0 design levels: HB1xp67_ASAP7_75t_R 
+root of   0 design levels: CKINVDCx9p33_ASAP7_75t_R
+root of   0 design levels: CKINVDCx8_ASAP7_75t_R
+root of   0 design levels: CKINVDCx6p67_ASAP7_75t_R
+root of   0 design levels: CKINVDCx5p33_ASAP7_75t_R
+root of   0 design levels: CKINVDCx20_ASAP7_75t_R
+root of   0 design levels: CKINVDCx16_ASAP7_75t_R
+root of   0 design levels: CKINVDCx14_ASAP7_75t_R
+root of   0 design levels: CKINVDCx12_ASAP7_75t_R
+root of   0 design levels: CKINVDCx11_ASAP7_75t_R
+root of   0 design levels: CKINVDCx10_ASAP7_75t_R
+root of   0 design levels: BUFx8_ASAP7_75t_R   
+root of   0 design levels: BUFx6f_ASAP7_75t_R  
+root of   0 design levels: BUFx5_ASAP7_75t_R   
+root of   0 design levels: BUFx4f_ASAP7_75t_R  
+root of   0 design levels: BUFx4_ASAP7_75t_R   
+root of   0 design levels: BUFx3_ASAP7_75t_R   
+root of   0 design levels: BUFx2_ASAP7_75t_R   
+root of   0 design levels: BUFx24_ASAP7_75t_R  
+root of   0 design levels: BUFx16f_ASAP7_75t_R 
+root of   0 design levels: BUFx12f_ASAP7_75t_R 
+root of   0 design levels: BUFx12_ASAP7_75t_R  
+root of   0 design levels: BUFx10_ASAP7_75t_R  
+root of   0 design levels: AOI33xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI333xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI332xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI331xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI32xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI322xp5_ASAP7_75t_SRAM
+root of   0 design levels: AOI321xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI31xp67_ASAP7_75t_SRAM
+root of   0 design levels: AOI31xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI311xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI22xp5_ASAP7_75t_SRAM
+root of   0 design levels: AOI22xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI22x1_ASAP7_75t_SRAM
+root of   0 design levels: AOI222xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI221xp5_ASAP7_75t_SRAM
+root of   0 design levels: AOI221x1_ASAP7_75t_SRAM
+root of   0 design levels: AOI21xp5_ASAP7_75t_SRAM
+root of   0 design levels: AOI21xp33_ASAP7_75t_SRAM
+root of   0 design levels: AOI21x1_ASAP7_75t_SRAM
+root of   0 design levels: AOI211xp5_ASAP7_75t_SRAM
+root of   0 design levels: AOI211x1_ASAP7_75t_SRAM
+root of   0 design levels: AO33x2_ASAP7_75t_SRAM
+root of   0 design levels: AO333x2_ASAP7_75t_SRAM
+root of   0 design levels: AO333x1_ASAP7_75t_SRAM
+root of   0 design levels: AO332x2_ASAP7_75t_SRAM
+root of   0 design levels: AO332x1_ASAP7_75t_SRAM
+root of   0 design levels: AO331x2_ASAP7_75t_SRAM
+root of   0 design levels: AO331x1_ASAP7_75t_SRAM
+root of   0 design levels: AO32x2_ASAP7_75t_SRAM
+root of   0 design levels: AO32x1_ASAP7_75t_SRAM
+root of   0 design levels: AO322x2_ASAP7_75t_SRAM
+root of   0 design levels: AO31x2_ASAP7_75t_SRAM
+root of   0 design levels: AO22x2_ASAP7_75t_SRAM
+root of   0 design levels: AO22x1_ASAP7_75t_SRAM
+root of   0 design levels: AO222x2_ASAP7_75t_SRAM
+root of   0 design levels: AO221x2_ASAP7_75t_SRAM
+root of   0 design levels: AO221x1_ASAP7_75t_SRAM
+root of   0 design levels: AO21x2_ASAP7_75t_SRAM
+root of   0 design levels: AO21x1_ASAP7_75t_SRAM
+root of   0 design levels: AO211x2_ASAP7_75t_SRAM
+root of   0 design levels: A2O1A1O1Ixp25_ASAP7_75t_SRAM
+root of   0 design levels: A2O1A1Ixp33_ASAP7_75t_SRAM
+root of   0 design levels: INVxp67_ASAP7_75t_L 
+root of   0 design levels: INVxp33_ASAP7_75t_L 
+root of   0 design levels: INVx8_ASAP7_75t_L   
+root of   0 design levels: INVx6_ASAP7_75t_L   
+root of   0 design levels: INVx5_ASAP7_75t_L   
+root of   0 design levels: INVx4_ASAP7_75t_L   
+root of   0 design levels: INVx3_ASAP7_75t_L   
+root of   0 design levels: INVx2_ASAP7_75t_L   
+root of   0 design levels: INVx1_ASAP7_75t_L   
+root of   0 design levels: INVx13_ASAP7_75t_L  
+root of   0 design levels: INVx11_ASAP7_75t_L  
+root of   0 design levels: HB4xp67_ASAP7_75t_L 
+root of   0 design levels: HB3xp67_ASAP7_75t_L 
+root of   0 design levels: HB2xp67_ASAP7_75t_L 
+root of   0 design levels: HB1xp67_ASAP7_75t_L 
+root of   0 design levels: CKINVDCx9p33_ASAP7_75t_L
+root of   0 design levels: CKINVDCx8_ASAP7_75t_L
+root of   0 design levels: CKINVDCx6p67_ASAP7_75t_L
+root of   0 design levels: CKINVDCx5p33_ASAP7_75t_L
+root of   0 design levels: CKINVDCx20_ASAP7_75t_L
+root of   0 design levels: CKINVDCx16_ASAP7_75t_L
+root of   0 design levels: CKINVDCx14_ASAP7_75t_L
+root of   0 design levels: CKINVDCx12_ASAP7_75t_L
+root of   0 design levels: CKINVDCx11_ASAP7_75t_L
+root of   0 design levels: CKINVDCx10_ASAP7_75t_L
+root of   0 design levels: BUFx8_ASAP7_75t_L   
+root of   0 design levels: BUFx6f_ASAP7_75t_L  
+root of   0 design levels: BUFx5_ASAP7_75t_L   
+root of   0 design levels: BUFx4f_ASAP7_75t_L  
+root of   0 design levels: BUFx4_ASAP7_75t_L   
+root of   0 design levels: BUFx3_ASAP7_75t_L   
+root of   0 design levels: BUFx2_ASAP7_75t_L   
+root of   0 design levels: BUFx24_ASAP7_75t_L  
+root of   0 design levels: BUFx16f_ASAP7_75t_L 
+root of   0 design levels: BUFx12f_ASAP7_75t_L 
+root of   0 design levels: BUFx12_ASAP7_75t_L  
+root of   0 design levels: BUFx10_ASAP7_75t_L  
+root of   0 design levels: SDFLx4_ASAP7_75t_SRAM
+root of   0 design levels: SDFLx3_ASAP7_75t_SRAM
+root of   0 design levels: SDFLx2_ASAP7_75t_SRAM
+root of   0 design levels: SDFLx1_ASAP7_75t_SRAM
+root of   0 design levels: SDFHx4_ASAP7_75t_SRAM
+root of   0 design levels: SDFHx3_ASAP7_75t_SRAM
+root of   0 design levels: SDFHx2_ASAP7_75t_SRAM
+root of   0 design levels: SDFHx1_ASAP7_75t_SRAM
+root of   0 design levels: DLLx3_ASAP7_75t_SRAM
+root of   0 design levels: DLLx2_ASAP7_75t_SRAM
+root of   0 design levels: DLLx1_ASAP7_75t_SRAM
+root of   0 design levels: DHLx3_ASAP7_75t_SRAM
+root of   0 design levels: DHLx2_ASAP7_75t_SRAM
+root of   0 design levels: DHLx1_ASAP7_75t_SRAM
+root of   0 design levels: DFFLQx4_ASAP7_75t_SRAM
+root of   0 design levels: DFFLQNx3_ASAP7_75t_SRAM
+root of   0 design levels: DFFLQNx2_ASAP7_75t_SRAM
+root of   0 design levels: DFFLQNx1_ASAP7_75t_SRAM
+root of   0 design levels: DFFHQx4_ASAP7_75t_SRAM
+root of   0 design levels: DFFHQNx3_ASAP7_75t_SRAM
+root of   0 design levels: DFFHQNx2_ASAP7_75t_SRAM
+root of   0 design levels: DFFHQNx1_ASAP7_75t_SRAM
+root of   0 design levels: DFFASRHQNx1_ASAP7_75t_SRAM
+root of   0 design levels: OAI33xp33_ASAP7_75t_L
+root of   0 design levels: OAI333xp33_ASAP7_75t_L
+root of   0 design levels: OAI332xp33_ASAP7_75t_L
+root of   0 design levels: OAI331xp33_ASAP7_75t_L
+root of   0 design levels: OAI32xp33_ASAP7_75t_L
+root of   0 design levels: OAI322xp33_ASAP7_75t_L
+root of   0 design levels: OAI321xp33_ASAP7_75t_L
+root of   0 design levels: OAI31xp67_ASAP7_75t_L
+root of   0 design levels: OAI31xp33_ASAP7_75t_L
+root of   0 design levels: OAI311xp33_ASAP7_75t_L
+root of   0 design levels: OAI22xp5_ASAP7_75t_L
+root of   0 design levels: OAI22xp33_ASAP7_75t_L
+root of   0 design levels: OAI22x1_ASAP7_75t_L 
+root of   0 design levels: OAI222xp33_ASAP7_75t_L
+root of   0 design levels: OAI221xp5_ASAP7_75t_L
+root of   0 design levels: OAI21xp5_ASAP7_75t_L
+root of   0 design levels: OAI21xp33_ASAP7_75t_L
+root of   0 design levels: OAI21x1_ASAP7_75t_L 
+root of   0 design levels: OAI211xp5_ASAP7_75t_L
+root of   0 design levels: OA33x2_ASAP7_75t_L  
+root of   0 design levels: OA333x2_ASAP7_75t_L 
+root of   0 design levels: OA333x1_ASAP7_75t_L 
+root of   0 design levels: OA332x2_ASAP7_75t_L 
+root of   0 design levels: OA332x1_ASAP7_75t_L 
+root of   0 design levels: OA331x2_ASAP7_75t_L 
+root of   0 design levels: OA331x1_ASAP7_75t_L 
+root of   0 design levels: OA31x2_ASAP7_75t_L  
+root of   0 design levels: OA22x2_ASAP7_75t_L  
+root of   0 design levels: OA222x2_ASAP7_75t_L 
+root of   0 design levels: OA221x2_ASAP7_75t_L 
+root of   0 design levels: OA21x2_ASAP7_75t_L  
+root of   0 design levels: OA211x2_ASAP7_75t_L 
+root of   0 design levels: O2A1O1Ixp5_ASAP7_75t_L
+root of   0 design levels: O2A1O1Ixp33_ASAP7_75t_L
+root of   0 design levels: XOR2xp5_ASAP7_75t_L 
+root of   0 design levels: XOR2x2_ASAP7_75t_L  
+root of   0 design levels: XOR2x1_ASAP7_75t_L  
+root of   0 design levels: XNOR2xp5_ASAP7_75t_L
+root of   0 design levels: XNOR2x2_ASAP7_75t_L 
+root of   0 design levels: XNOR2x1_ASAP7_75t_L 
+root of   0 design levels: TIELOx1_ASAP7_75t_L 
+root of   0 design levels: TIEHIx1_ASAP7_75t_L 
+root of   0 design levels: OR5x2_ASAP7_75t_L   
+root of   0 design levels: OR5x1_ASAP7_75t_L   
+root of   0 design levels: OR4x2_ASAP7_75t_L   
+root of   0 design levels: OR4x1_ASAP7_75t_L   
+root of   0 design levels: OR3x4_ASAP7_75t_L   
+root of   0 design levels: OR3x2_ASAP7_75t_L   
+root of   0 design levels: OR3x1_ASAP7_75t_L   
+root of   0 design levels: OR2x6_ASAP7_75t_L   
+root of   0 design levels: OR2x4_ASAP7_75t_L   
+root of   0 design levels: OR2x2_ASAP7_75t_L   
+root of   0 design levels: NOR5xp2_ASAP7_75t_L 
+root of   0 design levels: NOR4xp75_ASAP7_75t_L
+root of   0 design levels: NOR4xp25_ASAP7_75t_L
+root of   0 design levels: NOR3xp33_ASAP7_75t_L
+root of   0 design levels: NOR3x2_ASAP7_75t_L  
+root of   0 design levels: NOR3x1_ASAP7_75t_L  
+root of   0 design levels: NOR2xp67_ASAP7_75t_L
+root of   0 design levels: NOR2xp33_ASAP7_75t_L
+root of   0 design levels: NOR2x2_ASAP7_75t_L  
+root of   0 design levels: NOR2x1p5_ASAP7_75t_L
+root of   0 design levels: NOR2x1_ASAP7_75t_L  
+root of   0 design levels: NAND5xp2_ASAP7_75t_L
+root of   0 design levels: NAND4xp75_ASAP7_75t_L
+root of   0 design levels: NAND4xp25_ASAP7_75t_L
+root of   0 design levels: NAND3xp33_ASAP7_75t_L
+root of   0 design levels: NAND3x2_ASAP7_75t_L 
+root of   0 design levels: NAND3x1_ASAP7_75t_L 
+root of   0 design levels: NAND2xp67_ASAP7_75t_L
+root of   0 design levels: NAND2xp5_ASAP7_75t_L
+root of   0 design levels: NAND2xp33_ASAP7_75t_L
+root of   0 design levels: NAND2x2_ASAP7_75t_L 
+root of   0 design levels: NAND2x1p5_ASAP7_75t_L
+root of   0 design levels: NAND2x1_ASAP7_75t_L 
+root of   0 design levels: MAJx3_ASAP7_75t_L   
+root of   0 design levels: MAJx2_ASAP7_75t_L   
+root of   0 design levels: MAJIxp5_ASAP7_75t_L 
+root of   0 design levels: HAxp5_ASAP7_75t_L   
+root of   0 design levels: FAx1_ASAP7_75t_L    
+root of   0 design levels: AND5x2_ASAP7_75t_L  
+root of   0 design levels: AND5x1_ASAP7_75t_L  
+root of   0 design levels: AND4x2_ASAP7_75t_L  
+root of   0 design levels: AND4x1_ASAP7_75t_L  
+root of   0 design levels: AND3x4_ASAP7_75t_L  
+root of   0 design levels: AND3x2_ASAP7_75t_L  
+root of   0 design levels: AND3x1_ASAP7_75t_L  
+root of   0 design levels: AND2x6_ASAP7_75t_L  
+root of   0 design levels: AND2x4_ASAP7_75t_L  
+root of   0 design levels: AND2x2_ASAP7_75t_L  
+root of   0 design levels: XOR2xp5_ASAP7_75t_R 
+root of   0 design levels: XOR2x2_ASAP7_75t_R  
+root of   0 design levels: XOR2x1_ASAP7_75t_R  
+root of   0 design levels: XNOR2xp5_ASAP7_75t_R
+root of   0 design levels: XNOR2x2_ASAP7_75t_R 
+root of   0 design levels: XNOR2x1_ASAP7_75t_R 
+root of   0 design levels: TIELOx1_ASAP7_75t_R 
+root of   0 design levels: TIEHIx1_ASAP7_75t_R 
+root of   0 design levels: OR5x2_ASAP7_75t_R   
+root of   0 design levels: OR5x1_ASAP7_75t_R   
+root of   0 design levels: OR4x2_ASAP7_75t_R   
+root of   0 design levels: OR4x1_ASAP7_75t_R   
+root of   0 design levels: OR3x4_ASAP7_75t_R   
+root of   0 design levels: OR3x2_ASAP7_75t_R   
+root of   0 design levels: OR3x1_ASAP7_75t_R   
+root of   0 design levels: OR2x6_ASAP7_75t_R   
+root of   0 design levels: OR2x4_ASAP7_75t_R   
+root of   0 design levels: OR2x2_ASAP7_75t_R   
+root of   0 design levels: NOR5xp2_ASAP7_75t_R 
+root of   0 design levels: NOR4xp75_ASAP7_75t_R
+root of   0 design levels: NOR4xp25_ASAP7_75t_R
+root of   0 design levels: NOR3xp33_ASAP7_75t_R
+root of   0 design levels: NOR3x2_ASAP7_75t_R  
+root of   0 design levels: NOR3x1_ASAP7_75t_R  
+root of   0 design levels: NOR2xp67_ASAP7_75t_R
+root of   0 design levels: NOR2xp33_ASAP7_75t_R
+root of   0 design levels: NOR2x2_ASAP7_75t_R  
+root of   0 design levels: NOR2x1p5_ASAP7_75t_R
+root of   0 design levels: NOR2x1_ASAP7_75t_R  
+root of   0 design levels: NAND5xp2_ASAP7_75t_R
+root of   0 design levels: NAND4xp75_ASAP7_75t_R
+root of   0 design levels: NAND4xp25_ASAP7_75t_R
+root of   0 design levels: NAND3xp33_ASAP7_75t_R
+root of   0 design levels: NAND3x2_ASAP7_75t_R 
+root of   0 design levels: NAND3x1_ASAP7_75t_R 
+root of   0 design levels: NAND2xp67_ASAP7_75t_R
+root of   0 design levels: NAND2xp5_ASAP7_75t_R
+root of   0 design levels: NAND2xp33_ASAP7_75t_R
+root of   0 design levels: NAND2x2_ASAP7_75t_R 
+root of   0 design levels: NAND2x1p5_ASAP7_75t_R
+root of   0 design levels: NAND2x1_ASAP7_75t_R 
+root of   0 design levels: MAJx3_ASAP7_75t_R   
+root of   0 design levels: MAJx2_ASAP7_75t_R   
+root of   0 design levels: MAJIxp5_ASAP7_75t_R 
+root of   0 design levels: HAxp5_ASAP7_75t_R   
+root of   0 design levels: FAx1_ASAP7_75t_R    
+root of   0 design levels: AND5x2_ASAP7_75t_R  
+root of   0 design levels: AND5x1_ASAP7_75t_R  
+root of   0 design levels: AND4x2_ASAP7_75t_R  
+root of   0 design levels: AND4x1_ASAP7_75t_R  
+root of   0 design levels: AND3x4_ASAP7_75t_R  
+root of   0 design levels: AND3x2_ASAP7_75t_R  
+root of   0 design levels: AND3x1_ASAP7_75t_R  
+root of   0 design levels: AND2x6_ASAP7_75t_R  
+root of   0 design levels: AND2x4_ASAP7_75t_R  
+root of   0 design levels: AND2x2_ASAP7_75t_R  
+root of   0 design levels: SDFLx4_ASAP7_75t_L  
+root of   0 design levels: SDFLx3_ASAP7_75t_L  
+root of   0 design levels: SDFLx2_ASAP7_75t_L  
+root of   0 design levels: SDFLx1_ASAP7_75t_L  
+root of   0 design levels: SDFHx4_ASAP7_75t_L  
+root of   0 design levels: SDFHx3_ASAP7_75t_L  
+root of   0 design levels: SDFHx2_ASAP7_75t_L  
+root of   0 design levels: SDFHx1_ASAP7_75t_L  
+root of   0 design levels: DLLx3_ASAP7_75t_L   
+root of   0 design levels: DLLx2_ASAP7_75t_L   
+root of   0 design levels: DLLx1_ASAP7_75t_L   
+root of   0 design levels: DHLx3_ASAP7_75t_L   
+root of   0 design levels: DHLx2_ASAP7_75t_L   
+root of   0 design levels: DHLx1_ASAP7_75t_L   
+root of   0 design levels: DFFLQx4_ASAP7_75t_L 
+root of   0 design levels: DFFLQNx3_ASAP7_75t_L
+root of   0 design levels: DFFLQNx2_ASAP7_75t_L
+root of   0 design levels: DFFLQNx1_ASAP7_75t_L
+root of   0 design levels: DFFHQx4_ASAP7_75t_L 
+root of   0 design levels: DFFHQNx3_ASAP7_75t_L
+root of   0 design levels: DFFHQNx2_ASAP7_75t_L
+root of   0 design levels: DFFHQNx1_ASAP7_75t_L
+root of   0 design levels: DFFASRHQNx1_ASAP7_75t_L
+root of   0 design levels: SDFLx4_ASAP7_75t_SL 
+root of   0 design levels: SDFLx3_ASAP7_75t_SL 
+root of   0 design levels: SDFLx2_ASAP7_75t_SL 
+root of   0 design levels: SDFLx1_ASAP7_75t_SL 
+root of   0 design levels: SDFHx4_ASAP7_75t_SL 
+root of   0 design levels: SDFHx3_ASAP7_75t_SL 
+root of   0 design levels: SDFHx2_ASAP7_75t_SL 
+root of   0 design levels: SDFHx1_ASAP7_75t_SL 
+root of   0 design levels: DLLx3_ASAP7_75t_SL  
+root of   0 design levels: DLLx2_ASAP7_75t_SL  
+root of   0 design levels: DLLx1_ASAP7_75t_SL  
+root of   0 design levels: DHLx3_ASAP7_75t_SL  
+root of   0 design levels: DHLx2_ASAP7_75t_SL  
+root of   0 design levels: DHLx1_ASAP7_75t_SL  
+root of   0 design levels: DFFLQx4_ASAP7_75t_SL
+root of   0 design levels: DFFLQNx3_ASAP7_75t_SL
+root of   0 design levels: DFFLQNx2_ASAP7_75t_SL
+root of   0 design levels: DFFLQNx1_ASAP7_75t_SL
+root of   0 design levels: DFFHQx4_ASAP7_75t_SL
+root of   0 design levels: DFFHQNx3_ASAP7_75t_SL
+root of   0 design levels: DFFHQNx2_ASAP7_75t_SL
+root of   0 design levels: DFFHQNx1_ASAP7_75t_SL
+root of   0 design levels: DFFASRHQNx1_ASAP7_75t_SL
+root of   0 design levels: XOR2xp5_ASAP7_75t_SRAM
+root of   0 design levels: XOR2x2_ASAP7_75t_SRAM
+root of   0 design levels: XOR2x1_ASAP7_75t_SRAM
+root of   0 design levels: XNOR2xp5_ASAP7_75t_SRAM
+root of   0 design levels: XNOR2x2_ASAP7_75t_SRAM
+root of   0 design levels: XNOR2x1_ASAP7_75t_SRAM
+root of   0 design levels: TIELOx1_ASAP7_75t_SRAM
+root of   0 design levels: TIEHIx1_ASAP7_75t_SRAM
+root of   0 design levels: OR5x2_ASAP7_75t_SRAM
+root of   0 design levels: OR5x1_ASAP7_75t_SRAM
+root of   0 design levels: OR4x2_ASAP7_75t_SRAM
+root of   0 design levels: OR4x1_ASAP7_75t_SRAM
+root of   0 design levels: OR3x4_ASAP7_75t_SRAM
+root of   0 design levels: OR3x2_ASAP7_75t_SRAM
+root of   0 design levels: OR3x1_ASAP7_75t_SRAM
+root of   0 design levels: OR2x6_ASAP7_75t_SRAM
+root of   0 design levels: OR2x4_ASAP7_75t_SRAM
+root of   0 design levels: OR2x2_ASAP7_75t_SRAM
+root of   0 design levels: NOR5xp2_ASAP7_75t_SRAM
+root of   0 design levels: NOR4xp75_ASAP7_75t_SRAM
+root of   0 design levels: NOR4xp25_ASAP7_75t_SRAM
+root of   0 design levels: NOR3xp33_ASAP7_75t_SRAM
+root of   0 design levels: NOR3x2_ASAP7_75t_SRAM
+root of   0 design levels: NOR3x1_ASAP7_75t_SRAM
+root of   0 design levels: NOR2xp67_ASAP7_75t_SRAM
+root of   0 design levels: NOR2xp33_ASAP7_75t_SRAM
+root of   0 design levels: NOR2x2_ASAP7_75t_SRAM
+root of   0 design levels: NOR2x1p5_ASAP7_75t_SRAM
+root of   0 design levels: NOR2x1_ASAP7_75t_SRAM
+root of   0 design levels: NAND5xp2_ASAP7_75t_SRAM
+root of   0 design levels: NAND4xp75_ASAP7_75t_SRAM
+root of   0 design levels: NAND4xp25_ASAP7_75t_SRAM
+root of   0 design levels: NAND3xp33_ASAP7_75t_SRAM
+root of   0 design levels: NAND3x2_ASAP7_75t_SRAM
+root of   0 design levels: NAND3x1_ASAP7_75t_SRAM
+root of   0 design levels: NAND2xp67_ASAP7_75t_SRAM
+root of   0 design levels: NAND2xp5_ASAP7_75t_SRAM
+root of   0 design levels: NAND2xp33_ASAP7_75t_SRAM
+root of   0 design levels: NAND2x2_ASAP7_75t_SRAM
+root of   0 design levels: NAND2x1p5_ASAP7_75t_SRAM
+root of   0 design levels: NAND2x1_ASAP7_75t_SRAM
+root of   0 design levels: MAJx3_ASAP7_75t_SRAM
+root of   0 design levels: MAJx2_ASAP7_75t_SRAM
+root of   0 design levels: MAJIxp5_ASAP7_75t_SRAM
+root of   0 design levels: HAxp5_ASAP7_75t_SRAM
+root of   0 design levels: FAx1_ASAP7_75t_SRAM 
+root of   0 design levels: AND5x2_ASAP7_75t_SRAM
+root of   0 design levels: AND5x1_ASAP7_75t_SRAM
+root of   0 design levels: AND4x2_ASAP7_75t_SRAM
+root of   0 design levels: AND4x1_ASAP7_75t_SRAM
+root of   0 design levels: AND3x4_ASAP7_75t_SRAM
+root of   0 design levels: AND3x2_ASAP7_75t_SRAM
+root of   0 design levels: AND3x1_ASAP7_75t_SRAM
+root of   0 design levels: AND2x6_ASAP7_75t_SRAM
+root of   0 design levels: AND2x4_ASAP7_75t_SRAM
+root of   0 design levels: AND2x2_ASAP7_75t_SRAM
+root of   0 design levels: OAI33xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI333xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI332xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI331xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI32xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI322xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI321xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI31xp67_ASAP7_75t_SRAM
+root of   0 design levels: OAI31xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI311xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI22xp5_ASAP7_75t_SRAM
+root of   0 design levels: OAI22xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI22x1_ASAP7_75t_SRAM
+root of   0 design levels: OAI222xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI221xp5_ASAP7_75t_SRAM
+root of   0 design levels: OAI21xp5_ASAP7_75t_SRAM
+root of   0 design levels: OAI21xp33_ASAP7_75t_SRAM
+root of   0 design levels: OAI21x1_ASAP7_75t_SRAM
+root of   0 design levels: OAI211xp5_ASAP7_75t_SRAM
+root of   0 design levels: OA33x2_ASAP7_75t_SRAM
+root of   0 design levels: OA333x2_ASAP7_75t_SRAM
+root of   0 design levels: OA333x1_ASAP7_75t_SRAM
+root of   0 design levels: OA332x2_ASAP7_75t_SRAM
+root of   0 design levels: OA332x1_ASAP7_75t_SRAM
+root of   0 design levels: OA331x2_ASAP7_75t_SRAM
+root of   0 design levels: OA331x1_ASAP7_75t_SRAM
+root of   0 design levels: OA31x2_ASAP7_75t_SRAM
+root of   0 design levels: OA22x2_ASAP7_75t_SRAM
+root of   0 design levels: OA222x2_ASAP7_75t_SRAM
+root of   0 design levels: OA221x2_ASAP7_75t_SRAM
+root of   0 design levels: OA21x2_ASAP7_75t_SRAM
+root of   0 design levels: OA211x2_ASAP7_75t_SRAM
+root of   0 design levels: O2A1O1Ixp5_ASAP7_75t_SRAM
+root of   0 design levels: O2A1O1Ixp33_ASAP7_75t_SRAM
+root of   0 design levels: INVxp67_ASAP7_75t_SL
+root of   0 design levels: INVxp33_ASAP7_75t_SL
+root of   0 design levels: INVx8_ASAP7_75t_SL  
+root of   0 design levels: INVx6_ASAP7_75t_SL  
+root of   0 design levels: INVx5_ASAP7_75t_SL  
+root of   0 design levels: INVx4_ASAP7_75t_SL  
+root of   0 design levels: INVx3_ASAP7_75t_SL  
+root of   0 design levels: INVx2_ASAP7_75t_SL  
+root of   0 design levels: INVx1_ASAP7_75t_SL  
+root of   0 design levels: INVx13_ASAP7_75t_SL 
+root of   0 design levels: INVx11_ASAP7_75t_SL 
+root of   0 design levels: HB4xp67_ASAP7_75t_SL
+root of   0 design levels: HB3xp67_ASAP7_75t_SL
+root of   0 design levels: HB2xp67_ASAP7_75t_SL
+root of   0 design levels: HB1xp67_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx9p33_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx8_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx6p67_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx5p33_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx20_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx16_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx14_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx12_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx11_ASAP7_75t_SL
+root of   0 design levels: CKINVDCx10_ASAP7_75t_SL
+root of   0 design levels: BUFx8_ASAP7_75t_SL  
+root of   0 design levels: BUFx6f_ASAP7_75t_SL 
+root of   0 design levels: BUFx5_ASAP7_75t_SL  
+root of   0 design levels: BUFx4f_ASAP7_75t_SL 
+root of   0 design levels: BUFx4_ASAP7_75t_SL  
+root of   0 design levels: BUFx3_ASAP7_75t_SL  
+root of   0 design levels: BUFx2_ASAP7_75t_SL  
+root of   0 design levels: BUFx24_ASAP7_75t_SL 
+root of   0 design levels: BUFx16f_ASAP7_75t_SL
+root of   0 design levels: BUFx12f_ASAP7_75t_SL
+root of   0 design levels: BUFx12_ASAP7_75t_SL 
+root of   0 design levels: BUFx10_ASAP7_75t_SL 
+root of   0 design levels: OAI33xp33_ASAP7_75t_SL
+root of   0 design levels: OAI333xp33_ASAP7_75t_SL
+root of   0 design levels: OAI332xp33_ASAP7_75t_SL
+root of   0 design levels: OAI331xp33_ASAP7_75t_SL
+root of   0 design levels: OAI32xp33_ASAP7_75t_SL
+root of   0 design levels: OAI322xp33_ASAP7_75t_SL
+root of   0 design levels: OAI321xp33_ASAP7_75t_SL
+root of   0 design levels: OAI31xp67_ASAP7_75t_SL
+root of   0 design levels: OAI31xp33_ASAP7_75t_SL
+root of   0 design levels: OAI311xp33_ASAP7_75t_SL
+root of   0 design levels: OAI22xp5_ASAP7_75t_SL
+root of   0 design levels: OAI22xp33_ASAP7_75t_SL
+root of   0 design levels: OAI22x1_ASAP7_75t_SL
+root of   0 design levels: OAI222xp33_ASAP7_75t_SL
+root of   0 design levels: OAI221xp5_ASAP7_75t_SL
+root of   0 design levels: OAI21xp5_ASAP7_75t_SL
+root of   0 design levels: OAI21xp33_ASAP7_75t_SL
+root of   0 design levels: OAI21x1_ASAP7_75t_SL
+root of   0 design levels: OAI211xp5_ASAP7_75t_SL
+root of   0 design levels: OA33x2_ASAP7_75t_SL 
+root of   0 design levels: OA333x2_ASAP7_75t_SL
+root of   0 design levels: OA333x1_ASAP7_75t_SL
+root of   0 design levels: OA332x2_ASAP7_75t_SL
+root of   0 design levels: OA332x1_ASAP7_75t_SL
+root of   0 design levels: OA331x2_ASAP7_75t_SL
+root of   0 design levels: OA331x1_ASAP7_75t_SL
+root of   0 design levels: OA31x2_ASAP7_75t_SL 
+root of   0 design levels: OA22x2_ASAP7_75t_SL 
+root of   0 design levels: OA222x2_ASAP7_75t_SL
+root of   0 design levels: OA221x2_ASAP7_75t_SL
+root of   0 design levels: OA21x2_ASAP7_75t_SL 
+root of   0 design levels: OA211x2_ASAP7_75t_SL
+root of   0 design levels: O2A1O1Ixp5_ASAP7_75t_SL
+root of   0 design levels: O2A1O1Ixp33_ASAP7_75t_SL
+Automatically selected s1196 as design top module.
+
+3.1.2. Analyzing design hierarchy..
+Top module:  \s1196
+Used module:     \dff
+
+3.1.3. Analyzing design hierarchy..
+Top module:  \s1196
+Used module:     \dff
+Removing unused module `\XOR2xp5_ASAP7_75t_SL'.
+Removing unused module `\XOR2x2_ASAP7_75t_SL'.
+Removing unused module `\XOR2x1_ASAP7_75t_SL'.
+Removing unused module `\XNOR2xp5_ASAP7_75t_SL'.
+Removing unused module `\XNOR2x2_ASAP7_75t_SL'.
+Removing unused module `\XNOR2x1_ASAP7_75t_SL'.
+Removing unused module `\TIELOx1_ASAP7_75t_SL'.
+Removing unused module `\TIEHIx1_ASAP7_75t_SL'.
+Removing unused module `\OR5x2_ASAP7_75t_SL'.
+Removing unused module `\OR5x1_ASAP7_75t_SL'.
+Removing unused module `\OR4x2_ASAP7_75t_SL'.
+Removing unused module `\OR4x1_ASAP7_75t_SL'.
+Removing unused module `\OR3x4_ASAP7_75t_SL'.
+Removing unused module `\OR3x2_ASAP7_75t_SL'.
+Removing unused module `\OR3x1_ASAP7_75t_SL'.
+Removing unused module `\OR2x6_ASAP7_75t_SL'.
+Removing unused module `\OR2x4_ASAP7_75t_SL'.
+Removing unused module `\OR2x2_ASAP7_75t_SL'.
+Removing unused module `\NOR5xp2_ASAP7_75t_SL'.
+Removing unused module `\NOR4xp75_ASAP7_75t_SL'.
+Removing unused module `\NOR4xp25_ASAP7_75t_SL'.
+Removing unused module `\NOR3xp33_ASAP7_75t_SL'.
+Removing unused module `\NOR3x2_ASAP7_75t_SL'.
+Removing unused module `\NOR3x1_ASAP7_75t_SL'.
+Removing unused module `\NOR2xp67_ASAP7_75t_SL'.
+Removing unused module `\NOR2xp33_ASAP7_75t_SL'.
+Removing unused module `\NOR2x2_ASAP7_75t_SL'.
+Removing unused module `\NOR2x1p5_ASAP7_75t_SL'.
+Removing unused module `\NOR2x1_ASAP7_75t_SL'.
+Removing unused module `\NAND5xp2_ASAP7_75t_SL'.
+Removing unused module `\NAND4xp75_ASAP7_75t_SL'.
+Removing unused module `\NAND4xp25_ASAP7_75t_SL'.
+Removing unused module `\NAND3xp33_ASAP7_75t_SL'.
+Removing unused module `\NAND3x2_ASAP7_75t_SL'.
+Removing unused module `\NAND3x1_ASAP7_75t_SL'.
+Removing unused module `\NAND2xp67_ASAP7_75t_SL'.
+Removing unused module `\NAND2xp5_ASAP7_75t_SL'.
+Removing unused module `\NAND2xp33_ASAP7_75t_SL'.
+Removing unused module `\NAND2x2_ASAP7_75t_SL'.
+Removing unused module `\NAND2x1p5_ASAP7_75t_SL'.
+Removing unused module `\NAND2x1_ASAP7_75t_SL'.
+Removing unused module `\MAJx3_ASAP7_75t_SL'.
+Removing unused module `\MAJx2_ASAP7_75t_SL'.
+Removing unused module `\MAJIxp5_ASAP7_75t_SL'.
+Removing unused module `\HAxp5_ASAP7_75t_SL'.
+Removing unused module `\FAx1_ASAP7_75t_SL'.
+Removing unused module `\AND5x2_ASAP7_75t_SL'.
+Removing unused module `\AND5x1_ASAP7_75t_SL'.
+Removing unused module `\AND4x2_ASAP7_75t_SL'.
+Removing unused module `\AND4x1_ASAP7_75t_SL'.
+Removing unused module `\AND3x4_ASAP7_75t_SL'.
+Removing unused module `\AND3x2_ASAP7_75t_SL'.
+Removing unused module `\AND3x1_ASAP7_75t_SL'.
+Removing unused module `\AND2x6_ASAP7_75t_SL'.
+Removing unused module `\AND2x4_ASAP7_75t_SL'.
+Removing unused module `\AND2x2_ASAP7_75t_SL'.
+Removing unused module `\INVxp67_ASAP7_75t_SRAM'.
+Removing unused module `\INVxp33_ASAP7_75t_SRAM'.
+Removing unused module `\INVx8_ASAP7_75t_SRAM'.
+Removing unused module `\INVx6_ASAP7_75t_SRAM'.
+Removing unused module `\INVx5_ASAP7_75t_SRAM'.
+Removing unused module `\INVx4_ASAP7_75t_SRAM'.
+Removing unused module `\INVx3_ASAP7_75t_SRAM'.
+Removing unused module `\INVx2_ASAP7_75t_SRAM'.
+Removing unused module `\INVx1_ASAP7_75t_SRAM'.
+Removing unused module `\INVx13_ASAP7_75t_SRAM'.
+Removing unused module `\INVx11_ASAP7_75t_SRAM'.
+Removing unused module `\HB4xp67_ASAP7_75t_SRAM'.
+Removing unused module `\HB3xp67_ASAP7_75t_SRAM'.
+Removing unused module `\HB2xp67_ASAP7_75t_SRAM'.
+Removing unused module `\HB1xp67_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx9p33_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx8_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx6p67_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx5p33_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx20_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx16_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx14_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx12_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx11_ASAP7_75t_SRAM'.
+Removing unused module `\CKINVDCx10_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx8_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx6f_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx5_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx4f_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx4_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx3_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx2_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx24_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx16f_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx12f_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx12_ASAP7_75t_SRAM'.
+Removing unused module `\BUFx10_ASAP7_75t_SRAM'.
+Removing unused module `\AOI33xp33_ASAP7_75t_L'.
+Removing unused module `\AOI333xp33_ASAP7_75t_L'.
+Removing unused module `\AOI332xp33_ASAP7_75t_L'.
+Removing unused module `\AOI331xp33_ASAP7_75t_L'.
+Removing unused module `\AOI32xp33_ASAP7_75t_L'.
+Removing unused module `\AOI322xp5_ASAP7_75t_L'.
+Removing unused module `\AOI321xp33_ASAP7_75t_L'.
+Removing unused module `\AOI31xp67_ASAP7_75t_L'.
+Removing unused module `\AOI31xp33_ASAP7_75t_L'.
+Removing unused module `\AOI311xp33_ASAP7_75t_L'.
+Removing unused module `\AOI22xp5_ASAP7_75t_L'.
+Removing unused module `\AOI22xp33_ASAP7_75t_L'.
+Removing unused module `\AOI22x1_ASAP7_75t_L'.
+Removing unused module `\AOI222xp33_ASAP7_75t_L'.
+Removing unused module `\AOI221xp5_ASAP7_75t_L'.
+Removing unused module `\AOI221x1_ASAP7_75t_L'.
+Removing unused module `\AOI21xp5_ASAP7_75t_L'.
+Removing unused module `\AOI21xp33_ASAP7_75t_L'.
+Removing unused module `\AOI21x1_ASAP7_75t_L'.
+Removing unused module `\AOI211xp5_ASAP7_75t_L'.
+Removing unused module `\AOI211x1_ASAP7_75t_L'.
+Removing unused module `\AO33x2_ASAP7_75t_L'.
+Removing unused module `\AO333x2_ASAP7_75t_L'.
+Removing unused module `\AO333x1_ASAP7_75t_L'.
+Removing unused module `\AO332x2_ASAP7_75t_L'.
+Removing unused module `\AO332x1_ASAP7_75t_L'.
+Removing unused module `\AO331x2_ASAP7_75t_L'.
+Removing unused module `\AO331x1_ASAP7_75t_L'.
+Removing unused module `\AO32x2_ASAP7_75t_L'.
+Removing unused module `\AO32x1_ASAP7_75t_L'.
+Removing unused module `\AO322x2_ASAP7_75t_L'.
+Removing unused module `\AO31x2_ASAP7_75t_L'.
+Removing unused module `\AO22x2_ASAP7_75t_L'.
+Removing unused module `\AO22x1_ASAP7_75t_L'.
+Removing unused module `\AO222x2_ASAP7_75t_L'.
+Removing unused module `\AO221x2_ASAP7_75t_L'.
+Removing unused module `\AO221x1_ASAP7_75t_L'.
+Removing unused module `\AO21x2_ASAP7_75t_L'.
+Removing unused module `\AO21x1_ASAP7_75t_L'.
+Removing unused module `\AO211x2_ASAP7_75t_L'.
+Removing unused module `\A2O1A1O1Ixp25_ASAP7_75t_L'.
+Removing unused module `\A2O1A1Ixp33_ASAP7_75t_L'.
+Removing unused module `\OAI33xp33_ASAP7_75t_R'.
+Removing unused module `\OAI333xp33_ASAP7_75t_R'.
+Removing unused module `\OAI332xp33_ASAP7_75t_R'.
+Removing unused module `\OAI331xp33_ASAP7_75t_R'.
+Removing unused module `\OAI32xp33_ASAP7_75t_R'.
+Removing unused module `\OAI322xp33_ASAP7_75t_R'.
+Removing unused module `\OAI321xp33_ASAP7_75t_R'.
+Removing unused module `\OAI31xp67_ASAP7_75t_R'.
+Removing unused module `\OAI31xp33_ASAP7_75t_R'.
+Removing unused module `\OAI311xp33_ASAP7_75t_R'.
+Removing unused module `\OAI22xp5_ASAP7_75t_R'.
+Removing unused module `\OAI22xp33_ASAP7_75t_R'.
+Removing unused module `\OAI22x1_ASAP7_75t_R'.
+Removing unused module `\OAI222xp33_ASAP7_75t_R'.
+Removing unused module `\OAI221xp5_ASAP7_75t_R'.
+Removing unused module `\OAI21xp5_ASAP7_75t_R'.
+Removing unused module `\OAI21xp33_ASAP7_75t_R'.
+Removing unused module `\OAI21x1_ASAP7_75t_R'.
+Removing unused module `\OAI211xp5_ASAP7_75t_R'.
+Removing unused module `\OA33x2_ASAP7_75t_R'.
+Removing unused module `\OA333x2_ASAP7_75t_R'.
+Removing unused module `\OA333x1_ASAP7_75t_R'.
+Removing unused module `\OA332x2_ASAP7_75t_R'.
+Removing unused module `\OA332x1_ASAP7_75t_R'.
+Removing unused module `\OA331x2_ASAP7_75t_R'.
+Removing unused module `\OA331x1_ASAP7_75t_R'.
+Removing unused module `\OA31x2_ASAP7_75t_R'.
+Removing unused module `\OA22x2_ASAP7_75t_R'.
+Removing unused module `\OA222x2_ASAP7_75t_R'.
+Removing unused module `\OA221x2_ASAP7_75t_R'.
+Removing unused module `\OA21x2_ASAP7_75t_R'.
+Removing unused module `\OA211x2_ASAP7_75t_R'.
+Removing unused module `\O2A1O1Ixp5_ASAP7_75t_R'.
+Removing unused module `\O2A1O1Ixp33_ASAP7_75t_R'.
+Removing unused module `\AOI33xp33_ASAP7_75t_R'.
+Removing unused module `\AOI333xp33_ASAP7_75t_R'.
+Removing unused module `\AOI332xp33_ASAP7_75t_R'.
+Removing unused module `\AOI331xp33_ASAP7_75t_R'.
+Removing unused module `\AOI32xp33_ASAP7_75t_R'.
+Removing unused module `\AOI322xp5_ASAP7_75t_R'.
+Removing unused module `\AOI321xp33_ASAP7_75t_R'.
+Removing unused module `\AOI31xp67_ASAP7_75t_R'.
+Removing unused module `\AOI31xp33_ASAP7_75t_R'.
+Removing unused module `\AOI311xp33_ASAP7_75t_R'.
+Removing unused module `\AOI22xp5_ASAP7_75t_R'.
+Removing unused module `\AOI22xp33_ASAP7_75t_R'.
+Removing unused module `\AOI22x1_ASAP7_75t_R'.
+Removing unused module `\AOI222xp33_ASAP7_75t_R'.
+Removing unused module `\AOI221xp5_ASAP7_75t_R'.
+Removing unused module `\AOI221x1_ASAP7_75t_R'.
+Removing unused module `\AOI21xp5_ASAP7_75t_R'.
+Removing unused module `\AOI21xp33_ASAP7_75t_R'.
+Removing unused module `\AOI21x1_ASAP7_75t_R'.
+Removing unused module `\AOI211xp5_ASAP7_75t_R'.
+Removing unused module `\AOI211x1_ASAP7_75t_R'.
+Removing unused module `\AO33x2_ASAP7_75t_R'.
+Removing unused module `\AO333x2_ASAP7_75t_R'.
+Removing unused module `\AO333x1_ASAP7_75t_R'.
+Removing unused module `\AO332x2_ASAP7_75t_R'.
+Removing unused module `\AO332x1_ASAP7_75t_R'.
+Removing unused module `\AO331x2_ASAP7_75t_R'.
+Removing unused module `\AO331x1_ASAP7_75t_R'.
+Removing unused module `\AO32x2_ASAP7_75t_R'.
+Removing unused module `\AO32x1_ASAP7_75t_R'.
+Removing unused module `\AO322x2_ASAP7_75t_R'.
+Removing unused module `\AO31x2_ASAP7_75t_R'.
+Removing unused module `\AO22x2_ASAP7_75t_R'.
+Removing unused module `\AO22x1_ASAP7_75t_R'.
+Removing unused module `\AO222x2_ASAP7_75t_R'.
+Removing unused module `\AO221x2_ASAP7_75t_R'.
+Removing unused module `\AO221x1_ASAP7_75t_R'.
+Removing unused module `\AO21x2_ASAP7_75t_R'.
+Removing unused module `\AO21x1_ASAP7_75t_R'.
+Removing unused module `\AO211x2_ASAP7_75t_R'.
+Removing unused module `\A2O1A1O1Ixp25_ASAP7_75t_R'.
+Removing unused module `\A2O1A1Ixp33_ASAP7_75t_R'.
+Removing unused module `\SDFLx4_ASAP7_75t_R'.
+Removing unused module `\SDFLx3_ASAP7_75t_R'.
+Removing unused module `\SDFLx2_ASAP7_75t_R'.
+Removing unused module `\SDFLx1_ASAP7_75t_R'.
+Removing unused module `\SDFHx4_ASAP7_75t_R'.
+Removing unused module `\SDFHx3_ASAP7_75t_R'.
+Removing unused module `\SDFHx2_ASAP7_75t_R'.
+Removing unused module `\SDFHx1_ASAP7_75t_R'.
+Removing unused module `\DLLx3_ASAP7_75t_R'.
+Removing unused module `\DLLx2_ASAP7_75t_R'.
+Removing unused module `\DLLx1_ASAP7_75t_R'.
+Removing unused module `\DHLx3_ASAP7_75t_R'.
+Removing unused module `\DHLx2_ASAP7_75t_R'.
+Removing unused module `\DHLx1_ASAP7_75t_R'.
+Removing unused module `\DFFLQx4_ASAP7_75t_R'.
+Removing unused module `\DFFLQNx3_ASAP7_75t_R'.
+Removing unused module `\DFFLQNx2_ASAP7_75t_R'.
+Removing unused module `\DFFLQNx1_ASAP7_75t_R'.
+Removing unused module `\DFFHQx4_ASAP7_75t_R'.
+Removing unused module `\DFFHQNx3_ASAP7_75t_R'.
+Removing unused module `\DFFHQNx2_ASAP7_75t_R'.
+Removing unused module `\DFFHQNx1_ASAP7_75t_R'.
+Removing unused module `\DFFASRHQNx1_ASAP7_75t_R'.
+Removing unused module `\AOI33xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI333xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI332xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI331xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI32xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI322xp5_ASAP7_75t_SL'.
+Removing unused module `\AOI321xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI31xp67_ASAP7_75t_SL'.
+Removing unused module `\AOI31xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI311xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI22xp5_ASAP7_75t_SL'.
+Removing unused module `\AOI22xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI22x1_ASAP7_75t_SL'.
+Removing unused module `\AOI222xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI221xp5_ASAP7_75t_SL'.
+Removing unused module `\AOI221x1_ASAP7_75t_SL'.
+Removing unused module `\AOI21xp5_ASAP7_75t_SL'.
+Removing unused module `\AOI21xp33_ASAP7_75t_SL'.
+Removing unused module `\AOI21x1_ASAP7_75t_SL'.
+Removing unused module `\AOI211xp5_ASAP7_75t_SL'.
+Removing unused module `\AOI211x1_ASAP7_75t_SL'.
+Removing unused module `\AO33x2_ASAP7_75t_SL'.
+Removing unused module `\AO333x2_ASAP7_75t_SL'.
+Removing unused module `\AO333x1_ASAP7_75t_SL'.
+Removing unused module `\AO332x2_ASAP7_75t_SL'.
+Removing unused module `\AO332x1_ASAP7_75t_SL'.
+Removing unused module `\AO331x2_ASAP7_75t_SL'.
+Removing unused module `\AO331x1_ASAP7_75t_SL'.
+Removing unused module `\AO32x2_ASAP7_75t_SL'.
+Removing unused module `\AO32x1_ASAP7_75t_SL'.
+Removing unused module `\AO322x2_ASAP7_75t_SL'.
+Removing unused module `\AO31x2_ASAP7_75t_SL'.
+Removing unused module `\AO22x2_ASAP7_75t_SL'.
+Removing unused module `\AO22x1_ASAP7_75t_SL'.
+Removing unused module `\AO222x2_ASAP7_75t_SL'.
+Removing unused module `\AO221x2_ASAP7_75t_SL'.
+Removing unused module `\AO221x1_ASAP7_75t_SL'.
+Removing unused module `\AO21x2_ASAP7_75t_SL'.
+Removing unused module `\AO21x1_ASAP7_75t_SL'.
+Removing unused module `\AO211x2_ASAP7_75t_SL'.
+Removing unused module `\A2O1A1O1Ixp25_ASAP7_75t_SL'.
+Removing unused module `\A2O1A1Ixp33_ASAP7_75t_SL'.
+Removing unused module `\INVxp67_ASAP7_75t_R'.
+Removing unused module `\INVxp33_ASAP7_75t_R'.
+Removing unused module `\INVx8_ASAP7_75t_R'.
+Removing unused module `\INVx6_ASAP7_75t_R'.
+Removing unused module `\INVx5_ASAP7_75t_R'.
+Removing unused module `\INVx4_ASAP7_75t_R'.
+Removing unused module `\INVx3_ASAP7_75t_R'.
+Removing unused module `\INVx2_ASAP7_75t_R'.
+Removing unused module `\INVx1_ASAP7_75t_R'.
+Removing unused module `\INVx13_ASAP7_75t_R'.
+Removing unused module `\INVx11_ASAP7_75t_R'.
+Removing unused module `\HB4xp67_ASAP7_75t_R'.
+Removing unused module `\HB3xp67_ASAP7_75t_R'.
+Removing unused module `\HB2xp67_ASAP7_75t_R'.
+Removing unused module `\HB1xp67_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx9p33_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx8_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx6p67_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx5p33_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx20_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx16_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx14_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx12_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx11_ASAP7_75t_R'.
+Removing unused module `\CKINVDCx10_ASAP7_75t_R'.
+Removing unused module `\BUFx8_ASAP7_75t_R'.
+Removing unused module `\BUFx6f_ASAP7_75t_R'.
+Removing unused module `\BUFx5_ASAP7_75t_R'.
+Removing unused module `\BUFx4f_ASAP7_75t_R'.
+Removing unused module `\BUFx4_ASAP7_75t_R'.
+Removing unused module `\BUFx3_ASAP7_75t_R'.
+Removing unused module `\BUFx2_ASAP7_75t_R'.
+Removing unused module `\BUFx24_ASAP7_75t_R'.
+Removing unused module `\BUFx16f_ASAP7_75t_R'.
+Removing unused module `\BUFx12f_ASAP7_75t_R'.
+Removing unused module `\BUFx12_ASAP7_75t_R'.
+Removing unused module `\BUFx10_ASAP7_75t_R'.
+Removing unused module `\AOI33xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI333xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI332xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI331xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI32xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI322xp5_ASAP7_75t_SRAM'.
+Removing unused module `\AOI321xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI31xp67_ASAP7_75t_SRAM'.
+Removing unused module `\AOI31xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI311xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI22xp5_ASAP7_75t_SRAM'.
+Removing unused module `\AOI22xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI22x1_ASAP7_75t_SRAM'.
+Removing unused module `\AOI222xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI221xp5_ASAP7_75t_SRAM'.
+Removing unused module `\AOI221x1_ASAP7_75t_SRAM'.
+Removing unused module `\AOI21xp5_ASAP7_75t_SRAM'.
+Removing unused module `\AOI21xp33_ASAP7_75t_SRAM'.
+Removing unused module `\AOI21x1_ASAP7_75t_SRAM'.
+Removing unused module `\AOI211xp5_ASAP7_75t_SRAM'.
+Removing unused module `\AOI211x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO33x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO333x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO333x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO332x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO332x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO331x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO331x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO32x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO32x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO322x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO31x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO22x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO22x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO222x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO221x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO221x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO21x2_ASAP7_75t_SRAM'.
+Removing unused module `\AO21x1_ASAP7_75t_SRAM'.
+Removing unused module `\AO211x2_ASAP7_75t_SRAM'.
+Removing unused module `\A2O1A1O1Ixp25_ASAP7_75t_SRAM'.
+Removing unused module `\A2O1A1Ixp33_ASAP7_75t_SRAM'.
+Removing unused module `\INVxp67_ASAP7_75t_L'.
+Removing unused module `\INVxp33_ASAP7_75t_L'.
+Removing unused module `\INVx8_ASAP7_75t_L'.
+Removing unused module `\INVx6_ASAP7_75t_L'.
+Removing unused module `\INVx5_ASAP7_75t_L'.
+Removing unused module `\INVx4_ASAP7_75t_L'.
+Removing unused module `\INVx3_ASAP7_75t_L'.
+Removing unused module `\INVx2_ASAP7_75t_L'.
+Removing unused module `\INVx1_ASAP7_75t_L'.
+Removing unused module `\INVx13_ASAP7_75t_L'.
+Removing unused module `\INVx11_ASAP7_75t_L'.
+Removing unused module `\HB4xp67_ASAP7_75t_L'.
+Removing unused module `\HB3xp67_ASAP7_75t_L'.
+Removing unused module `\HB2xp67_ASAP7_75t_L'.
+Removing unused module `\HB1xp67_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx9p33_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx8_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx6p67_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx5p33_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx20_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx16_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx14_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx12_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx11_ASAP7_75t_L'.
+Removing unused module `\CKINVDCx10_ASAP7_75t_L'.
+Removing unused module `\BUFx8_ASAP7_75t_L'.
+Removing unused module `\BUFx6f_ASAP7_75t_L'.
+Removing unused module `\BUFx5_ASAP7_75t_L'.
+Removing unused module `\BUFx4f_ASAP7_75t_L'.
+Removing unused module `\BUFx4_ASAP7_75t_L'.
+Removing unused module `\BUFx3_ASAP7_75t_L'.
+Removing unused module `\BUFx2_ASAP7_75t_L'.
+Removing unused module `\BUFx24_ASAP7_75t_L'.
+Removing unused module `\BUFx16f_ASAP7_75t_L'.
+Removing unused module `\BUFx12f_ASAP7_75t_L'.
+Removing unused module `\BUFx12_ASAP7_75t_L'.
+Removing unused module `\BUFx10_ASAP7_75t_L'.
+Removing unused module `\SDFLx4_ASAP7_75t_SRAM'.
+Removing unused module `\SDFLx3_ASAP7_75t_SRAM'.
+Removing unused module `\SDFLx2_ASAP7_75t_SRAM'.
+Removing unused module `\SDFLx1_ASAP7_75t_SRAM'.
+Removing unused module `\SDFHx4_ASAP7_75t_SRAM'.
+Removing unused module `\SDFHx3_ASAP7_75t_SRAM'.
+Removing unused module `\SDFHx2_ASAP7_75t_SRAM'.
+Removing unused module `\SDFHx1_ASAP7_75t_SRAM'.
+Removing unused module `\DLLx3_ASAP7_75t_SRAM'.
+Removing unused module `\DLLx2_ASAP7_75t_SRAM'.
+Removing unused module `\DLLx1_ASAP7_75t_SRAM'.
+Removing unused module `\DHLx3_ASAP7_75t_SRAM'.
+Removing unused module `\DHLx2_ASAP7_75t_SRAM'.
+Removing unused module `\DHLx1_ASAP7_75t_SRAM'.
+Removing unused module `\DFFLQx4_ASAP7_75t_SRAM'.
+Removing unused module `\DFFLQNx3_ASAP7_75t_SRAM'.
+Removing unused module `\DFFLQNx2_ASAP7_75t_SRAM'.
+Removing unused module `\DFFLQNx1_ASAP7_75t_SRAM'.
+Removing unused module `\DFFHQx4_ASAP7_75t_SRAM'.
+Removing unused module `\DFFHQNx3_ASAP7_75t_SRAM'.
+Removing unused module `\DFFHQNx2_ASAP7_75t_SRAM'.
+Removing unused module `\DFFHQNx1_ASAP7_75t_SRAM'.
+Removing unused module `\DFFASRHQNx1_ASAP7_75t_SRAM'.
+Removing unused module `\OAI33xp33_ASAP7_75t_L'.
+Removing unused module `\OAI333xp33_ASAP7_75t_L'.
+Removing unused module `\OAI332xp33_ASAP7_75t_L'.
+Removing unused module `\OAI331xp33_ASAP7_75t_L'.
+Removing unused module `\OAI32xp33_ASAP7_75t_L'.
+Removing unused module `\OAI322xp33_ASAP7_75t_L'.
+Removing unused module `\OAI321xp33_ASAP7_75t_L'.
+Removing unused module `\OAI31xp67_ASAP7_75t_L'.
+Removing unused module `\OAI31xp33_ASAP7_75t_L'.
+Removing unused module `\OAI311xp33_ASAP7_75t_L'.
+Removing unused module `\OAI22xp5_ASAP7_75t_L'.
+Removing unused module `\OAI22xp33_ASAP7_75t_L'.
+Removing unused module `\OAI22x1_ASAP7_75t_L'.
+Removing unused module `\OAI222xp33_ASAP7_75t_L'.
+Removing unused module `\OAI221xp5_ASAP7_75t_L'.
+Removing unused module `\OAI21xp5_ASAP7_75t_L'.
+Removing unused module `\OAI21xp33_ASAP7_75t_L'.
+Removing unused module `\OAI21x1_ASAP7_75t_L'.
+Removing unused module `\OAI211xp5_ASAP7_75t_L'.
+Removing unused module `\OA33x2_ASAP7_75t_L'.
+Removing unused module `\OA333x2_ASAP7_75t_L'.
+Removing unused module `\OA333x1_ASAP7_75t_L'.
+Removing unused module `\OA332x2_ASAP7_75t_L'.
+Removing unused module `\OA332x1_ASAP7_75t_L'.
+Removing unused module `\OA331x2_ASAP7_75t_L'.
+Removing unused module `\OA331x1_ASAP7_75t_L'.
+Removing unused module `\OA31x2_ASAP7_75t_L'.
+Removing unused module `\OA22x2_ASAP7_75t_L'.
+Removing unused module `\OA222x2_ASAP7_75t_L'.
+Removing unused module `\OA221x2_ASAP7_75t_L'.
+Removing unused module `\OA21x2_ASAP7_75t_L'.
+Removing unused module `\OA211x2_ASAP7_75t_L'.
+Removing unused module `\O2A1O1Ixp5_ASAP7_75t_L'.
+Removing unused module `\O2A1O1Ixp33_ASAP7_75t_L'.
+Removing unused module `\XOR2xp5_ASAP7_75t_L'.
+Removing unused module `\XOR2x2_ASAP7_75t_L'.
+Removing unused module `\XOR2x1_ASAP7_75t_L'.
+Removing unused module `\XNOR2xp5_ASAP7_75t_L'.
+Removing unused module `\XNOR2x2_ASAP7_75t_L'.
+Removing unused module `\XNOR2x1_ASAP7_75t_L'.
+Removing unused module `\TIELOx1_ASAP7_75t_L'.
+Removing unused module `\TIEHIx1_ASAP7_75t_L'.
+Removing unused module `\OR5x2_ASAP7_75t_L'.
+Removing unused module `\OR5x1_ASAP7_75t_L'.
+Removing unused module `\OR4x2_ASAP7_75t_L'.
+Removing unused module `\OR4x1_ASAP7_75t_L'.
+Removing unused module `\OR3x4_ASAP7_75t_L'.
+Removing unused module `\OR3x2_ASAP7_75t_L'.
+Removing unused module `\OR3x1_ASAP7_75t_L'.
+Removing unused module `\OR2x6_ASAP7_75t_L'.
+Removing unused module `\OR2x4_ASAP7_75t_L'.
+Removing unused module `\OR2x2_ASAP7_75t_L'.
+Removing unused module `\NOR5xp2_ASAP7_75t_L'.
+Removing unused module `\NOR4xp75_ASAP7_75t_L'.
+Removing unused module `\NOR4xp25_ASAP7_75t_L'.
+Removing unused module `\NOR3xp33_ASAP7_75t_L'.
+Removing unused module `\NOR3x2_ASAP7_75t_L'.
+Removing unused module `\NOR3x1_ASAP7_75t_L'.
+Removing unused module `\NOR2xp67_ASAP7_75t_L'.
+Removing unused module `\NOR2xp33_ASAP7_75t_L'.
+Removing unused module `\NOR2x2_ASAP7_75t_L'.
+Removing unused module `\NOR2x1p5_ASAP7_75t_L'.
+Removing unused module `\NOR2x1_ASAP7_75t_L'.
+Removing unused module `\NAND5xp2_ASAP7_75t_L'.
+Removing unused module `\NAND4xp75_ASAP7_75t_L'.
+Removing unused module `\NAND4xp25_ASAP7_75t_L'.
+Removing unused module `\NAND3xp33_ASAP7_75t_L'.
+Removing unused module `\NAND3x2_ASAP7_75t_L'.
+Removing unused module `\NAND3x1_ASAP7_75t_L'.
+Removing unused module `\NAND2xp67_ASAP7_75t_L'.
+Removing unused module `\NAND2xp5_ASAP7_75t_L'.
+Removing unused module `\NAND2xp33_ASAP7_75t_L'.
+Removing unused module `\NAND2x2_ASAP7_75t_L'.
+Removing unused module `\NAND2x1p5_ASAP7_75t_L'.
+Removing unused module `\NAND2x1_ASAP7_75t_L'.
+Removing unused module `\MAJx3_ASAP7_75t_L'.
+Removing unused module `\MAJx2_ASAP7_75t_L'.
+Removing unused module `\MAJIxp5_ASAP7_75t_L'.
+Removing unused module `\HAxp5_ASAP7_75t_L'.
+Removing unused module `\FAx1_ASAP7_75t_L'.
+Removing unused module `\AND5x2_ASAP7_75t_L'.
+Removing unused module `\AND5x1_ASAP7_75t_L'.
+Removing unused module `\AND4x2_ASAP7_75t_L'.
+Removing unused module `\AND4x1_ASAP7_75t_L'.
+Removing unused module `\AND3x4_ASAP7_75t_L'.
+Removing unused module `\AND3x2_ASAP7_75t_L'.
+Removing unused module `\AND3x1_ASAP7_75t_L'.
+Removing unused module `\AND2x6_ASAP7_75t_L'.
+Removing unused module `\AND2x4_ASAP7_75t_L'.
+Removing unused module `\AND2x2_ASAP7_75t_L'.
+Removing unused module `\XOR2xp5_ASAP7_75t_R'.
+Removing unused module `\XOR2x2_ASAP7_75t_R'.
+Removing unused module `\XOR2x1_ASAP7_75t_R'.
+Removing unused module `\XNOR2xp5_ASAP7_75t_R'.
+Removing unused module `\XNOR2x2_ASAP7_75t_R'.
+Removing unused module `\XNOR2x1_ASAP7_75t_R'.
+Removing unused module `\TIELOx1_ASAP7_75t_R'.
+Removing unused module `\TIEHIx1_ASAP7_75t_R'.
+Removing unused module `\OR5x2_ASAP7_75t_R'.
+Removing unused module `\OR5x1_ASAP7_75t_R'.
+Removing unused module `\OR4x2_ASAP7_75t_R'.
+Removing unused module `\OR4x1_ASAP7_75t_R'.
+Removing unused module `\OR3x4_ASAP7_75t_R'.
+Removing unused module `\OR3x2_ASAP7_75t_R'.
+Removing unused module `\OR3x1_ASAP7_75t_R'.
+Removing unused module `\OR2x6_ASAP7_75t_R'.
+Removing unused module `\OR2x4_ASAP7_75t_R'.
+Removing unused module `\OR2x2_ASAP7_75t_R'.
+Removing unused module `\NOR5xp2_ASAP7_75t_R'.
+Removing unused module `\NOR4xp75_ASAP7_75t_R'.
+Removing unused module `\NOR4xp25_ASAP7_75t_R'.
+Removing unused module `\NOR3xp33_ASAP7_75t_R'.
+Removing unused module `\NOR3x2_ASAP7_75t_R'.
+Removing unused module `\NOR3x1_ASAP7_75t_R'.
+Removing unused module `\NOR2xp67_ASAP7_75t_R'.
+Removing unused module `\NOR2xp33_ASAP7_75t_R'.
+Removing unused module `\NOR2x2_ASAP7_75t_R'.
+Removing unused module `\NOR2x1p5_ASAP7_75t_R'.
+Removing unused module `\NOR2x1_ASAP7_75t_R'.
+Removing unused module `\NAND5xp2_ASAP7_75t_R'.
+Removing unused module `\NAND4xp75_ASAP7_75t_R'.
+Removing unused module `\NAND4xp25_ASAP7_75t_R'.
+Removing unused module `\NAND3xp33_ASAP7_75t_R'.
+Removing unused module `\NAND3x2_ASAP7_75t_R'.
+Removing unused module `\NAND3x1_ASAP7_75t_R'.
+Removing unused module `\NAND2xp67_ASAP7_75t_R'.
+Removing unused module `\NAND2xp5_ASAP7_75t_R'.
+Removing unused module `\NAND2xp33_ASAP7_75t_R'.
+Removing unused module `\NAND2x2_ASAP7_75t_R'.
+Removing unused module `\NAND2x1p5_ASAP7_75t_R'.
+Removing unused module `\NAND2x1_ASAP7_75t_R'.
+Removing unused module `\MAJx3_ASAP7_75t_R'.
+Removing unused module `\MAJx2_ASAP7_75t_R'.
+Removing unused module `\MAJIxp5_ASAP7_75t_R'.
+Removing unused module `\HAxp5_ASAP7_75t_R'.
+Removing unused module `\FAx1_ASAP7_75t_R'.
+Removing unused module `\AND5x2_ASAP7_75t_R'.
+Removing unused module `\AND5x1_ASAP7_75t_R'.
+Removing unused module `\AND4x2_ASAP7_75t_R'.
+Removing unused module `\AND4x1_ASAP7_75t_R'.
+Removing unused module `\AND3x4_ASAP7_75t_R'.
+Removing unused module `\AND3x2_ASAP7_75t_R'.
+Removing unused module `\AND3x1_ASAP7_75t_R'.
+Removing unused module `\AND2x6_ASAP7_75t_R'.
+Removing unused module `\AND2x4_ASAP7_75t_R'.
+Removing unused module `\AND2x2_ASAP7_75t_R'.
+Removing unused module `\SDFLx4_ASAP7_75t_L'.
+Removing unused module `\SDFLx3_ASAP7_75t_L'.
+Removing unused module `\SDFLx2_ASAP7_75t_L'.
+Removing unused module `\SDFLx1_ASAP7_75t_L'.
+Removing unused module `\SDFHx4_ASAP7_75t_L'.
+Removing unused module `\SDFHx3_ASAP7_75t_L'.
+Removing unused module `\SDFHx2_ASAP7_75t_L'.
+Removing unused module `\SDFHx1_ASAP7_75t_L'.
+Removing unused module `\DLLx3_ASAP7_75t_L'.
+Removing unused module `\DLLx2_ASAP7_75t_L'.
+Removing unused module `\DLLx1_ASAP7_75t_L'.
+Removing unused module `\DHLx3_ASAP7_75t_L'.
+Removing unused module `\DHLx2_ASAP7_75t_L'.
+Removing unused module `\DHLx1_ASAP7_75t_L'.
+Removing unused module `\DFFLQx4_ASAP7_75t_L'.
+Removing unused module `\DFFLQNx3_ASAP7_75t_L'.
+Removing unused module `\DFFLQNx2_ASAP7_75t_L'.
+Removing unused module `\DFFLQNx1_ASAP7_75t_L'.
+Removing unused module `\DFFHQx4_ASAP7_75t_L'.
+Removing unused module `\DFFHQNx3_ASAP7_75t_L'.
+Removing unused module `\DFFHQNx2_ASAP7_75t_L'.
+Removing unused module `\DFFHQNx1_ASAP7_75t_L'.
+Removing unused module `\DFFASRHQNx1_ASAP7_75t_L'.
+Removing unused module `\SDFLx4_ASAP7_75t_SL'.
+Removing unused module `\SDFLx3_ASAP7_75t_SL'.
+Removing unused module `\SDFLx2_ASAP7_75t_SL'.
+Removing unused module `\SDFLx1_ASAP7_75t_SL'.
+Removing unused module `\SDFHx4_ASAP7_75t_SL'.
+Removing unused module `\SDFHx3_ASAP7_75t_SL'.
+Removing unused module `\SDFHx2_ASAP7_75t_SL'.
+Removing unused module `\SDFHx1_ASAP7_75t_SL'.
+Removing unused module `\DLLx3_ASAP7_75t_SL'.
+Removing unused module `\DLLx2_ASAP7_75t_SL'.
+Removing unused module `\DLLx1_ASAP7_75t_SL'.
+Removing unused module `\DHLx3_ASAP7_75t_SL'.
+Removing unused module `\DHLx2_ASAP7_75t_SL'.
+Removing unused module `\DHLx1_ASAP7_75t_SL'.
+Removing unused module `\DFFLQx4_ASAP7_75t_SL'.
+Removing unused module `\DFFLQNx3_ASAP7_75t_SL'.
+Removing unused module `\DFFLQNx2_ASAP7_75t_SL'.
+Removing unused module `\DFFLQNx1_ASAP7_75t_SL'.
+Removing unused module `\DFFHQx4_ASAP7_75t_SL'.
+Removing unused module `\DFFHQNx3_ASAP7_75t_SL'.
+Removing unused module `\DFFHQNx2_ASAP7_75t_SL'.
+Removing unused module `\DFFHQNx1_ASAP7_75t_SL'.
+Removing unused module `\DFFASRHQNx1_ASAP7_75t_SL'.
+Removing unused module `\XOR2xp5_ASAP7_75t_SRAM'.
+Removing unused module `\XOR2x2_ASAP7_75t_SRAM'.
+Removing unused module `\XOR2x1_ASAP7_75t_SRAM'.
+Removing unused module `\XNOR2xp5_ASAP7_75t_SRAM'.
+Removing unused module `\XNOR2x2_ASAP7_75t_SRAM'.
+Removing unused module `\XNOR2x1_ASAP7_75t_SRAM'.
+Removing unused module `\TIELOx1_ASAP7_75t_SRAM'.
+Removing unused module `\TIEHIx1_ASAP7_75t_SRAM'.
+Removing unused module `\OR5x2_ASAP7_75t_SRAM'.
+Removing unused module `\OR5x1_ASAP7_75t_SRAM'.
+Removing unused module `\OR4x2_ASAP7_75t_SRAM'.
+Removing unused module `\OR4x1_ASAP7_75t_SRAM'.
+Removing unused module `\OR3x4_ASAP7_75t_SRAM'.
+Removing unused module `\OR3x2_ASAP7_75t_SRAM'.
+Removing unused module `\OR3x1_ASAP7_75t_SRAM'.
+Removing unused module `\OR2x6_ASAP7_75t_SRAM'.
+Removing unused module `\OR2x4_ASAP7_75t_SRAM'.
+Removing unused module `\OR2x2_ASAP7_75t_SRAM'.
+Removing unused module `\NOR5xp2_ASAP7_75t_SRAM'.
+Removing unused module `\NOR4xp75_ASAP7_75t_SRAM'.
+Removing unused module `\NOR4xp25_ASAP7_75t_SRAM'.
+Removing unused module `\NOR3xp33_ASAP7_75t_SRAM'.
+Removing unused module `\NOR3x2_ASAP7_75t_SRAM'.
+Removing unused module `\NOR3x1_ASAP7_75t_SRAM'.
+Removing unused module `\NOR2xp67_ASAP7_75t_SRAM'.
+Removing unused module `\NOR2xp33_ASAP7_75t_SRAM'.
+Removing unused module `\NOR2x2_ASAP7_75t_SRAM'.
+Removing unused module `\NOR2x1p5_ASAP7_75t_SRAM'.
+Removing unused module `\NOR2x1_ASAP7_75t_SRAM'.
+Removing unused module `\NAND5xp2_ASAP7_75t_SRAM'.
+Removing unused module `\NAND4xp75_ASAP7_75t_SRAM'.
+Removing unused module `\NAND4xp25_ASAP7_75t_SRAM'.
+Removing unused module `\NAND3xp33_ASAP7_75t_SRAM'.
+Removing unused module `\NAND3x2_ASAP7_75t_SRAM'.
+Removing unused module `\NAND3x1_ASAP7_75t_SRAM'.
+Removing unused module `\NAND2xp67_ASAP7_75t_SRAM'.
+Removing unused module `\NAND2xp5_ASAP7_75t_SRAM'.
+Removing unused module `\NAND2xp33_ASAP7_75t_SRAM'.
+Removing unused module `\NAND2x2_ASAP7_75t_SRAM'.
+Removing unused module `\NAND2x1p5_ASAP7_75t_SRAM'.
+Removing unused module `\NAND2x1_ASAP7_75t_SRAM'.
+Removing unused module `\MAJx3_ASAP7_75t_SRAM'.
+Removing unused module `\MAJx2_ASAP7_75t_SRAM'.
+Removing unused module `\MAJIxp5_ASAP7_75t_SRAM'.
+Removing unused module `\HAxp5_ASAP7_75t_SRAM'.
+Removing unused module `\FAx1_ASAP7_75t_SRAM'.
+Removing unused module `\AND5x2_ASAP7_75t_SRAM'.
+Removing unused module `\AND5x1_ASAP7_75t_SRAM'.
+Removing unused module `\AND4x2_ASAP7_75t_SRAM'.
+Removing unused module `\AND4x1_ASAP7_75t_SRAM'.
+Removing unused module `\AND3x4_ASAP7_75t_SRAM'.
+Removing unused module `\AND3x2_ASAP7_75t_SRAM'.
+Removing unused module `\AND3x1_ASAP7_75t_SRAM'.
+Removing unused module `\AND2x6_ASAP7_75t_SRAM'.
+Removing unused module `\AND2x4_ASAP7_75t_SRAM'.
+Removing unused module `\AND2x2_ASAP7_75t_SRAM'.
+Removing unused module `\OAI33xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI333xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI332xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI331xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI32xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI322xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI321xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI31xp67_ASAP7_75t_SRAM'.
+Removing unused module `\OAI31xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI311xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI22xp5_ASAP7_75t_SRAM'.
+Removing unused module `\OAI22xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI22x1_ASAP7_75t_SRAM'.
+Removing unused module `\OAI222xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI221xp5_ASAP7_75t_SRAM'.
+Removing unused module `\OAI21xp5_ASAP7_75t_SRAM'.
+Removing unused module `\OAI21xp33_ASAP7_75t_SRAM'.
+Removing unused module `\OAI21x1_ASAP7_75t_SRAM'.
+Removing unused module `\OAI211xp5_ASAP7_75t_SRAM'.
+Removing unused module `\OA33x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA333x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA333x1_ASAP7_75t_SRAM'.
+Removing unused module `\OA332x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA332x1_ASAP7_75t_SRAM'.
+Removing unused module `\OA331x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA331x1_ASAP7_75t_SRAM'.
+Removing unused module `\OA31x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA22x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA222x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA221x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA21x2_ASAP7_75t_SRAM'.
+Removing unused module `\OA211x2_ASAP7_75t_SRAM'.
+Removing unused module `\O2A1O1Ixp5_ASAP7_75t_SRAM'.
+Removing unused module `\O2A1O1Ixp33_ASAP7_75t_SRAM'.
+Removing unused module `\INVxp67_ASAP7_75t_SL'.
+Removing unused module `\INVxp33_ASAP7_75t_SL'.
+Removing unused module `\INVx8_ASAP7_75t_SL'.
+Removing unused module `\INVx6_ASAP7_75t_SL'.
+Removing unused module `\INVx5_ASAP7_75t_SL'.
+Removing unused module `\INVx4_ASAP7_75t_SL'.
+Removing unused module `\INVx3_ASAP7_75t_SL'.
+Removing unused module `\INVx2_ASAP7_75t_SL'.
+Removing unused module `\INVx1_ASAP7_75t_SL'.
+Removing unused module `\INVx13_ASAP7_75t_SL'.
+Removing unused module `\INVx11_ASAP7_75t_SL'.
+Removing unused module `\HB4xp67_ASAP7_75t_SL'.
+Removing unused module `\HB3xp67_ASAP7_75t_SL'.
+Removing unused module `\HB2xp67_ASAP7_75t_SL'.
+Removing unused module `\HB1xp67_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx9p33_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx8_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx6p67_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx5p33_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx20_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx16_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx14_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx12_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx11_ASAP7_75t_SL'.
+Removing unused module `\CKINVDCx10_ASAP7_75t_SL'.
+Removing unused module `\BUFx8_ASAP7_75t_SL'.
+Removing unused module `\BUFx6f_ASAP7_75t_SL'.
+Removing unused module `\BUFx5_ASAP7_75t_SL'.
+Removing unused module `\BUFx4f_ASAP7_75t_SL'.
+Removing unused module `\BUFx4_ASAP7_75t_SL'.
+Removing unused module `\BUFx3_ASAP7_75t_SL'.
+Removing unused module `\BUFx2_ASAP7_75t_SL'.
+Removing unused module `\BUFx24_ASAP7_75t_SL'.
+Removing unused module `\BUFx16f_ASAP7_75t_SL'.
+Removing unused module `\BUFx12f_ASAP7_75t_SL'.
+Removing unused module `\BUFx12_ASAP7_75t_SL'.
+Removing unused module `\BUFx10_ASAP7_75t_SL'.
+Removing unused module `\OAI33xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI333xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI332xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI331xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI32xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI322xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI321xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI31xp67_ASAP7_75t_SL'.
+Removing unused module `\OAI31xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI311xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI22xp5_ASAP7_75t_SL'.
+Removing unused module `\OAI22xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI22x1_ASAP7_75t_SL'.
+Removing unused module `\OAI222xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI221xp5_ASAP7_75t_SL'.
+Removing unused module `\OAI21xp5_ASAP7_75t_SL'.
+Removing unused module `\OAI21xp33_ASAP7_75t_SL'.
+Removing unused module `\OAI21x1_ASAP7_75t_SL'.
+Removing unused module `\OAI211xp5_ASAP7_75t_SL'.
+Removing unused module `\OA33x2_ASAP7_75t_SL'.
+Removing unused module `\OA333x2_ASAP7_75t_SL'.
+Removing unused module `\OA333x1_ASAP7_75t_SL'.
+Removing unused module `\OA332x2_ASAP7_75t_SL'.
+Removing unused module `\OA332x1_ASAP7_75t_SL'.
+Removing unused module `\OA331x2_ASAP7_75t_SL'.
+Removing unused module `\OA331x1_ASAP7_75t_SL'.
+Removing unused module `\OA31x2_ASAP7_75t_SL'.
+Removing unused module `\OA22x2_ASAP7_75t_SL'.
+Removing unused module `\OA222x2_ASAP7_75t_SL'.
+Removing unused module `\OA221x2_ASAP7_75t_SL'.
+Removing unused module `\OA21x2_ASAP7_75t_SL'.
+Removing unused module `\OA211x2_ASAP7_75t_SL'.
+Removing unused module `\O2A1O1Ixp5_ASAP7_75t_SL'.
+Removing unused module `\O2A1O1Ixp33_ASAP7_75t_SL'.
+Removed 768 unused modules.
+Mapping positional arguments of cell s1196.DFF_17 (dff).
+Mapping positional arguments of cell s1196.DFF_16 (dff).
+Mapping positional arguments of cell s1196.DFF_15 (dff).
+Mapping positional arguments of cell s1196.DFF_14 (dff).
+Mapping positional arguments of cell s1196.DFF_13 (dff).
+Mapping positional arguments of cell s1196.DFF_12 (dff).
+Mapping positional arguments of cell s1196.DFF_11 (dff).
+Mapping positional arguments of cell s1196.DFF_10 (dff).
+Mapping positional arguments of cell s1196.DFF_9 (dff).
+Mapping positional arguments of cell s1196.DFF_8 (dff).
+Mapping positional arguments of cell s1196.DFF_7 (dff).
+Mapping positional arguments of cell s1196.DFF_6 (dff).
+Mapping positional arguments of cell s1196.DFF_5 (dff).
+Mapping positional arguments of cell s1196.DFF_4 (dff).
+Mapping positional arguments of cell s1196.DFF_3 (dff).
+Mapping positional arguments of cell s1196.DFF_2 (dff).
+Mapping positional arguments of cell s1196.DFF_1 (dff).
+Mapping positional arguments of cell s1196.DFF_0 (dff).
+
+3.2. Executing PROC pass (convert processes to netlists).
+
+3.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+3.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+3.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 1 assignment to connection.
+
+3.2.4. Executing PROC_INIT pass (extract init attributes).
+
+3.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+
+3.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\dff.$proc$/workspace/ic_cad/open_ic_design/ISCAS/Verilog/s1196.v:12$14297'.
+
+3.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+3.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\dff.\Q' using process `\dff.$proc$/workspace/ic_cad/open_ic_design/ISCAS/Verilog/s1196.v:12$14297'.
+  created $dff cell `$procdff$15088' with positive edge clock.
+
+3.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `dff.$proc$/workspace/ic_cad/open_ic_design/ISCAS/Verilog/s1196.v:12$14297'.
+Cleaned up 0 empty switches.
+
+3.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+<suppressed ~81 debug messages>
+Optimizing module dff.
+
+3.3. Executing FLATTEN pass (flatten design).
+Deleting now unused module dff.
+<suppressed ~18 debug messages>
+
+3.4. Executing FUTURE pass.
+
+3.5. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+3.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+Removed 18 unused cells and 618 unused wires.
+<suppressed ~37 debug messages>
+
+3.7. Executing CHECK pass (checking for obvious problems).
+Checking module s1196...
+Found and reported 0 problems.
+
+3.8. Executing OPT pass (performing simple optimizations).
+
+3.8.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+3.8.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+<suppressed ~60 debug messages>
+Removed a total of 20 cells.
+
+3.8.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+3.8.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+3.8.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+3.8.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+3.8.7. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+3.8.8. Rerunning OPT passes. (Maybe there is more to do..)
+
+3.8.9. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+3.8.10. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+3.8.11. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+3.8.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+3.8.13. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+3.8.14. Finished OPT passes. (There is nothing left to do.)
+
+3.9. Executing WREDUCE pass (reducing word size of cells).
+
+3.10. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+3.11. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+3.12. Executing OPT pass (performing simple optimizations).
+
+3.12.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+3.12.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+3.12.3. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+3.12.4. Finished fast OPT passes.
+
+3.13. Printing statistics.
+
+=== s1196 ===
+
+   Number of wires:                805
+   Number of wire bits:            805
+   Number of public wires:         600
+   Number of public wire bits:     600
+   Number of ports:                 31
+   Number of port bits:             31
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                707
+     $and                          300
+     $dff                           18
+     $not                          194
+     $or                           177
+     $scopeinfo                     18
+
+3.14. Executing CHECK pass (checking for obvious problems).
+Checking module s1196...
+Found and reported 0 problems.
+
+4. Executing PROC pass (convert processes to netlists).
+
+4.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+4.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+4.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+4.4. Executing PROC_INIT pass (extract init attributes).
+
+4.5. Executing PROC_ARST pass (detect async resets in processes).
+
+4.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+
+4.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+4.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+4.9. Executing PROC_DFF pass (convert process syncs to FFs).
+
+4.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+4.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+4.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5. Executing SYNTH pass.
+
+5.1. Executing HIERARCHY pass (managing design hierarchy).
+
+5.1.1. Analyzing design hierarchy..
+Top module:  \s1196
+
+5.1.2. Analyzing design hierarchy..
+Top module:  \s1196
+Removed 0 unused modules.
+
+5.2. Executing PROC pass (convert processes to netlists).
+
+5.2.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Removed a total of 0 dead cases.
+
+5.2.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 0 assignments to connections.
+
+5.2.4. Executing PROC_INIT pass (extract init attributes).
+
+5.2.5. Executing PROC_ARST pass (detect async resets in processes).
+
+5.2.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+
+5.2.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+
+5.2.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+
+5.2.9. Executing PROC_DFF pass (convert process syncs to FFs).
+
+5.2.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+5.2.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+5.2.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.3. Executing FLATTEN pass (flatten design).
+
+5.4. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.5. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.6. Executing CHECK pass (checking for obvious problems).
+Checking module s1196...
+Found and reported 0 problems.
+
+5.7. Executing OPT pass (performing simple optimizations).
+
+5.7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+5.7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+5.7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.7.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.7.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.7.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.7.9. Finished OPT passes. (There is nothing left to do.)
+
+5.8. Executing FSM pass (extract and optimize FSM).
+
+5.8.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+5.8.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+5.8.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+5.8.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.8.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+5.8.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+5.8.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+5.8.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+5.9. Executing OPT pass (performing simple optimizations).
+
+5.9.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.9.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.9.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+5.9.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+5.9.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.9.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.9.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.9.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.9.9. Finished OPT passes. (There is nothing left to do.)
+
+5.10. Executing WREDUCE pass (reducing word size of cells).
+
+5.11. Executing PEEPOPT pass (run peephole optimizers).
+
+5.12. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.13. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module s1196:
+  created 0 $alu and 0 $macc cells.
+
+5.14. Executing SHARE pass (SAT-based resource sharing).
+
+5.15. Executing OPT pass (performing simple optimizations).
+
+5.15.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.15.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.15.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+5.15.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+5.15.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.15.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.15.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.15.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.15.9. Finished OPT passes. (There is nothing left to do.)
+
+5.16. Executing MEMORY pass.
+
+5.16.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+5.16.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+5.16.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+
+5.16.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+5.16.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+
+5.16.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.16.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+
+5.16.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+5.16.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.16.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+5.17. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.18. Executing OPT pass (performing simple optimizations).
+
+5.18.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.18.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.18.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.18.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.18.5. Finished fast OPT passes.
+
+5.19. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+
+5.20. Executing OPT pass (performing simple optimizations).
+
+5.20.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.20.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.20.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+5.20.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+5.20.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.20.6. Executing OPT_SHARE pass.
+
+5.20.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.20.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.20.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.20.10. Finished OPT passes. (There is nothing left to do.)
+
+5.21. Executing TECHMAP pass (map to technology primitives).
+
+5.21.1. Executing Verilog-2005 frontend: /usr/local/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/local/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+5.21.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $dff.
+Using extmapper simplemap for cells of type $and.
+Using extmapper simplemap for cells of type $or.
+Using extmapper simplemap for cells of type $not.
+No more expansions possible.
+<suppressed ~764 debug messages>
+
+5.22. Executing OPT pass (performing simple optimizations).
+
+5.22.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+5.22.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.22.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.22.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+5.22.5. Finished fast OPT passes.
+
+5.23. Executing ABC pass (technology mapping using ABC).
+
+5.23.1. Extracting gate netlist of module `\s1196' to `<abc-temp-dir>/input.blif'..
+Extracted 671 gates and 702 wires to a netlist network with 31 inputs and 31 outputs.
+
+5.23.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+5.23.1.2. Re-integrating ABC results.
+ABC RESULTS:               AND cells:       22
+ABC RESULTS:            ANDNOT cells:      217
+ABC RESULTS:               MUX cells:        9
+ABC RESULTS:              NAND cells:       32
+ABC RESULTS:               NOR cells:       22
+ABC RESULTS:               NOT cells:       19
+ABC RESULTS:                OR cells:      128
+ABC RESULTS:             ORNOT cells:       27
+ABC RESULTS:              XNOR cells:        1
+ABC RESULTS:               XOR cells:        3
+ABC RESULTS:        internal signals:      640
+ABC RESULTS:           input signals:       31
+ABC RESULTS:          output signals:       31
+Removing temp directory.
+
+5.24. Executing OPT pass (performing simple optimizations).
+
+5.24.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+<suppressed ~3 debug messages>
+
+5.24.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+5.24.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+5.24.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+Removed 0 unused cells and 738 unused wires.
+<suppressed ~472 debug messages>
+
+5.24.5. Finished fast OPT passes.
+
+5.25. Executing HIERARCHY pass (managing design hierarchy).
+Attribute `top' found on module `s1196'. Setting top module to s1196.
+
+5.25.1. Analyzing design hierarchy..
+Top module:  \s1196
+
+5.25.2. Analyzing design hierarchy..
+Top module:  \s1196
+Removed 0 unused modules.
+
+5.26. Printing statistics.
+
+=== s1196 ===
+
+   Number of wires:                578
+   Number of wire bits:            578
+   Number of public wires:         129
+   Number of public wire bits:     129
+   Number of ports:                 31
+   Number of port bits:             31
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                516
+     $_ANDNOT_                     217
+     $_AND_                         22
+     $_DFF_P_                       18
+     $_MUX_                          9
+     $_NAND_                        32
+     $_NOR_                         22
+     $_NOT_                         19
+     $_ORNOT_                       27
+     $_OR_                         128
+     $_XNOR_                         1
+     $_XOR_                          3
+     $scopeinfo                     18
+
+5.27. Executing CHECK pass (checking for obvious problems).
+Checking module s1196...
+Found and reported 0 problems.
+
+6. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell DFFLQNx1_ASAP7_75t_R (inv, pins=3, area=0.29) is a direct match for cell type $_DFF_N_.
+  cell DFFHQNx1_ASAP7_75t_R (inv, pins=3, area=0.29) is a direct match for cell type $_DFF_P_.
+  cell DFFASRHQNx1_ASAP7_75t_R (inv, pins=5, area=0.38) is a direct match for cell type $_DFFSR_PNN_.
+  final dff cell mappings:
+    \DFFLQNx1_ASAP7_75t_R _DFF_N_ (.CLK( C), .D( D), .QN(~Q));
+    \DFFHQNx1_ASAP7_75t_R _DFF_P_ (.CLK( C), .D( D), .QN(~Q));
+    unmapped dff cell: $_DFF_NN0_
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    unmapped dff cell: $_DFF_PN0_
+    unmapped dff cell: $_DFF_PN1_
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    unmapped dff cell: $_DFFE_NN_
+    unmapped dff cell: $_DFFE_NP_
+    unmapped dff cell: $_DFFE_PN_
+    unmapped dff cell: $_DFFE_PP_
+    unmapped dff cell: $_DFFSR_NNN_
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    \DFFASRHQNx1_ASAP7_75t_R _DFFSR_PNN_ (.CLK( C), .D( D), .QN(~Q), .RESETN( S), .SETN( R));
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+6.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+<suppressed ~32 debug messages>
+Mapping DFF cells in module `\s1196':
+  mapped 18 $_DFF_P_ cells to \DFFHQNx1_ASAP7_75t_R cells.
+
+7. Executing OPT pass (performing simple optimizations).
+
+7.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+<suppressed ~2 debug messages>
+
+7.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+7.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+7.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+7.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+7.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+Removed 1 unused cells and 4 unused wires.
+<suppressed ~4 debug messages>
+
+7.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+7.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+7.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \s1196..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+7.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \s1196.
+Performed a total of 0 changes.
+
+7.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\s1196'.
+Removed a total of 0 cells.
+
+7.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+7.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+
+7.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module s1196.
+
+7.16. Finished OPT passes. (There is nothing left to do.)
+
+8. Executing ABC pass (technology mapping using ABC).
+
+8.1. Extracting gate netlist of module `\s1196' to `<abc-temp-dir>/input.blif'..
+Extracted 495 gates and 526 wires to a netlist network with 31 inputs and 31 outputs.
+
+8.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_lib -w /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.77 sec
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFASRHQNx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx2_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx3_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQx4_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx2_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx3_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQx4_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx2_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx3_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx2_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx3_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx1_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2p67DC_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx3_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4DC_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5p33DC_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx6p67DC_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx8DC_ASAP7_75t_SL" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx2_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx3_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx4_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx1_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx2_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx3_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx4_ASAP7_75t_SL".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFASRHQNx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx2_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx3_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQx4_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx2_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx3_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQx4_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx2_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx3_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx2_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx3_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx1_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2p67DC_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx3_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4DC_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5p33DC_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx6p67DC_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx8DC_ASAP7_75t_L" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx2_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx3_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx4_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx1_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx2_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx3_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx4_ASAP7_75t_L".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFASRHQNx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx2_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx3_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQx4_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx2_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx3_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQx4_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx2_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx3_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx2_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx3_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx1_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2p67DC_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx3_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4DC_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5p33DC_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx6p67DC_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx8DC_ASAP7_75t_SRAM" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx2_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx3_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx4_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx1_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx2_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx3_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx4_ASAP7_75t_SRAM".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFASRHQNx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx2_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQNx3_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFHQx4_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx2_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQNx3_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DFFLQx4_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx2_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DHLx3_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx2_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "DLLx3_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx1_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx2p67DC_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx3_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4DC_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx4_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx5p33DC_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx6p67DC_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped cell "ICGx8DC_ASAP7_75t_R" without logic function.
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx2_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx3_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFHx4_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx1_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx2_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx3_ASAP7_75t_R".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "SDFLx4_ASAP7_75t_R".
+ABC: Library "merged_nosram" from "/workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib" has 676 cells (132 skipped: 92 seq; 0 tri-state; 40 no func; 0 dont_use).  Time =     1.17 sec
+ABC: Memory =  329.12 MB. Time =     1.17 sec
+ABC: Warning: Detected 8 multi-output gates (for example, "FAx1_ASAP7_75t_SRAM").
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &fraig -x 
+ABC: + &put 
+ABC: + scorr 
+ABC: Warning: The network is combinational (run "fraig" or "fraig_sweep").
+ABC: + dc2 
+ABC: + dretime 
+ABC: + strash 
+ABC: + &get -n 
+ABC: + &dch -f 
+ABC: + &nf 
+ABC: + &put 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+8.1.2. Re-integrating ABC results.
+ABC RESULTS:   A2O1A1Ixp33_ASAP7_75t_L cells:       17
+ABC RESULTS:   A2O1A1O1Ixp25_ASAP7_75t_L cells:        5
+ABC RESULTS:   AND2x2_ASAP7_75t_L cells:        1
+ABC RESULTS:   AND3x1_ASAP7_75t_L cells:        6
+ABC RESULTS:   AND4x1_ASAP7_75t_L cells:        2
+ABC RESULTS:   AND5x1_ASAP7_75t_L cells:        2
+ABC RESULTS:   AO21x1_ASAP7_75t_L cells:        5
+ABC RESULTS:   AO22x1_ASAP7_75t_L cells:        1
+ABC RESULTS:   AO32x1_ASAP7_75t_L cells:        2
+ABC RESULTS:   AOI211xp5_ASAP7_75t_L cells:       10
+ABC RESULTS:   AOI21xp33_ASAP7_75t_L cells:       16
+ABC RESULTS:   AOI22xp33_ASAP7_75t_L cells:        2
+ABC RESULTS:   AOI311xp33_ASAP7_75t_L cells:        4
+ABC RESULTS:   AOI31xp33_ASAP7_75t_L cells:        5
+ABC RESULTS:   AOI32xp33_ASAP7_75t_L cells:        1
+ABC RESULTS:   AOI33xp33_ASAP7_75t_L cells:        1
+ABC RESULTS:   INVx1_ASAP7_75t_L cells:       24
+ABC RESULTS:   NAND2xp33_ASAP7_75t_L cells:       34
+ABC RESULTS:   NAND3xp33_ASAP7_75t_L cells:       16
+ABC RESULTS:   NAND4xp25_ASAP7_75t_L cells:        8
+ABC RESULTS:   NAND5xp2_ASAP7_75t_L cells:        2
+ABC RESULTS:   NOR2xp33_ASAP7_75t_L cells:       26
+ABC RESULTS:   NOR3xp33_ASAP7_75t_L cells:        9
+ABC RESULTS:   NOR4xp25_ASAP7_75t_L cells:        3
+ABC RESULTS:   O2A1O1Ixp33_ASAP7_75t_L cells:        9
+ABC RESULTS:   OA21x2_ASAP7_75t_L cells:        3
+ABC RESULTS:   OAI211xp5_ASAP7_75t_L cells:        8
+ABC RESULTS:   OAI21xp33_ASAP7_75t_L cells:       11
+ABC RESULTS:   OAI221xp5_ASAP7_75t_L cells:        2
+ABC RESULTS:   OAI22xp33_ASAP7_75t_L cells:        1
+ABC RESULTS:   OAI311xp33_ASAP7_75t_L cells:        7
+ABC RESULTS:   OAI31xp33_ASAP7_75t_L cells:        5
+ABC RESULTS:   OAI32xp33_ASAP7_75t_L cells:        3
+ABC RESULTS:   OR2x2_ASAP7_75t_L cells:        3
+ABC RESULTS:   OR3x1_ASAP7_75t_L cells:        3
+ABC RESULTS:   OR4x1_ASAP7_75t_L cells:        1
+ABC RESULTS:   XOR2xp5_ASAP7_75t_L cells:        1
+ABC RESULTS:        internal signals:      464
+ABC RESULTS:           input signals:       31
+ABC RESULTS:          output signals:       31
+Removing temp directory.
+
+9. Executing TECHMAP pass (map to technology primitives).
+
+9.1. Executing Verilog-2005 frontend: /usr/local/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/usr/local/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu_brent_kung'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+9.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~75 debug messages>
+
+10. Executing SPLITNETS pass (splitting up multi-bit signals).
+
+11. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \s1196..
+Removed 0 unused cells and 542 unused wires.
+<suppressed ~33 debug messages>
+
+12. Executing Verilog backend.
+
+12.1. Executing BMUXMAP pass.
+
+12.2. Executing DEMUXMAP pass.
+Dumping module `\s1196'.
+
+End of script. Logfile hash: 8ea16aeb87, CPU: user 1.65s system 0.13s, MEM: 494.01 MB peak
+Yosys 0.54+29 (git sha1 7b0c1fe49, g++ 9.4.0-1ubuntu1~20.04.2 -fPIC -O3)
+Time spent: 46% 2x abc (1 sec), 20% 2x read_liberty (0 sec), ...

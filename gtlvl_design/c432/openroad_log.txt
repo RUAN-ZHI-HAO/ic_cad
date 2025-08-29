@@ -1,0 +1,157 @@
+OpenROAD v2.0-17598-ga008522d8 
+Features included (+) or not (-): +Charts +GPU +GUI +Python : None
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/techlef/asap7_tech_1x_201209.lef, created 24 layers, 9 vias
+[WARNING ODB-0176] error: undefined layer (OVERLAP) referenced
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/sram_asap7_16x256_1rw.lef, created 1 library cells
+[WARNING ODB-0176] error: undefined layer (OVERLAP) referenced
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/sram_asap7_64x64_1rw.lef, created 1 library cells
+[WARNING ODB-0176] error: undefined layer (OVERLAP) referenced
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/sram_asap7_64x256_1rw.lef, created 1 library cells
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/asap7sc7p5t_28_L_1x_220121a.lef, created 212 library cells
+[INFO ODB-0394] Duplicate site asap7sc7p5t in asap7sc7p5t_28_SL_1x_220121a already seen in asap7sc7p5t_28_L_1x_220121a
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/asap7sc7p5t_28_SL_1x_220121a.lef, created 212 library cells
+[INFO ODB-0394] Duplicate site asap7sc7p5t in asap7sc7p5t_28_R_1x_220121a already seen in asap7sc7p5t_28_L_1x_220121a
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/asap7sc7p5t_28_R_1x_220121a.lef, created 212 library cells
+[INFO ODB-0394] Duplicate site asap7sc7p5t in asap7sc7p5t_28_SRAM_1x_220121a already seen in asap7sc7p5t_28_L_1x_220121a
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/asap7sc7p5t_28_SRAM_1x_220121a.lef, created 212 library cells
+[WARNING ODB-0176] error: undefined layer (OVERLAP) referenced
+[INFO ODB-0227] LEF file: /workspace/ic_cad/ICCAD25/ASAP7/LEF/sram_asap7_32x256_1rw.lef, created 1 library cells
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818764, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818797, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818830, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818863, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818896, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818929, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 818962, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 820358, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 820391, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 820424, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947101, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947134, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947167, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947200, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947233, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947266, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 947299, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 948695, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 948728, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 948761, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999526, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999559, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999592, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999625, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999658, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999691, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 999724, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 1001120, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 1001153, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 1001186, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3733971, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3734004, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3734037, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3734070, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3734103, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3734136, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3734169, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3735565, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3735598, timing group from output port.
+[WARNING STA-1212] /workspace/ic_cad/ICCAD25/ASAP7/LIB/merged_nosram.lib line 3735631, timing group from output port.
+[WARNING STA-0366] port 'CK' not found.
+[WARNING STA-0366] port 'CK' not found.
+[WARNING STA-0366] port 'CK' not found.
+[WARNING IFP-0028] Core area lower left (5.000, 5.000) snapped to (5.022, 5.130).
+[INFO IFP-0001] Added 164 rows of 824 site asap7sc7p5t.
+Found 0 macro blocks.
+[INFO PPL-0001] Number of slots           112
+[INFO PPL-0002] Number of I/O             43
+[INFO PPL-0003] Number of I/O w/sink      43
+[INFO PPL-0004] Number of I/O w/o sink    0
+[INFO PPL-0012] I/O nets HPWL: 1407.20 um.
+[INFO GPL-0002] DBU: 1000
+[INFO GPL-0003] SiteSize: (  0.054  0.270 ) um
+[INFO GPL-0004] CoreBBox: (  5.022  5.130 ) ( 49.518 49.410 ) um
+[INFO GPL-0006] NumInstances:                77
+[INFO GPL-0007] NumPlaceInstances:           77
+[INFO GPL-0008] NumFixedInstances:            0
+[INFO GPL-0009] NumDummyInstances:            0
+[INFO GPL-0010] NumNets:                    113
+[INFO GPL-0011] NumPins:                    352
+[INFO GPL-0012] DieBBox:  (  0.000  0.000 ) ( 54.529 54.529 ) um
+[INFO GPL-0013] CoreBBox: (  5.022  5.130 ) ( 49.518 49.410 ) um
+[INFO GPL-0016] CoreArea:              1970.283 um^2
+[INFO GPL-0017] NonPlaceInstsArea:        0.000 um^2
+[INFO GPL-0018] PlaceInstsArea:           5.949 um^2
+[INFO GPL-0019] Util:                     0.302 %
+[INFO GPL-0020] StdInstsArea:             5.949 um^2
+[INFO GPL-0021] MacroInstsArea:           0.000 um^2
+[InitialPlace]  Iter: 1 CG residual: 0.00000006 HPWL: 2401770
+[InitialPlace]  Iter: 2 CG residual: 0.00000005 HPWL: 1508979
+[InitialPlace]  Iter: 3 CG residual: 0.00000010 HPWL: 1508459
+[InitialPlace]  Iter: 4 CG residual: 0.00000010 HPWL: 1509822
+[InitialPlace]  Iter: 5 CG residual: 0.00000012 HPWL: 1508876
+[INFO GPL-0031] FillerInit:NumGCells:     18504
+[INFO GPL-0032] FillerInit:NumGNets:        113
+[INFO GPL-0033] FillerInit:NumGPins:        352
+[INFO GPL-0023] TargetDensity:            0.700
+[INFO GPL-0024] AvrgPlaceInstArea:        0.077 um^2
+[INFO GPL-0025] IdealBinArea:             0.110 um^2
+[INFO GPL-0026] IdealBinCnt:              17852
+[INFO GPL-0027] TotalBinArea:          1970.283 um^2
+[INFO GPL-0028] BinCnt:       128    128
+[INFO GPL-0029] BinSize: (  0.348  0.346 )
+[INFO GPL-0030] NumBins: 16384
+[NesterovSolve] Iter:    1 overflow: 0.410 HPWL: 1485536
+[NesterovSolve] Iter:   10 overflow: 0.654 HPWL: 1443066
+[NesterovSolve] Iter:   20 overflow: 0.434 HPWL: 1465093
+[NesterovSolve] Iter:   30 overflow: 0.428 HPWL: 1460529
+[NesterovSolve] Iter:   40 overflow: 0.408 HPWL: 1478525
+[NesterovSolve] Iter:   50 overflow: 0.640 HPWL: 1446958
+[NesterovSolve] Iter:   60 overflow: 0.261 HPWL: 1497009
+[NesterovSolve] Iter:   70 overflow: 0.636 HPWL: 1461164
+[NesterovSolve] Iter:   80 overflow: 0.488 HPWL: 1471092
+[NesterovSolve] Iter:   90 overflow: 0.658 HPWL: 1449876
+[NesterovSolve] Iter:  100 overflow: 0.408 HPWL: 1463098
+[NesterovSolve] Iter:  110 overflow: 0.360 HPWL: 1485916
+[NesterovSolve] Iter:  120 overflow: 0.360 HPWL: 1478353
+[NesterovSolve] Iter:  130 overflow: 0.656 HPWL: 1445889
+[NesterovSolve] Iter:  140 overflow: 0.413 HPWL: 1463004
+[NesterovSolve] Iter:  150 overflow: 0.313 HPWL: 1490590
+[NesterovSolve] Iter:  160 overflow: 0.547 HPWL: 1465096
+[NesterovSolve] Iter:  170 overflow: 0.386 HPWL: 1472478
+[NesterovSolve] Iter:  180 overflow: 0.530 HPWL: 1461178
+[NesterovSolve] Iter:  190 overflow: 0.580 HPWL: 1457759
+[NesterovSolve] Iter:  200 overflow: 0.363 HPWL: 1485921
+[NesterovSolve] Iter:  210 overflow: 0.631 HPWL: 1453925
+[NesterovSolve] Iter:  220 overflow: 0.582 HPWL: 1457355
+[NesterovSolve] Iter:  230 overflow: 0.338 HPWL: 1482998
+[NesterovSolve] Iter:  240 overflow: 0.536 HPWL: 1459124
+[NesterovSolve] Iter:  250 overflow: 0.623 HPWL: 1444404
+[NesterovSolve] Iter:  260 overflow: 0.434 HPWL: 1471533
+[NesterovSolve] Iter:  270 overflow: 0.580 HPWL: 1454578
+[NesterovSolve] Iter:  280 overflow: 0.379 HPWL: 1485386
+[NesterovSolve] Iter:  290 overflow: 0.488 HPWL: 1458726
+[NesterovSolve] Iter:  300 overflow: 0.367 HPWL: 1460652
+[NesterovSolve] Iter:  310 overflow: 0.369 HPWL: 1461589
+[NesterovSolve] Iter:  320 overflow: 0.405 HPWL: 1454269
+[NesterovSolve] Iter:  330 overflow: 0.380 HPWL: 1456439
+[NesterovSolve] Iter:  340 overflow: 0.310 HPWL: 1461341
+[NesterovSolve] Iter:  350 overflow: 0.281 HPWL: 1466315
+[NesterovSolve] Iter:  360 overflow: 0.251 HPWL: 1453757
+[NesterovSolve] Iter:  370 overflow: 0.213 HPWL: 1454231
+[NesterovSolve] Iter:  380 overflow: 0.169 HPWL: 1454952
+[NesterovSolve] Iter:  390 overflow: 0.150 HPWL: 1455670
+[NesterovSolve] Iter:  400 overflow: 0.130 HPWL: 1456740
+[NesterovSolve] Iter:  410 overflow: 0.106 HPWL: 1456929
+[NesterovSolve] Iter:  420 overflow: 0.109 HPWL: 1458008
+[NesterovSolve] Finished with Overflow: 0.099027
+Placement Analysis
+---------------------------------
+total displacement         15.3 u
+average displacement        0.2 u
+max displacement            0.6 u
+original HPWL            1458.3 u
+legalized HPWL           1472.1 u
+delta HPWL                    1 %
+

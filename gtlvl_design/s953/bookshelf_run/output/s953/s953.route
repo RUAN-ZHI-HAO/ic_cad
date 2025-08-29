@@ -1,0 +1,58 @@
+UCLA route 1.0
+# Created  :  Jul  21 2025
+# User     :  Seungwon Kim at University of California, San Diego (sek006@ucsd.edu)
+Grid               : 188 188 10
+VerticalCapacity   :     1500       0    1500       0    1125       0     844       0     675       0
+HorizontalCapacity :        0    1500       0    1125       0     844       0     675       0     675
+MinWireWidth       :      100     100     100     100     100     100     100     100     100     100
+MinWireSpacing     :        0       0       0       0       0       0       0       0       0       0
+ViaSpacing         :        0       0       0       0       0       0       0       0       0       0
+GridOrigin         : 0 0
+TileSize           : 10 10
+BlockagePorosity   : 0
+
+NumNiTerminals     : 42
+  ActBmHS1 3
+  ActRtHS1 2
+  CK 2
+  DumpIIHS1 2
+  FullIIHS1 3
+  FullOHS1 2
+  GND 2
+  GoBmHS1 3
+  GoRtHS1 2
+  IInDoneHS1 3
+  LdProgHS1 2
+  LoadIIHHS1 3
+  LoadOHHS1 3
+  LxHIInHS1 2
+  Mode0HS1 2
+  Mode1HS1 2
+  Mode2HS1 2
+  NewLineHS1 2
+  NewTrHS1 3
+  OutAvHS1 2
+  OutputHS1 2
+  Prog_0 2
+  Prog_1 2
+  Prog_2 2
+  Rdy1BmHS1 3
+  Rdy1RtHS1 2
+  Rdy2BmHS1 3
+  Rdy2RtHS1 3
+  ReRtTSHS1 3
+  ReWhBufHS1 3
+  RtTSHS1 3
+  SeFullIIHS1 3
+  SeFullOHS1 3
+  SeOutAvHS1 2
+  ShftIIRHS1 2
+  ShftORHS1 3
+  TgWhBufHS1 2
+  TpArrayHS1 3
+  TxHIInHS1 3
+  VDD 2
+  WantBmHS1 3
+  WantRtHS1 3
+NumBlockageNodes   : 0
+NumEdgeCapacityAdjustments  : 0

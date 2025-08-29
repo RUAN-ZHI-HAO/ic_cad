@@ -1,0 +1,74 @@
+UCLA route 1.0
+# Created  :  Jul  21 2025
+# User     :  Seungwon Kim at University of California, San Diego (sek006@ucsd.edu)
+Grid               : 144 144 10
+VerticalCapacity   :     1500       0    1500       0    1125       0     844       0     675       0
+HorizontalCapacity :        0    1500       0    1125       0     844       0     675       0     675
+MinWireWidth       :      100     100     100     100     100     100     100     100     100     100
+MinWireSpacing     :        0       0       0       0       0       0       0       0       0       0
+ViaSpacing         :        0       0       0       0       0       0       0       0       0       0
+GridOrigin         : 0 0
+TileSize           : 10 10
+BlockagePorosity   : 0
+
+NumNiTerminals     : 58
+  G1 2
+  G10 3
+  G11 3
+  G12 2
+  G13 2
+  G14 2
+  G15 2
+  G16 3
+  G17 3
+  G18 2
+  G1884 2
+  G1885 3
+  G1886 2
+  G1887 2
+  G1888 2
+  G1889 3
+  G1890 2
+  G1891 3
+  G1892 2
+  G1893 2
+  G1894 3
+  G1895 2
+  G1896 3
+  G1897 3
+  G1898 3
+  G1899 2
+  G19 3
+  G1900 3
+  G1901 2
+  G1902 2
+  G1903 3
+  G1904 2
+  G1905 2
+  G1906 3
+  G1907 3
+  G1908 2
+  G2 3
+  G20 3
+  G21 2
+  G22 3
+  G23 3
+  G24 3
+  G25 3
+  G26 3
+  G27 2
+  G28 3
+  G29 2
+  G3 2
+  G30 3
+  G31 2
+  G32 2
+  G33 3
+  G4 2
+  G5 3
+  G6 2
+  G7 2
+  G8 3
+  G9 3
+NumBlockageNodes   : 0
+NumEdgeCapacityAdjustments  : 0

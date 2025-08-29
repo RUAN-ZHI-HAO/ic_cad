@@ -1,0 +1,103 @@
+UCLA route 1.0
+# Created  :  Jul  21 2025
+# User     :  Seungwon Kim at University of California, San Diego (sek006@ucsd.edu)
+Grid               : 341 341 10
+VerticalCapacity   :     1500       0    1500       0    1125       0     844       0     675       0
+HorizontalCapacity :        0    1500       0    1125       0     844       0     675       0     675
+MinWireWidth       :      100     100     100     100     100     100     100     100     100     100
+MinWireSpacing     :        0       0       0       0       0       0       0       0       0       0
+ViaSpacing         :        0       0       0       0       0       0       0       0       0       0
+GridOrigin         : 0 0
+TileSize           : 10 10
+BlockagePorosity   : 0
+
+NumNiTerminals     : 87
+  CK 2
+  GND 2
+  VDD 2
+  n3065gat 2
+  n3066gat 3
+  n3067gat 3
+  n3068gat 3
+  n3069gat 2
+  n3070gat 3
+  n3071gat 3
+  n3072gat 3
+  n3073gat 3
+  n3074gat 3
+  n3075gat 2
+  n3076gat 3
+  n3077gat 3
+  n3078gat 3
+  n3079gat 2
+  n3080gat 2
+  n3081gat 2
+  n3082gat 2
+  n3083gat 3
+  n3084gat 3
+  n3085gat 2
+  n3086gat 3
+  n3087gat 2
+  n3088gat 2
+  n3089gat 2
+  n3090gat 3
+  n3091gat 3
+  n3092gat 3
+  n3093gat 3
+  n3094gat 3
+  n3095gat 2
+  n3097gat 3
+  n3098gat 2
+  n3099gat 2
+  n3100gat 2
+  n3104gat 2
+  n3105gat 3
+  n3106gat 3
+  n3107gat 3
+  n3108gat 2
+  n3109gat 3
+  n3110gat 3
+  n3111gat 2
+  n3112gat 3
+  n3113gat 2
+  n3114gat 2
+  n3115gat 3
+  n3116gat 2
+  n3117gat 2
+  n3118gat 3
+  n3119gat 3
+  n3120gat 3
+  n3121gat 2
+  n3122gat 3
+  n3123gat 2
+  n3124gat 2
+  n3125gat 2
+  n3126gat 2
+  n3127gat 3
+  n3128gat 2
+  n3129gat 2
+  n3130gat 2
+  n3131gat 2
+  n3132gat 3
+  n3133gat 2
+  n3134gat 3
+  n3135gat 2
+  n3136gat 3
+  n3137gat 3
+  n3138gat 3
+  n3139gat 2
+  n3140gat 2
+  n3141gat 2
+  n3142gat 3
+  n3143gat 2
+  n3144gat 2
+  n3145gat 3
+  n3146gat 3
+  n3147gat 2
+  n3148gat 2
+  n3149gat 3
+  n3150gat 3
+  n3151gat 2
+  n3152gat 3
+NumBlockageNodes   : 0
+NumEdgeCapacityAdjustments  : 0

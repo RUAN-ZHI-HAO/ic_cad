@@ -1,0 +1,102 @@
+UCLA route 1.0
+# Created  :  Jul  21 2025
+# User     :  Seungwon Kim at University of California, San Diego (sek006@ucsd.edu)
+Grid               : 144 144 10
+VerticalCapacity   :     1500       0    1500       0    1125       0     844       0     675       0
+HorizontalCapacity :        0    1500       0    1125       0     844       0     675       0     675
+MinWireWidth       :      100     100     100     100     100     100     100     100     100     100
+MinWireSpacing     :        0       0       0       0       0       0       0       0       0       0
+ViaSpacing         :        0       0       0       0       0       0       0       0       0       0
+GridOrigin         : 0 0
+TileSize           : 10 10
+BlockagePorosity   : 0
+
+NumNiTerminals     : 86
+  G1 3
+  G10 3
+  G11 2
+  G12 3
+  G13 2
+  G14 3
+  G15 2
+  G16 2
+  G17 3
+  G18 3
+  G19 3
+  G2 2
+  G20 3
+  G21 2
+  G22 2
+  G23 2
+  G24 2
+  G25 3
+  G26 3
+  G27 2
+  G28 2
+  G29 3
+  G3 2
+  G30 2
+  G31 2
+  G32 2
+  G33 2
+  G34 2
+  G35 2
+  G36 2
+  G37 2
+  G38 3
+  G39 2
+  G4 3
+  G40 3
+  G41 2
+  G42 3
+  G43 3
+  G44 2
+  G45 3
+  G46 3
+  G47 3
+  G48 3
+  G49 2
+  G5 3
+  G50 2
+  G51 3
+  G52 2
+  G53 2
+  G54 3
+  G55 2
+  G56 2
+  G57 3
+  G58 3
+  G59 3
+  G6 3
+  G60 2
+  G7 2
+  G8 2
+  G855 3
+  G856 3
+  G857 3
+  G858 3
+  G859 2
+  G860 3
+  G861 2
+  G862 2
+  G863 3
+  G864 3
+  G865 3
+  G866 3
+  G867 2
+  G868 2
+  G869 3
+  G870 3
+  G871 3
+  G872 2
+  G873 3
+  G874 2
+  G875 2
+  G876 3
+  G877 2
+  G878 2
+  G879 3
+  G880 2
+  G9 3
+NumBlockageNodes   : 0
+NumEdgeCapacityAdjustments  : 0

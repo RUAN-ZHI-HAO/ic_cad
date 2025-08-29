@@ -1,0 +1,177 @@
+UCLA nodes 1.0
+
+NumNodes : 172
+NumTerminals : 61
+
+          _073_              3              5
+          _074_              3              5
+          _075_              3              5
+          _076_              3              5
+          _077_              3              5
+          _078_              3              5
+          _079_              3              5
+          _080_              3              5
+          _081_              3              5
+          _082_              3              5
+          _083_              3              5
+          _084_              3              5
+          _085_              6              5
+          _086_              4              5
+          _087_              6              5
+          _088_              6              5
+          _089_              7              5
+          _090_              4              5
+          _091_              4              5
+          _092_              5              5
+          _093_              6              5
+          _094_              4              5
+          _095_              5              5
+          _096_              6              5
+          _097_              6              5
+          _098_              9              5
+          _099_              4              5
+          _100_              3              5
+          _101_              6              5
+          _102_              3              5
+          _103_              8              5
+          _104_              5              5
+          _105_              4              5
+          _106_              6              5
+          _107_              3              5
+          _108_              4              5
+          _109_              6              5
+          _110_              6              5
+          _111_              3              5
+          _112_              4              5
+          _113_              9              5
+          _114_              5              5
+          _115_              6              5
+          _116_              4              5
+          _117_              7              5
+          _118_              6              5
+          _119_              3              5
+          _120_              7              5
+          _121_              5              5
+          _122_              6              5
+          _123_              4              5
+          _124_              4              5
+          _125_              4              5
+          _126_              4              5
+          _127_              4              5
+          _128_              4              5
+          _129_              4              5
+          _130_              4              5
+          _131_              4              5
+          _132_              4              5
+          _133_              5              5
+          _134_              3              5
+          _135_              4              5
+          _136_              5              5
+          _137_              5              5
+          _138_              5              5
+          _139_              5              5
+          _140_              7              5
+          _141_              6              5
+          _142_              5              5
+          _143_              6              5
+          _144_              6              5
+          _145_              6              5
+          _146_              5              5
+          _147_              6              5
+          _148_              8              5
+          _149_              5              5
+          _150_              4              5
+          _151_              5              5
+          _152_              6              5
+          _153_             16              5
+          _154_              6              5
+          _155_              6              5
+          _156_              6              5
+          _157_              5              5
+          _158_              5              5
+          _159_              5              5
+          _160_              6              5
+          _161_              7              5
+          _162_              5              5
+          _163_              6              5
+          _164_              5              5
+          _165_              5              5
+          _166_              5              5
+          _167_             20              5
+          _168_             20              5
+          _169_             20              5
+          _170_             20              5
+          _171_             20              5
+          _172_             20              5
+          _173_             20              5
+          _174_             20              5
+          _175_             20              5
+          _176_             20              5
+          _177_             20              5
+          _178_             20              5
+          _179_             20              5
+          _180_             20              5
+          _181_             20              5
+          _182_             20              5
+          _183_             20              5
+             CK              0              0        terminal_NI
+             G1              0              0        terminal_NI
+            G10              0              0        terminal_NI
+         G100BF              0              0        terminal_NI
+         G101BF              0              0        terminal_NI
+         G103BF              0              0        terminal_NI
+         G104BF              0              0        terminal_NI
+         G105BF              0              0        terminal_NI
+         G106BF              0              0        terminal_NI
+           G107              0              0        terminal_NI
+            G11              0              0        terminal_NI
+            G12              0              0        terminal_NI
+            G13              0              0        terminal_NI
+            G14              0              0        terminal_NI
+            G15              0              0        terminal_NI
+            G16              0              0        terminal_NI
+            G17              0              0        terminal_NI
+            G18              0              0        terminal_NI
+            G19              0              0        terminal_NI
+             G2              0              0        terminal_NI
+            G20              0              0        terminal_NI
+            G21              0              0        terminal_NI
+            G22              0              0        terminal_NI
+            G23              0              0        terminal_NI
+            G24              0              0        terminal_NI
+            G25              0              0        terminal_NI
+            G26              0              0        terminal_NI
+            G27              0              0        terminal_NI
+            G28              0              0        terminal_NI
+            G29              0              0        terminal_NI
+             G3              0              0        terminal_NI
+            G30              0              0        terminal_NI
+            G31              0              0        terminal_NI
+            G32              0              0        terminal_NI
+            G33              0              0        terminal_NI
+            G34              0              0        terminal_NI
+            G35              0              0        terminal_NI
+            G36              0              0        terminal_NI
+             G4              0              0        terminal_NI
+             G5              0              0        terminal_NI
+             G6              0              0        terminal_NI
+             G8              0              0        terminal_NI
+            G83              0              0        terminal_NI
+            G84              0              0        terminal_NI
+            G85              0              0        terminal_NI
+          G86BF              0              0        terminal_NI
+          G87BF              0              0        terminal_NI
+          G88BF              0              0        terminal_NI
+          G89BF              0              0        terminal_NI
+             G9              0              0        terminal_NI
+            G90              0              0        terminal_NI
+            G91              0              0        terminal_NI
+            G92              0              0        terminal_NI
+            G94              0              0        terminal_NI
+          G95BF              0              0        terminal_NI
+          G96BF              0              0        terminal_NI
+          G97BF              0              0        terminal_NI
+          G98BF              0              0        terminal_NI
+          G99BF              0              0        terminal_NI
+            GND              0              0        terminal_NI
+            VDD              0              0        terminal_NI
