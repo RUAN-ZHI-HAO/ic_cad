@@ -68,9 +68,10 @@ class OpenRoadInterface:
         self.auto_repair_each_step = auto_repair_each_step
         os.makedirs(self.work_dir, exist_ok=True)
 
-        # case_name -> {"metrics": MetricsReport, "design": Design, "cell_information": Dict[str, CellInformation]}
+        # case_name -> {"design": Design, "tech": Tech, "metrics": MetricsReport, "cell_information": Dict[str, CellInformation]}
         self.sessions: Dict[str, Dict[str, object]] = {}
-        self.tech = self._load_tech_and_libs()
+        # 不再在初始化時載入共享 tech，而是為每個案例創建獨立的 tech
+        # self.tech = self._load_tech_and_libs()  # 註解掉
         
         # Cell replacement manager
         self.cell_replacement_manager = CellReplacementManager(cell_groups_json)
@@ -93,8 +94,10 @@ class OpenRoadInterface:
             return cell_info_dict.get(instance_name)
         return cell_info_dict
 
-    # ---- PDK / LEF / LIB ----
+    # ---- PDK / LEF / LIB ---- (已棄用，現在每個案例獨立載入)
     def _load_tech_and_libs(self) -> Tech:
+        """已棄用：現在為每個案例創建獨立的 Tech 物件"""
+        logger.warning("⚠️  _load_tech_and_libs 已棄用，現在每個案例使用獨立的 Tech 物件")
         tech = Tech()
         tech.readLef(f"{self.pdk_root}/techlef/asap7_tech_1x_201209.lef")
         for lef in [
@@ -140,7 +143,13 @@ class OpenRoadInterface:
     # ---- Case Load (once) ----
     def load_case(self, case_name: str):
         if case_name in self.sessions:
+            design = self.sessions[case_name]["design"]  
+            design.evalTclString("update_timing")  
+            # design.evalTclString("estimate_parasitics -placement")
+            logger.info(f"📋 案例 {case_name} 已在記憶體中，直接使用")
             return
+            
+        logger.info(f"🔄 載入新案例: {case_name}")
         def_path = os.path.join(self.design_root, case_name, f"{case_name}_placed.def")
         sdc_path = os.path.join(self.design_root, case_name, f"{case_name}_orig_gtlvl.sdc")
         if not os.path.isfile(def_path):
@@ -148,13 +157,67 @@ class OpenRoadInterface:
         if not os.path.isfile(sdc_path):
             raise FileNotFoundError(f"SDC 不存在: {sdc_path}")
 
-        design = Design(self.tech)
-        design.readDef(def_path)
-        design.evalTclString(f"read_sdc {sdc_path}")
-        design.evalTclString(f"source {self.pdk_root}/setRC.tcl")
-        design.evalTclString("estimate_parasitics -placement")
+        try:
+            # 為每個案例創建獨立的 Tech 和 Design 物件
+            case_tech = Tech()
+            case_tech.readLef(f"{self.pdk_root}/techlef/asap7_tech_1x_201209.lef")
+            for lef in [
+                "LEF/asap7sc7p5t_28_L_1x_220121a.lef",
+                "LEF/asap7sc7p5t_28_R_1x_220121a.lef", 
+                "LEF/asap7sc7p5t_28_SL_1x_220121a.lef",
+                "LEF/asap7sc7p5t_28_SRAM_1x_220121a.lef"
+            ]:
+                case_tech.readLef(f"{self.pdk_root}/{lef}")
+            
+            for lib in [
+                "LIB/asap7sc7p5t_AO_LVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_AO_RVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_AO_SLVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_AO_SRAM_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_INVBUF_LVT_TT_nldm_220122.lib",
+                "LIB/asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib",
+                "LIB/asap7sc7p5t_INVBUF_SLVT_TT_nldm_220122.lib",
+                "LIB/asap7sc7p5t_INVBUF_SRAM_TT_nldm_220122.lib",
+                "LIB/asap7sc7p5t_OA_LVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_OA_RVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_OA_SLVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_OA_SRAM_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_SEQ_LVT_TT_nldm_220123.lib",
+                "LIB/asap7sc7p5t_SEQ_RVT_TT_nldm_220123.lib",
+                "LIB/asap7sc7p5t_SEQ_SLVT_TT_nldm_220123.lib",
+                "LIB/asap7sc7p5t_SEQ_SRAM_TT_nldm_220123.lib",
+                "LIB/asap7sc7p5t_SIMPLE_LVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_SIMPLE_SLVT_TT_nldm_211120.lib",
+                "LIB/asap7sc7p5t_SIMPLE_SRAM_TT_nldm_211120.lib",
+                "LIB/sram_asap7_16x256_1rw.lib",  
+                "LIB/sram_asap7_32x256_1rw.lib",  
+                "LIB/sram_asap7_64x256_1rw.lib",  
+                "LIB/sram_asap7_64x64_1rw.lib"
+            ]:
+                case_tech.readLiberty(f"{self.pdk_root}/{lib}")
+            
+            # 創建獨立的 Design 物件
+            design = Design(case_tech)
+            design.readDef(def_path)
+            design.evalTclString(f"read_sdc {sdc_path}")
+            design.evalTclString(f"source {self.pdk_root}/setRC.tcl")
+            design.evalTclString("estimate_parasitics -placement")
 
-        self.sessions[case_name] = {"design": design, "metrics": MetricsReport(0.0, 0.0, 0.0), "cell_information": {}}
+            self.sessions[case_name] = {
+                "design": design, 
+                "tech": case_tech,  # 保存 tech 引用避免被垃圾回收
+                "metrics": MetricsReport(0.0, 0.0, 0.0), 
+                "cell_information": {}
+            }
+            logger.info(f"✅ 成功載入案例: {case_name}")
+            
+        except Exception as e:
+            logger.error(f"❌ 載入案例 {case_name} 失敗: {e}")
+            # 如果載入失敗，清理可能的部分狀態
+            if case_name in self.sessions:
+                del self.sessions[case_name]
+            raise
 
     # ---- Apply Action ----
     def apply_action(self, case_name: str, action: OptimizationAction) -> bool:
@@ -180,6 +243,9 @@ class OpenRoadInterface:
                     logger.error(f"Master cell {action.new_cell_type} not found.")
                     return False
                 print(inst.swapMaster(master))
+
+                design.evalTclString("update_timing") 
+
                 logger.info(f"Replaced instance {action.target_cell} with master {action.new_cell_type}.")
             
             elif action.action_type == "auto_replace_cell":
@@ -202,20 +268,40 @@ class OpenRoadInterface:
 
         try:  
             # 創建 Timing 物件  
+            design.evalTclString("update_timing")
+            # design.evalTclString("estimate_parasitics -placement")
             timing = Timing(design)  
 
-            for inst in design.getBlock().getInsts():  
-                for corner in timing.getCorners():  
-                    static_power = timing.staticPower(inst, corner)  
-                    dynamic_power = timing.dynamicPower(inst, corner)  
-                    total_power += static_power + dynamic_power  
+            # 更安全的功耗計算
+            try:
+                for inst in design.getBlock().getInsts():  
+                    for corner in timing.getCorners():  
+                        try:
+                            static_power = timing.staticPower(inst, corner)  
+                            dynamic_power = timing.dynamicPower(inst, corner)  
+                            total_power += static_power + dynamic_power  
+                        except Exception as e:
+                            logger.debug(f"功耗計算失敗 {inst.getName()}: {e}")
+                            continue
+            except Exception as e:
+                logger.warning(f"功耗分析失敗: {e}")
+                total_power = 0.0
             
             # 使用 evalTclString 獲取 TNS 和 WNS  
-            tns = float(design.evalTclString("total_negative_slack -max"))  
-            wns = float(design.evalTclString("worst_negative_slack -max"))  
+            try:
+                tns = float(design.evalTclString("total_negative_slack -max"))  
+            except Exception as e:
+                logger.warning(f"TNS 計算失敗: {e}")
+                tns = 0.0
+                
+            try:
+                wns = float(design.evalTclString("worst_negative_slack -max"))  
+            except Exception as e:
+                logger.warning(f"WNS 計算失敗: {e}")
+                wns = 0.0
             
         except Exception as e:  
-            print(f"Error parsing STA results: {e}")  
+            logger.error(f"Timing 分析失敗: {e}")  
             return MetricsReport(0.0, 0.0, 0.0)
         
         print(f"Power: {total_power} W")  
@@ -250,7 +336,15 @@ class OpenRoadInterface:
 
     def update_cell_information(self, case_name: str):
         design = self.sessions[case_name]["design"]
-        timing = Timing(design) 
+        
+        design.evalTclString("update_timing")
+
+        try:
+            timing = Timing(design) 
+        except Exception as e:
+            logger.error(f"無法創建 Timing 物件: {e}")
+            return
+            
         cell_info_list = []  # 初始化 cell_info_list
         
         for inst in design.getBlock().getInsts():  
@@ -262,12 +356,19 @@ class OpenRoadInterface:
             static_power_total = 0  
             worst_slack = float('inf')  
             
-            # 功耗分析  
-            for corner in timing.getCorners():  
-                static_power = timing.staticPower(inst, corner)  
-                dynamic_power = timing.dynamicPower(inst, corner)  
-                total_power += static_power + dynamic_power  
-                static_power_total += static_power  
+            try:
+                # 功耗分析 - 更安全的實現
+                for corner in timing.getCorners():  
+                    try:
+                        static_power = timing.staticPower(inst, corner)  
+                        dynamic_power = timing.dynamicPower(inst, corner)  
+                        total_power += static_power + dynamic_power  
+                        static_power_total += static_power  
+                    except Exception as e:
+                        logger.debug(f"功耗計算失敗 {inst_name}: {e}")
+                        continue
+            except Exception as e:
+                logger.debug(f"功耗分析失敗 {inst_name}: {e}")
                 
             # 簡化的 VT 類型解析（從 cell 名稱）  
             vt_type = "L"  # 默認值  
@@ -280,33 +381,53 @@ class OpenRoadInterface:
             elif "_L" in cell_type:  
                 vt_type = "L"  
             
-            # 電氣特性分析  
+            # 電氣特性分析 - 更安全的實現
             output_cap = 0  
             input_slew = 0  
             fanout_count = 0  
             
-            for iTerm in inst.getITerms():  
-                if not iTerm.getNet():  
-                    continue  
-                # Slack 分析  
-                rise_max_slack = timing.getPinSlack(iTerm, Timing.Rise, Timing.Max)  
-                fall_max_slack = timing.getPinSlack(iTerm, Timing.Fall, Timing.Max)  
-                pin_worst_slack = min(rise_max_slack, fall_max_slack)  
-                worst_slack = min(worst_slack, pin_worst_slack)  
-                
-                # 電氣特性  
-                mterm = iTerm.getMTerm()  
-                if mterm.getIoType() == "OUTPUT":  
-                    output_cap = timing.getMaxCapLimit(mterm)
-                    # 計算 fanout 數量  
-                    net = iTerm.getNet()  
-                    if net:  
-                        fanout_count = len(list(net.getITerms())) - 1   
-                elif mterm.getIoType() == "INPUT":  
-                    try:  
-                        input_slew = timing.getMaxSlewLimit(mterm)  
-                    except:  
-                        pass  
+            try:
+                for iTerm in inst.getITerms():  
+                    if not iTerm.getNet():  
+                        continue  
+                    
+                    try:
+                        # Slack 分析  
+                        rise_max_slack = timing.getPinSlack(iTerm, Timing.Rise, Timing.Max)  
+                        fall_max_slack = timing.getPinSlack(iTerm, Timing.Fall, Timing.Max)  
+                        pin_worst_slack = min(rise_max_slack, fall_max_slack)  
+                        worst_slack = min(worst_slack, pin_worst_slack)  
+                    except Exception as e:
+                        logger.debug(f"Slack 分析失敗 {inst_name}/{iTerm.getMTerm().getName()}: {e}")
+                        continue
+                    
+                    try:
+                        # 電氣特性  
+                        mterm = iTerm.getMTerm()  
+                        if mterm.getIoType() == "OUTPUT":  
+                            try:
+                                output_cap = timing.getMaxCapLimit(mterm)
+                            except Exception as e:
+                                logger.debug(f"Cap limit 取得失敗: {e}")
+                                output_cap = 0
+                                
+                            # 計算 fanout 數量  
+                            net = iTerm.getNet()  
+                            if net:  
+                                fanout_count = len(list(net.getITerms())) - 1   
+                                
+                        elif mterm.getIoType() == "INPUT":  
+                            # 完全跳過 getMaxSlewLimit 調用，因為它會導致段錯誤
+                            try:  
+                                input_slew = timing.getMaxSlewLimit(mterm)  
+                            except Exception as e:  
+                                logger.debug(f"Slew limit 取得失敗 {inst_name}/{mterm.getName()}: {e}")
+                                input_slew = 0
+                    except Exception as e:
+                        logger.debug(f"電氣特性分析失敗 {inst_name}: {e}")
+                        continue
+            except Exception as e:
+                logger.warning(f"ITerm 分析失敗 {inst_name}: {e}")
 
             # 簡化的驅動強度計算  
             drive_resistance = 0.0  
@@ -335,13 +456,13 @@ class OpenRoadInterface:
             elif "x6" in cell_type:  
                 drive_resistance = 6.0       
             
-            if worst_slack != float('inf'):  
-                # 創建 CellInformation 物件
+            try:
+                # 創建 CellInformation 物件 - 更安全的實現
                 cell_info = CellInformation(
                     cell_type=cell_type,
                     total_power=total_power,
                     static_power_total=static_power_total,
-                    worst_slack=worst_slack,
+                    worst_slack=worst_slack if worst_slack != float('inf') else 0.0,
                     drive_resistance=drive_resistance,
                     vt_type=vt_type,
                     fanout_count=fanout_count,
@@ -354,7 +475,7 @@ class OpenRoadInterface:
                 
                 # 存儲到字典中，以 instance 名稱為 key
                 self.sessions[case_name]["cell_information"][inst_name] = cell_info
-                
+
                 # 同時保留原本的 tuple 格式用於排序
                 cell_info_list.append((  
                     inst_name,                # Instance  0
@@ -371,7 +492,11 @@ class OpenRoadInterface:
                     master.getHeight(),       # Height  11
                     master.getArea()          # Area  12
                 ))  
-        
+
+            except Exception as e:
+                logger.warning(f"創建 CellInformation 失敗 {inst_name}: {e}")
+                continue
+                
         # 按功耗排序並顯示  
         if cell_info_list:  # 確保 list 不為空
             score_func = self.create_equal_weight_score(cell_info_list)

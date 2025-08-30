@@ -78,6 +78,10 @@ class RLConfig:
     wns_goal_threshold: float = -0.1      # WNS 目標閾值 (更實際)
     goal_bonus: float = 1.5               # 目標達成獎勵 (適中)
     
+    # === 設備配置 ===
+    device: str = "auto"  # "auto", "cuda", "cpu" - auto 會自動選擇最佳設備
+    force_cpu: bool = False  # 強制使用 CPU（即使有 GPU）
+    
     # === 檔案路徑 ===
     # gnn_model_path 設為 None，讓 load_encoder 自動從 meta 中讀取
     gnn_model_path: Optional[str] = None  
@@ -106,6 +110,21 @@ class RLConfig:
             # self.benchmark_cases = ['c17', 'c432', 'c499', 'c880', 'c1355', 'c1908', 'c2670']
             self.benchmark_cases = ['s1488']
         
+        # 設備配置
+        import torch
+        if self.force_cpu:
+            self.device = "cpu"
+        elif self.device == "auto":
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        elif self.device == "cuda" and not torch.cuda.is_available():
+            print("⚠️  警告：請求使用 CUDA 但 GPU 不可用，回退到 CPU")
+            self.device = "cpu"
+        
+        print(f"🖥️  使用設備: {self.device.upper()}")
+        if self.device == "cuda":
+            print(f"🚀 GPU 型號: {torch.cuda.get_device_name(0)}")
+            print(f"💾 GPU 記憶體: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+        
         # 創建輸出目錄
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.model_save_dir, exist_ok=True)
@@ -113,6 +132,10 @@ class RLConfig:
 @dataclass
 class InferenceConfig:
     """推論配置"""
+    
+    # === 設備配置 ===
+    device: str = "auto"  # "auto", "cuda", "cpu"
+    force_cpu: bool = False  # 強制使用 CPU
     
     # === 模型路徑 ===
     actor_model_path: str = "/root/ruan_workspace/ic_cad/rl/models/best_actor.pth"
@@ -131,6 +154,18 @@ class InferenceConfig:
     
     def __post_init__(self):
         """初始化後處理"""
+        # 設備配置
+        import torch
+        if self.force_cpu:
+            self.device = "cpu"
+        elif self.device == "auto":
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        elif self.device == "cuda" and not torch.cuda.is_available():
+            print("⚠️  警告：請求使用 CUDA 但 GPU 不可用，回退到 CPU")
+            self.device = "cpu"
+        
+        print(f"🖥️  推論設備: {self.device.upper()}")
+        
         os.makedirs(self.output_dir, exist_ok=True)
 
 # 預設配置實例

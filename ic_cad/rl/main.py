@@ -147,7 +147,7 @@ class TwoDimensionalICCADOptimizer:
     
     def optimize_circuit(self, case_names: List[str], 
                         model_path: Optional[str] = None,
-                        max_actions: int = 10,
+                        max_actions: int = 1000,
                         save_detailed: bool = True) -> Dict[str, any]:
         """
         使用訓練好的 2D 動作空間模型優化電路
@@ -214,11 +214,27 @@ class TwoDimensionalICCADOptimizer:
         if not results:
             return {}
         
-        tns_improvements = [r['improvements']['tns'] for r in results if 'improvements' in r]
-        wns_improvements = [r['improvements']['wns'] for r in results if 'improvements' in r]
-        power_improvements = [r['improvements']['power'] for r in results if 'improvements' in r]
-        success_rates = [r['optimization_info']['success_rate'] for r in results if 'optimization_info' in r]
-        convergence_rates = [r['optimization_info']['convergence'] for r in results if 'optimization_info' in r]
+        # 安全地提取數據，處理可能缺失的欄位
+        tns_improvements = []
+        wns_improvements = []
+        power_improvements = []
+        success_rates = []
+        convergence_rates = []
+        
+        for r in results:
+            if 'improvements' in r:
+                if 'tns' in r['improvements']:
+                    tns_improvements.append(r['improvements']['tns'])
+                if 'wns' in r['improvements']:
+                    wns_improvements.append(r['improvements']['wns'])
+                if 'power' in r['improvements']:
+                    power_improvements.append(r['improvements']['power'])
+            
+            if 'optimization_info' in r:
+                if 'success_rate' in r['optimization_info']:
+                    success_rates.append(r['optimization_info']['success_rate'])
+                if 'convergence' in r['optimization_info']:
+                    convergence_rates.append(r['optimization_info']['convergence'])
         
         return {
             'total_cases': len(results),
@@ -340,7 +356,7 @@ def main():
                        help='電路案例名稱列表')
     parser.add_argument('--episodes', type=int, default=1000,
                        help='訓練回合數')
-    parser.add_argument('--max-actions', type=int, default=10,
+    parser.add_argument('--max-actions', type=int, default=1000,
                        help='最大優化動作數')
     parser.add_argument('--model-path', type=str,
                        help='模型路徑（僅限 optimize 模式）')

@@ -343,7 +343,8 @@ class TwoDimensionalPPOAgent:
                  gamma: float = 0.99, eps_clip: float = 0.2,
                  ppo_epochs: int = 4, mini_batch_size: int = 32,
                  entropy_coef: float = 0.02, value_coef: float = 0.5,
-                 target_kl: float = 0.03, max_grad_norm: float = 0.5):
+                 target_kl: float = 0.03, max_grad_norm: float = 0.5,
+                 device: str = "auto"):
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.max_candidates = max_candidates
@@ -359,6 +360,15 @@ class TwoDimensionalPPOAgent:
         self.target_kl = target_kl
         self.max_grad_norm = max_grad_norm
         
+        # 設備配置
+        import torch
+        if device == "auto":
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        else:
+            self.device = torch.device(device)
+        
+        logger.info(f"🖥️  PPO Agent 使用設備: {self.device}")
+        
         # 取得 cell 數量（可選）
         try:
             import sys
@@ -372,10 +382,10 @@ class TwoDimensionalPPOAgent:
         # Networks
         self.policy_network = TwoDimensionalPolicyNetwork(
             feature_dim, hidden_dim, max_candidates, max_replacements, global_feature_dim=9, num_cells=num_cells
-        )
+        ).to(self.device)  # 移動到指定設備
         self.value_network = TwoDimensionalValueNetwork(
             feature_dim, hidden_dim, global_feature_dim=9, num_cells=num_cells
-        )
+        ).to(self.device)  # 移動到指定設備
         
         # Optimizers（actor/critic 可不同 LR）
         self.policy_optimizer = torch.optim.Adam(self.policy_network.parameters(), lr=self.lr)
@@ -733,14 +743,24 @@ class TwoDimensionalPPOAgent:
     
     def load_model(self, filepath: str, strict: bool = True):
         try:
-            checkpoint = torch.load(filepath, map_location='cpu')
+            # 根據當前設備載入模型
+            if self.device.type == 'cuda':
+                checkpoint = torch.load(filepath, map_location=self.device)
+            else:
+                checkpoint = torch.load(filepath, map_location='cpu')
+                
             self.policy_network.load_state_dict(checkpoint['policy_state_dict'], strict=strict)
             self.value_network.load_state_dict(checkpoint['value_state_dict'], strict=strict)
+            
+            # 確保網路在正確的設備上
+            self.policy_network = self.policy_network.to(self.device)
+            self.value_network = self.value_network.to(self.device)
+            
             if 'policy_optimizer_state_dict' in checkpoint:
                 self.policy_optimizer.load_state_dict(checkpoint['policy_optimizer_state_dict'])
             if 'value_optimizer_state_dict' in checkpoint:
                 self.value_optimizer.load_state_dict(checkpoint['value_optimizer_state_dict'])
-            logger.info(f"✓ 模型載入成功 ({'strict' if strict else 'non-strict'})")
+            logger.info(f"✓ 模型載入成功 ({'strict' if strict else 'non-strict'}) - 設備: {self.device}")
             return True
         except Exception as e:
             logger.error(f"✗ 模型載入失敗：{e}")

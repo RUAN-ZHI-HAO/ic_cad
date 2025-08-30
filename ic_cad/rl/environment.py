@@ -690,7 +690,7 @@ class OptimizationEnvironment:
             if power_improvement > 0:  # 功耗減少了
                 step_reward += 1.0 * (power_improvement / global_initial_power)
             else:  # 功耗增加了
-                step_reward += 1.0 * (power_improvement / global_initial_power)  # 等權重負獎勵
+                step_reward += 1.75 * (power_improvement / global_initial_power)  # 等權重負獎勵
         else:  # 初始功耗接近0（不太可能但防禦性編程）
             if abs(power_improvement) > 1e-9:
                 step_reward += 0.1 if power_improvement > 0 else -0.1
@@ -699,7 +699,8 @@ class OptimizationEnvironment:
         milestone_reward = 0.0
         global_tns_improvement = abs(global_initial_tns) - abs(new_tns)  # 相對初始的改善
         global_wns_improvement = abs(global_initial_wns) - abs(new_wns)  # 相對初始的改善
-        
+        global_power_improvement = abs(global_initial_power) - abs(new_power)
+
         if global_tns_improvement > 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態有改善且有意義
             improvement_ratio = global_tns_improvement / abs(global_initial_tns)
             if improvement_ratio > 0.05:  # 5%以上改善
@@ -718,6 +719,17 @@ class OptimizationEnvironment:
             # 對於無時序約束的電路，任何有意義的TNS惡化都給小懲罰
             if abs(global_tns_improvement) > 1e-6:
                 milestone_reward -= 1.0
+
+        if global_power_improvement > 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態有改善且有意義
+            improvement_ratio = global_power_improvement / abs(global_initial_power)
+            if improvement_ratio > 0.05:  # 5%以上改善
+                milestone_reward += 10.0
+            elif improvement_ratio > 0.01:  # 1%以上改善
+                milestone_reward += 5.0
+        elif global_power_improvement < 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態惡化且有意義
+            degradation_ratio = abs(global_power_improvement) / abs(global_initial_power)
+            if degradation_ratio > 0.2:  # 惡化超過20%
+                milestone_reward -= 10.0
 
         # 🚫 移除額外懲罰機制，讓自然負獎勵發揮作用
         penalty = 0.0

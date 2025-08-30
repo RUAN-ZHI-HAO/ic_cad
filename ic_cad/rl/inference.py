@@ -48,7 +48,13 @@ class TwoDimensionalInferenceEngine:
         
         # 建立智能體
         logger.info("建立二維動作空間智能體...")
-        self.agent = TwoDimensionalPPOAgent(self.rl_config)
+        self.agent = TwoDimensionalPPOAgent(
+            feature_dim=self.rl_config.gnn_embed_dim,
+            hidden_dim=self.rl_config.hidden_dim,
+            max_candidates=self.rl_config.max_candidates,
+            max_replacements=self.rl_config.max_replacements,
+            device=inference_config.device  # 傳遞設備配置
+        )
         
         # 結果記錄
         self.optimization_results = []
@@ -81,132 +87,172 @@ class TwoDimensionalInferenceEngine:
         logger.info(f"開始優化案例: {case_name}")
         start_time = datetime.now()
         
-        # 重置環境
-        environment_state = self.env.reset(case_name)
-        initial_tns = environment_state.current_tns
-        initial_wns = environment_state.current_wns
-        initial_power = environment_state.current_power
-        
-        # 記錄優化過程
-        optimization_steps = []
-        actions_taken = []
-        successful_actions = 0
-        
-        step_count = 0
-        while not environment_state.done and step_count < self.inference_config.max_actions:
-            # 獲取二維動作
-            action, info = self.agent.get_action(
-                environment_state, 
-                deterministic=self.inference_config.greedy
-            )
+        try:
+            # 重置環境
+            environment_state = self.env.reset(case_name)
+            initial_tns = environment_state.current_tns
+            initial_wns = environment_state.current_wns
+            initial_power = environment_state.current_power
             
-            # 記錄二維動作資訊
-            candidate_idx, replacement_idx = action
-            candidate_cell = environment_state.candidate_cells[candidate_idx]
+            # 記錄優化過程
+            optimization_steps = []
+            actions_taken = []
+            successful_actions = 0
             
-            # 執行動作
-            next_environment_state, reward, done, env_info = self.env.step(action)
+            step_count = 0
+            while not environment_state.done and step_count < self.inference_config.max_actions:
+                # 獲取二維動作
+                action, info = self.agent.get_action(
+                    environment_state, 
+                    deterministic=self.inference_config.greedy
+                )
+                
+                # 記錄二維動作資訊
+                candidate_idx, replacement_idx = action
+                candidate_cell = environment_state.candidate_cells[candidate_idx]
+                
+                # 執行動作
+                next_environment_state, reward, done, env_info = self.env.step(action)
+                
+                # 統計成功動作
+                if env_info.get('action_success', False):
+                    successful_actions += 1
+                
+                # 記錄步驟
+                step_info = {
+                    'step': step_count,
+                    'action': {
+                        'candidate_idx': candidate_idx,
+                        'replacement_idx': replacement_idx,
+                        'candidate_cell': candidate_cell,
+                        'target_cell': env_info.get('target_cell', 'unknown')
+                    },
+                    'metrics_before': {
+                        'tns': environment_state.current_tns,
+                        'wns': environment_state.current_wns,
+                        'power': environment_state.current_power
+                    },
+                    'metrics_after': {
+                        'tns': next_environment_state.current_tns,
+                        'wns': next_environment_state.current_wns,
+                        'power': next_environment_state.current_power
+                    },
+                    'reward': reward,
+                    'success': env_info.get('action_success', False),
+                    'log_prob': info.get('log_prob', 0.0),
+                    'value': info.get('value', 0.0)
+                }
+                optimization_steps.append(step_info)
+                actions_taken.append(action)
+                
+                # 更新狀態
+                environment_state = next_environment_state
+                step_count += 1
+                
+                logger.info(f"步驟 {step_count}: 候選{candidate_idx}({candidate_cell})→替換{replacement_idx}, "
+                           f"TNS={environment_state.current_tns:.4f}, "
+                           f"WNS={environment_state.current_wns:.4f}, "
+                           f"Power={environment_state.current_power:.6f}, "
+                           f"獎勵={reward:.4f}, 成功={step_info['success']}")
             
-            # 統計成功動作
-            if env_info.get('action_success', False):
-                successful_actions += 1
+            # 計算優化結果
+            final_tns = environment_state.current_tns
+            final_wns = environment_state.current_wns
+            final_power = environment_state.current_power
             
-            # 記錄步驟
-            step_info = {
-                'step': step_count,
-                'action': {
-                    'candidate_idx': candidate_idx,
-                    'replacement_idx': replacement_idx,
-                    'candidate_cell': candidate_cell,
-                    'target_cell': env_info.get('target_cell', 'unknown')
+            tns_improvement = initial_tns - final_tns
+            wns_improvement = initial_wns - final_wns
+            power_improvement = initial_power - final_power
+            success_rate = successful_actions / step_count if step_count > 0 else 0.0
+            
+            optimization_time = datetime.now() - start_time
+            
+            # 判斷是否達成目標
+            tns_goal_achieved = final_tns >= self.rl_config.tns_goal_threshold
+            wns_goal_achieved = final_wns >= self.rl_config.wns_goal_threshold
+            convergence = tns_goal_achieved and wns_goal_achieved
+            
+            result = {
+                'case_name': case_name,
+                'initial_metrics': {
+                    'tns': initial_tns,
+                    'wns': initial_wns,
+                    'power': initial_power
                 },
-                'metrics_before': {
-                    'tns': environment_state.current_tns,
-                    'wns': environment_state.current_wns,
-                    'power': environment_state.current_power
+                'final_metrics': {
+                    'tns': final_tns,
+                    'wns': final_wns,
+                    'power': final_power
                 },
-                'metrics_after': {
-                    'tns': next_environment_state.current_tns,
-                    'wns': next_environment_state.current_wns,
-                    'power': next_environment_state.current_power
+                'improvements': {
+                    'tns': tns_improvement,
+                    'wns': wns_improvement,
+                    'power': power_improvement,
+                    'tns_percentage': (tns_improvement / abs(initial_tns)) * 100 if initial_tns != 0 else 0,
+                    'wns_percentage': (wns_improvement / abs(initial_wns)) * 100 if initial_wns != 0 else 0,
+                    'power_percentage': (power_improvement / initial_power) * 100 if initial_power != 0 else 0
                 },
-                'reward': reward,
-                'success': env_info.get('action_success', False),
-                'action_prob': info['action_prob'],
-                'value': info['value']
+                'optimization_info': {
+                    'steps_taken': step_count,
+                    'successful_actions': successful_actions,
+                    'success_rate': success_rate,
+                    'optimization_time': optimization_time.total_seconds(),
+                    'convergence': convergence,
+                    'tns_goal_achieved': tns_goal_achieved,
+                    'wns_goal_achieved': wns_goal_achieved
+                },
+                'optimization_steps': optimization_steps,
+                'actions_taken': actions_taken
             }
-            optimization_steps.append(step_info)
-            actions_taken.append(action)
             
-            # 更新狀態
-            environment_state = next_environment_state
-            step_count += 1
+            logger.info(f"優化完成 - TNS: {initial_tns:.4f}→{final_tns:.4f} ({tns_improvement:+.4f}, {result['improvements']['tns_percentage']:+.2f}%), "
+                       f"WNS: {initial_wns:.4f}→{final_wns:.4f} ({wns_improvement:+.4f}, {result['improvements']['wns_percentage']:+.2f}%), "
+                       f"Power: {power_improvement:+.6f} ({result['improvements']['power_percentage']:+.2f}%), "
+                       f"成功率: {success_rate:.2%}, 步數: {step_count}, 時間: {optimization_time.total_seconds():.2f}s")
             
-            logger.info(f"步驟 {step_count}: 候選{candidate_idx}({candidate_cell})→替換{replacement_idx}, "
-                       f"TNS={environment_state.current_tns:.4f}, "
-                       f"WNS={environment_state.current_wns:.4f}, "
-                       f"Power={environment_state.current_power:.6f}, "
-                       f"獎勵={reward:.4f}, 成功={step_info['success']}")
-        
-        # 計算優化結果
-        final_tns = environment_state.current_tns
-        final_wns = environment_state.current_wns
-        final_power = environment_state.current_power
-        
-        tns_improvement = initial_tns - final_tns
-        wns_improvement = initial_wns - final_wns
-        power_improvement = initial_power - final_power
-        success_rate = successful_actions / step_count if step_count > 0 else 0.0
-        
-        optimization_time = datetime.now() - start_time
-        
-        # 判斷是否達成目標
-        tns_goal_achieved = final_tns >= self.rl_config.tns_goal_threshold
-        wns_goal_achieved = final_wns >= self.rl_config.wns_goal_threshold
-        convergence = tns_goal_achieved and wns_goal_achieved
-        
-        result = {
-            'case_name': case_name,
-            'initial_metrics': {
-                'tns': initial_tns,
-                'wns': initial_wns,
-                'power': initial_power
-            },
-            'final_metrics': {
-                'tns': final_tns,
-                'wns': final_wns,
-                'power': final_power
-            },
-            'improvements': {
-                'tns': tns_improvement,
-                'wns': wns_improvement,
-                'power': power_improvement,
-                'tns_percentage': (tns_improvement / abs(initial_tns)) * 100 if initial_tns != 0 else 0,
-                'wns_percentage': (wns_improvement / abs(initial_wns)) * 100 if initial_wns != 0 else 0,
-                'power_percentage': (power_improvement / initial_power) * 100 if initial_power != 0 else 0
-            },
-            'optimization_info': {
-                'steps_taken': step_count,
-                'successful_actions': successful_actions,
-                'success_rate': success_rate,
-                'optimization_time': optimization_time.total_seconds(),
-                'convergence': convergence,
-                'tns_goal_achieved': tns_goal_achieved,
-                'wns_goal_achieved': wns_goal_achieved
-            },
-            'optimization_steps': optimization_steps,
-            'actions_taken': actions_taken
-        }
-        
-        logger.info(f"優化完成 - TNS: {initial_tns:.4f}→{final_tns:.4f} ({tns_improvement:+.4f}, {result['improvements']['tns_percentage']:+.2f}%), "
-                   f"WNS: {initial_wns:.4f}→{final_wns:.4f} ({wns_improvement:+.4f}, {result['improvements']['wns_percentage']:+.2f}%), "
-                   f"Power: {power_improvement:+.6f} ({result['improvements']['power_percentage']:+.2f}%), "
-                   f"成功率: {success_rate:.2%}, 步數: {step_count}, 時間: {optimization_time.total_seconds():.2f}s")
-        
-        if convergence:
-            logger.info("🎉 時序目標已達成!")
-        
-        return result
+            if convergence:
+                logger.info("🎉 時序目標已達成!")
+            
+            return result
+    
+        except Exception as e:
+            logger.error(f"優化案例 {case_name} 失敗: {e}")
+            optimization_time = datetime.now() - start_time
+            
+            # 返回基本的錯誤結果結構
+            return {
+                'case_name': case_name,
+                'error': str(e),
+                'initial_metrics': {
+                    'tns': getattr(locals().get('initial_tns'), 'value', 0.0),
+                    'wns': getattr(locals().get('initial_wns'), 'value', 0.0),
+                    'power': getattr(locals().get('initial_power'), 'value', 0.0)
+                },
+                'final_metrics': {
+                    'tns': 0.0,
+                    'wns': 0.0,
+                    'power': 0.0
+                },
+                'improvements': {
+                    'tns': 0.0,
+                    'wns': 0.0,
+                    'power': 0.0,
+                    'tns_percentage': 0.0,
+                    'wns_percentage': 0.0,
+                    'power_percentage': 0.0
+                },
+                'optimization_info': {
+                    'steps_taken': 0,
+                    'successful_actions': 0,
+                    'success_rate': 0.0,
+                    'optimization_time': optimization_time.total_seconds(),
+                    'convergence': False,
+                    'tns_goal_achieved': False,
+                    'wns_goal_achieved': False
+                },
+                'optimization_steps': [],
+                'actions_taken': []
+            }
     
     def optimize_multiple_cases(self, case_names: List[str]) -> List[Dict[str, any]]:
         """

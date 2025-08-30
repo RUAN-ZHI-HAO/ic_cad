@@ -68,7 +68,8 @@ class TwoDimensionalTrainingManager:
             entropy_coef=config.entropy_coef,  # 熵係數
             value_coef=config.value_coef,  # 價值函數係數
             target_kl=config.target_kl,  # 目標 KL 散度
-            max_grad_norm=config.max_grad_norm  # 梯度裁剪
+            max_grad_norm=config.max_grad_norm,  # 梯度裁剪
+            device=config.device  # 傳遞設備配置
         )
         
         # Training statistics
