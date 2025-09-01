@@ -150,8 +150,8 @@ class OpenRoadInterface:
             return
             
         logger.info(f"🔄 載入新案例: {case_name}")
-        def_path = os.path.join(self.design_root, case_name, f"{case_name}_placed.def")
-        sdc_path = os.path.join(self.design_root, case_name, f"{case_name}_orig_gtlvl.sdc")
+        def_path = os.path.join(self.design_root, case_name, f"{case_name}.def")
+        sdc_path = os.path.join(self.design_root, case_name, f"{case_name}.sdc")
         if not os.path.isfile(def_path):
             raise FileNotFoundError(f"DEF 不存在: {def_path}")
         if not os.path.isfile(sdc_path):

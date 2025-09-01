@@ -72,14 +72,14 @@ def extract_cell_type_mapping_from_verilog(verilog_path):
     # 使用正則表達式來匹配 Verilog 實例
     import re
     
-    # 多種匹配模式來處理不同的格式
+    # 多種匹配模式來處理不同的格式（包含 array 格式的實例名稱）
     patterns = [
-        # Pattern 1: 標準格式 CELL_TYPE INSTANCE_NAME (
-        r'^\s*([A-Za-z][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(',
-        # Pattern 2: 處理可能有額外空格的情況
-        r'^\s*([A-Za-z0-9_]+(?:x\d+)?_[A-Za-z0-9_]+)\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(',
-        # Pattern 3: 處理整行的實例宣告
-        r'([A-Za-z0-9_]+(?:x\d+)?_[A-Za-z0-9_]+)\s+([A-Za-z_][A-Za-z0-9_]*)\s*\([^;]*\)\s*;'
+        # Pattern 1: 標準格式 CELL_TYPE INSTANCE_NAME ( - 支援 array 格式 [數字]
+        r'^\s*([A-Za-z][A-Za-z0-9_]*)\s+([A-Za-z_][A-Za-z0-9_\[\]]*)\s*\(',
+        # Pattern 2: 處理可能有額外空格的情況 - 支援 array 格式
+        r'^\s*([A-Za-z0-9_]+(?:x\d+)?_[A-Za-z0-9_]+)\s+([A-Za-z_][A-Za-z0-9_\[\]]*)\s*\(',
+        # Pattern 3: 處理整行的實例宣告 - 支援 array 格式
+        r'([A-Za-z0-9_]+(?:x\d+)?_[A-Za-z0-9_]+)\s+([A-Za-z_][A-Za-z0-9_\[\]]*)\s*\([^;]*\)\s*;'
     ]
     
     lines = content.split('\n')
@@ -145,7 +145,7 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
     with open(library_json_path, 'r') as f:
         lib = json.load(f)
     # 2. 擷取 cell type map from verilog
-    verilog_path = os.path.join(verilog_root, case_name, f"{case_name}_orig_gtlvl.v")
+    verilog_path = os.path.join(verilog_root, case_name, f"{case_name}.v")
     # print(f"Reading Verilog file: {verilog_path}")
     
     if not os.path.exists(verilog_path):

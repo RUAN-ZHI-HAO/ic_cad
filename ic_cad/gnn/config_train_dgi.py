@@ -27,6 +27,7 @@ from torch_geometric.utils import negative_sampling
 
 # 依你現有專案
 from graph_builder import build_graph_from_case, collect_all_cell_types
+from torch.optim.lr_scheduler import LinearLR, CosineAnnealingLR, SequentialLR
 
 # ---------------------------
 # 全域快取（固定驗證抽樣用）
@@ -91,7 +92,7 @@ def parse_args():
 
     # Probe（驗證）
     p.add_argument('--probe-every', type=int, default=10)
-    p.add_argument('--probe-samples', type=int, default=3000)
+    p.add_argument('--probe-samples', type=int, default=30000)
     p.add_argument('--earlystop-by-probe', action='store_true')
     p.add_argument('--probe-graph', type=str, default='', help='指定哪個基準圖作為 probe')
     p.add_argument('--fix-probe-samples', action='store_true', help='固定 probe 抽樣（更穩定）')
@@ -135,7 +136,7 @@ class ConfigurableGATEncoder(nn.Module):
             heads = heads_schedule[i] if i < len(heads_schedule) else 1
             self.convs.append(GATConv(in_dim, out_channels, heads=heads, concat=False, dropout=dropout))
             if i < num_layers - 1:
-                self.bns.append(nn.BatchNorm1d(out_channels))
+                self.bns.append(nn.LayerNorm(out_channels))
             in_dim = out_channels
         self.dropout = dropout
 
@@ -173,7 +174,7 @@ class ProjectionHead(nn.Module):
 # Augmentation（不丟 node）
 # ---------------------------
 
-def augment_view(x, edge_index, feat_mask_p=0.1, edge_drop_p=0.1):
+def augment_view(x, edge_index, feat_mask_p=0.15, edge_drop_p=0.15):
     """建立單一 view：遮蔽部分特徵、隨機移除邊
     - 不改變節點數與順序（避免正對應破壞）
     - 最後一維（cell_id）不做遮蔽
@@ -313,6 +314,7 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
     accum_steps = max(1, int(config.gradient_accumulation))
 
     for epoch in range(config.epochs):
+        updates = 0
         total_loss = 0.0
         num_batches = 0
         optimizer.zero_grad(set_to_none=True)
@@ -322,7 +324,7 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
 
             # 建立兩個 view（不丟節點）
             x1, e1 = augment_view(data.x, data.edge_index, feat_mask_p=config.feat_mask, edge_drop_p=config.edge_drop)
-            x2, e2 = augment_view(data.x, data.edge_index, feat_mask_p=config.feat_mask, edge_drop_p=config.edge_drop)
+            x2, e2 = augment_view(data.x, data.edge_index, feat_mask_p=max(0.05, 0.5*config.feat_mask), edge_drop_p=max(0.05, 0.5*config.edge_drop))
 
             with torch.cuda.amp.autocast(enabled=use_amp, dtype=torch.bfloat16):
                 z1 = encoder(x1, e1)
@@ -340,6 +342,7 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad(set_to_none=True)
+                updates += 1
 
             total_loss += loss.item() * accum_steps
             num_batches += 1
@@ -349,7 +352,8 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
                 torch.cuda.empty_cache()
 
         avg_loss = total_loss / max(1, num_batches)
-        scheduler.step()  # 餘弦退火每個 epoch 都要 step
+        if updates > 0:
+            scheduler.step() 
 
         if epoch % config.print_every == 0 or epoch == config.epochs - 1:
             print(f"Epoch {epoch:03d}/{config.epochs}  Loss: {avg_loss:.6f}  LR: {optimizer.param_groups[0]['lr']:.2e}")
@@ -447,9 +451,23 @@ def set_seed(seed: int):
 def train_separately(benchmarks, config, device, root_dir, global_cell_types, heads_schedule):
     print("🧩 啟用逐圖訓練模式...")
     encoder = None; proj = None; input_dim = None
+    
+    # 預先載入 probe 資料（如果指定）
+    probe_data_global = None
+    if config.probe_graph and config.probe_graph.strip():
+        try:
+            probe_case_path = os.path.join(root_dir, config.probe_graph.strip())
+            probe_data_global = build_graph_from_case(probe_case_path, verilog_root=root_dir, global_cell_types=global_cell_types)
+            probe_data_global = ensure_cpu_data(probe_data_global)
+            print(f"🔍 已載入 probe 資料：{config.probe_graph} ({probe_data_global.x.shape[0]} 節點)")
+        except Exception as e:
+            print(f"⚠️ 無法載入 probe 資料 {config.probe_graph}: {e}")
+            probe_data_global = None
 
     for name in benchmarks:
-        case_path = os.path.join(root_dir, name, 'bookshelf_run', 'output', name)
+        print(f"\n🚀 開始訓練案例：{name}")
+        # case_path = os.path.join(root_dir, name, 'bookshelf_run', 'output', name)
+        case_path = os.path.join(root_dir, name)
         data = build_graph_from_case(case_path, verilog_root=root_dir, global_cell_types=global_cell_types)
         data = ensure_cpu_data(data)
         loader = DataLoader([data], batch_size=1)
@@ -475,11 +493,13 @@ def train_separately(benchmarks, config, device, root_dir, global_cell_types, he
 
             params = list(encoder.parameters()) + (list(proj.parameters()) if proj else [])
             optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-                optimizer, T_0=50, T_mult=2, eta_min=config.lr * 0.01
-            )
+            warmup = LinearLR(optimizer, start_factor=1e-2, end_factor=1.0, total_iters=config.warmup_epochs)
+            cosine = CosineAnnealingLR(optimizer, T_max=max(1, config.epochs - config.warmup_epochs),
+                                    eta_min=config.lr * 0.01)
+            scheduler = SequentialLR(optimizer, schedulers=[warmup, cosine], milestones=[config.warmup_epochs])
 
-        probe_data = data if (config.probe_graph and config.probe_graph.strip()==name) else None
+        # 使用全域 probe 資料（每個案例都用相同的 probe）
+        probe_data = probe_data_global
         encoder, proj = train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag=name, probe_data=probe_data)
 
     torch.save(encoder.state_dict(), config.output_name)
@@ -499,7 +519,8 @@ def train_all_together(benchmarks, config, device, root_dir, global_cell_types, 
     probe_data = None
 
     for name in benchmarks:
-        case_path = os.path.join(root_dir, name, 'bookshelf_run', 'output', name)
+        # case_path = os.path.join(root_dir, name, 'bookshelf_run', 'output', name)
+        case_path = os.path.join(root_dir, name)
         data = build_graph_from_case(case_path, verilog_root=root_dir, global_cell_types=global_cell_types)
         data = ensure_cpu_data(data)
 
@@ -539,10 +560,10 @@ def train_all_together(benchmarks, config, device, root_dir, global_cell_types, 
     params = list(encoder.parameters()) + (list(proj.parameters()) if proj else [])
     optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
     
-    # 使用餘弦退火調度器而不是 ReduceLROnPlateau
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
-        optimizer, T_0=50, T_mult=2, eta_min=config.lr * 0.01
-    )
+    warmup = LinearLR(optimizer, start_factor=1e-2, end_factor=1.0, total_iters=config.warmup_epochs)
+    cosine = CosineAnnealingLR(optimizer, T_max=max(1, config.epochs - config.warmup_epochs),
+                            eta_min=config.lr * 0.01)
+    scheduler = SequentialLR(optimizer, schedulers=[warmup, cosine], milestones=[config.warmup_epochs])
 
     encoder, proj = train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag='all', probe_data=probe_data)
 
@@ -588,15 +609,16 @@ def main():
             # 針對低顯存環境，更保守的參數調整
             orig_b, orig_chunk, orig_hidden = config.batch_size, config.nce_chunk, config.hidden_dim
             config.batch_size = 1  # 強制設為 1
-            config.nce_chunk = 1024  # 更小的 chunk
-            config.hidden_dim = min(config.hidden_dim, 64)  # 更保守的隱藏維度
-            config.gradient_accumulation = max(config.gradient_accumulation, 8)  # 增加梯度累積
-            config.cell_embed_dim = min(config.cell_embed_dim, 16)  # 減少 embedding 維度
+            config.nce_chunk = 512  # 更極端的小 chunk (從 1024 改為 512)
+            config.hidden_dim = min(config.hidden_dim, 32)  # 極小的隱藏維度 (從 64 改為 32)
+            config.gradient_accumulation = max(config.gradient_accumulation, 16)  # 更多梯度累積 (從 8 改為 16)
+            config.cell_embed_dim = min(config.cell_embed_dim, 8)  # 極小的 embedding (從 16 改為 8)
             print('⚠️ 低顯存自動調整:')
             print(f'   batch_size: {orig_b} → {config.batch_size}')
             print(f'   nce_chunk:  {orig_chunk} → {config.nce_chunk}')
             print(f'   hidden_dim: {orig_hidden} → {config.hidden_dim}')
             print(f'   gradient_accumulation: {config.gradient_accumulation}')
+            print(f'   cell_embed_dim: {config.cell_embed_dim}')
     
     # 啟用投影頭提升性能（但在低顯存時使用較小維度）
     if not hasattr(config, 'use_proj') or not config.use_proj:
@@ -606,20 +628,27 @@ def main():
         print(f'🚀 自動啟用 projection head (dim={config.proj_dim}) 以提升對比學習效果')
 
     if config.test_only:
-        config.benchmarks = 'c17'
+        config.benchmarks = 's38584'
         config.epochs = min(config.epochs, 10)
         print('🧪 測試模式：c17，縮短 epochs')
     else:
+        # full = (
+        #     'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
+        #     's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
+        # )
         full = (
-            'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
-            's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
+            # 'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
+            # 's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
+            # 'des, aes, ac97_top, aes_cipher_top, pci_bridge32, ariane'
+            'des, aes, ac97_top, aes_cipher_top'
+            # 'des'
         )
         config.benchmarks = full
 
     benchmarks = [b.strip() for b in config.benchmarks.split(',') if b.strip()]
 
     # 根目錄（依你環境）
-    root_dir = '/root/ruan_workspace/gtlvl_design'
+    root_dir = '/root/solution/testcases'
 
     # 收集全域 cell types（供 cell embedding）
     global_cell_types = collect_all_cell_types(benchmarks, root_dir, root_dir)
@@ -631,7 +660,8 @@ def main():
 
     # 訓練後：如需多次隨機抽樣平均（泛化報告）
     if config.final_probe_average > 0 and config.probe_graph:
-        case_path = os.path.join(root_dir, config.probe_graph, 'bookshelf_run', 'output', config.probe_graph)
+        # case_path = os.path.join(root_dir, config.probe_graph, 'bookshelf_run', 'output', config.probe_graph)
+        case_path = os.path.join(root_dir, config.probe_graph)
         probe_data = build_graph_from_case(case_path, verilog_root=root_dir, global_cell_types=global_cell_types)
         probe_data = ensure_cpu_data(probe_data)
         device_eval = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

@@ -37,11 +37,11 @@ class ConfigurableGATEncoder(torch.nn.Module):
                 # 設置 heads schedule - 使其與已訓練模型一致
         if heads_schedule is None:
             if num_layers == 1:
-                heads_schedule = [1]  # 保持與已訓練模型一致
+                heads_schedule = [1]
             elif num_layers == 2:
-                heads_schedule = [1, 1]  # 修改為與已訓練模型一致
+                heads_schedule = [1, 1]  # 修改為與實際訓練模型一致
             elif num_layers == 3:
-                heads_schedule = [1, 1, 1]  # 與已訓練模型一致
+                heads_schedule = [1, 1, 1]  # 與實際訓練模型一致
             else:
                 heads_schedule = [1] * num_layers  # 全部使用 1 head
 
@@ -54,7 +54,7 @@ class ConfigurableGATEncoder(torch.nn.Module):
             heads = heads_schedule[i] if i < len(heads_schedule) else 1
             self.convs.append(GATConv(in_dim, out_channels, heads=heads, concat=False, dropout=dropout))
             if i < num_layers - 1:
-                self.bns.append(torch.nn.BatchNorm1d(out_channels))
+                self.bns.append(torch.nn.LayerNorm(out_channels))
             in_dim = out_channels
         self.dropout = dropout
 
@@ -80,7 +80,7 @@ _GLOBAL = {
 }
 
 # 允許透過環境變數覆寫設計根目錄，預設沿用既有路徑。
-ROOT_DIR = os.environ.get('GNN_DESIGN_ROOT', '/root/ruan_workspace/gtlvl_design')
+ROOT_DIR = os.environ.get('GNN_DESIGN_ROOT', '/root/solution/testcases')
 
 # === 載入模型與 meta ===
 
@@ -111,7 +111,7 @@ def load_encoder(model_path: Optional[str] = None, meta_path: Optional[str] = 'e
     else:
         # 嘗試推測 hidden_dim 只能靠外部提供，因此建議一定要有 meta
         print('⚠️ 未找到 meta 檔，使用預設配置')
-        meta = {'hidden_dim': 128, 'num_layers': 3, 'dropout': 0.1, 'feature_dim': 23}
+        meta = {'hidden_dim': 64, 'num_layers': 2, 'dropout': 0.2, 'feature_dim': 23}
         
         # 如果沒有指定模型路徑，使用預設
         if model_path is None:
@@ -124,9 +124,9 @@ def load_encoder(model_path: Optional[str] = None, meta_path: Optional[str] = 'e
         
     print(f'🔄 載入模型: {model_path}')
     
-    hidden_dim = meta.get('hidden_dim', 128)
-    num_layers = meta.get('num_layers', 3)
-    dropout = meta.get('dropout', 0.1)
+    hidden_dim = meta.get('hidden_dim', 64)
+    num_layers = meta.get('num_layers', 2)
+    dropout = meta.get('dropout', 0.2)
     heads_schedule = meta.get('heads_schedule')  # 允許為 None 時採預設
     feature_dim = meta.get('feature_dim', 23)  # 預設使用訓練時的特徵維度（23 = 22 基礎 + 1 cell_id）
     
@@ -180,13 +180,14 @@ def get_graph_data(circuit_name: str) -> torch.nn.Module:
     if circuit_name in _GLOBAL['graphs']:
         return _GLOBAL['graphs'][circuit_name]
     _ensure_global_cell_types([circuit_name])
-    case_dir = os.path.join(ROOT_DIR, circuit_name, 'bookshelf_run', 'output', circuit_name)
-    print('123', case_dir)
+    # 修正：直接使用 circuit_name 目錄，不再使用 bookshelf_run/output 子目錄
+    case_dir = os.path.join(ROOT_DIR, circuit_name)
+    print('🔍 讀取案例目錄:', case_dir)
     nodes_file = os.path.join(case_dir, f"{circuit_name}.nodes")
     if not os.path.exists(nodes_file):
         raise FileNotFoundError(f'找不到 nodes 檔案: {nodes_file}')
     data = build_graph_from_case(case_dir, verilog_root=ROOT_DIR, global_cell_types=_GLOBAL['cell_types'])
-    print('1234', case_dir)
+    print('✅ 成功載入圖資料:', case_dir)
     _GLOBAL['graphs'][circuit_name] = data
     return data
 

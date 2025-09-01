@@ -19,6 +19,7 @@ from typing import Dict, List, Tuple, Any, Optional
 from collections import defaultdict
 from torch.distributions import Categorical
 import random
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -503,7 +504,8 @@ class TwoDimensionalPPOAgent:
         # candidates
         cand_instances = getattr(state, 'candidate_instances', [])
         if hasattr(state, 'candidate_gnn_features') and state.candidate_gnn_features is not None:
-            gnn_features = torch.as_tensor(state.candidate_gnn_features, dtype=torch.float32)
+            arr = np.asarray(state.candidate_gnn_features, dtype=np.float32)  # 一次堆好
+            gnn_features = torch.from_numpy(arr)  # 這行不會複製，速度快
             cand_gnn = gnn_features.unsqueeze(0) if gnn_features.ndim == 2 else gnn_features
         elif cand_instances:
             C = len(cand_instances)
@@ -513,7 +515,8 @@ class TwoDimensionalPPOAgent:
 
         # dynamic
         if hasattr(state, 'candidate_dynamic_features') and state.candidate_dynamic_features is not None:
-            dyn = torch.as_tensor(state.candidate_dynamic_features, dtype=torch.float32)
+            arr = np.asarray(state.candidate_dynamic_features, dtype=np.float32)
+            dyn = torch.from_numpy(arr)  # 比 torch.as_tensor(list) 快很多
             cand_dyn = dyn.unsqueeze(0) if dyn.ndim == 2 else dyn
         else:
             C = cand_gnn.shape[1]

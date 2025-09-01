@@ -69,7 +69,7 @@ class ConfigurableGATEncoder(torch.nn.Module):
             heads = heads_schedule[i] if i < len(heads_schedule) else 1
             self.convs.append(GATConv(in_dim, out_channels, heads=heads, concat=False, dropout=dropout))
             if i < num_layers - 1:
-                self.bns.append(torch.nn.BatchNorm1d(out_channels))
+                self.bns.append(torch.nn.LayerNorm(out_channels))
             in_dim = out_channels
         self.dropout = dropout
 
