@@ -99,6 +99,7 @@ class EnvironmentState:
     # Helper fields
     total_cells: int = 0  # 總 cell 數量 N
     cell_name_to_idx: Optional[Dict[str, int]] = None  # instance name -> index mapping
+    max_replacements: int = 84  # 最大替換選項數量（與配置保持一致）
     
     def __post_init__(self):
         if self.cell_name_to_idx is None:
@@ -167,6 +168,12 @@ class OptimizationEnvironment:
         self.tns_goal_eps: float = getattr(config, "tns_goal_eps", 0.05)  # 更積極的閾值
         self.goal_bonus: float = getattr(config, "goal_bonus", 2.0)  # 增加達成目標獎勵
         
+        # 動態權重支援
+        self.use_dynamic_weights: bool = getattr(config, "use_dynamic_weights", False)
+        self.dynamic_tns_weight: float = getattr(config, "dynamic_tns_weight", 1.0)
+        self.dynamic_power_weight: float = getattr(config, "dynamic_power_weight", 1.0)
+        self.normalize_weights: bool = getattr(config, "normalize_weights", True)
+        
         # 混合獎勵機制參數
         self.use_hybrid_reward: bool = getattr(config, "use_hybrid_reward", True)
         self.relative_weight: float = getattr(config, "relative_weight", 0.6)  # 相對改善權重
@@ -181,6 +188,42 @@ class OptimizationEnvironment:
         # 候選集合設定 - 更聚焦timing關鍵路徑
         self.top_slack_candidates: int = getattr(config, "top_slack_candidates", 60)
         self.top_power_candidates: int = getattr(config, "top_power_candidates", 20)
+
+    def set_dynamic_weights(self, tns_weight: float, power_weight: float):
+        """
+        設置動態權重
+        
+        Args:
+            tns_weight: TNS 獎勵權重
+            power_weight: Power 獎勵權重
+        """
+        self.dynamic_tns_weight = tns_weight
+        self.dynamic_power_weight = power_weight
+        self.use_dynamic_weights = True
+        
+        if self.normalize_weights:
+            # 正規化權重，確保總和為1
+            total_weight = tns_weight + power_weight
+            if total_weight > 0:
+                self.dynamic_tns_weight = tns_weight / total_weight
+                self.dynamic_power_weight = power_weight / total_weight
+    
+    def get_current_weights(self) -> Tuple[float, float]:
+        """
+        獲取當前的 TNS 和 Power 權重
+        
+        Returns:
+            Tuple[float, float]: (tns_weight, power_weight)
+        """
+        if self.use_dynamic_weights:
+            return self.dynamic_tns_weight, self.dynamic_power_weight
+        else:
+            # 使用預設權重的相對比例
+            total = self.reward_weight_tns + self.reward_weight_power
+            if total > 0:
+                return (self.reward_weight_tns / total, self.reward_weight_power / total)
+            else:
+                return (1.0, 1.0)
 
     # ---- Public API ----
     def reset(self, case_name: str) -> EnvironmentState:
@@ -247,12 +290,25 @@ class OptimizationEnvironment:
                 candidate_group_indices.append(-1)
                 action_mask.append([False])
         
-        # 填充 action_mask 到統一長度
-        max_replacements = max(len(mask) for mask in action_mask) if action_mask else 1
-        print(f"DEBUG: Environment max_replacements: {max_replacements}")
-        for mask in action_mask:
-            while len(mask) < max_replacements:
-                mask.append(False)
+        # 填充 action_mask 到統一長度 - 使用配置的固定值而非動態計算
+        max_replacements = getattr(self.config, 'max_replacements', 84)  # 使用配置的固定值
+        dynamic_max = max(len(mask) for mask in action_mask) if action_mask else 1
+        
+        print(f"DEBUG: Environment - 配置的 max_replacements: {max_replacements}")
+        print(f"DEBUG: Environment - 當前動態 max_replacements: {dynamic_max}")
+        
+        # 確保不會超出配置的限制
+        if dynamic_max > max_replacements:
+            logger.warning(f"⚠️ 動態計算的 max_replacements ({dynamic_max}) 超出配置限制 ({max_replacements})，將截斷")
+        
+        # 修正每個 mask 到統一長度
+        for i, mask in enumerate(action_mask):
+            # 先截斷到配置限制
+            if len(mask) > max_replacements:
+                action_mask[i] = mask[:max_replacements]
+            # 然後填充到配置長度
+            while len(action_mask[i]) < max_replacements:
+                action_mask[i].append(False)
 
         # 準備 PPO 代理期望的特徵格式
         candidate_gnn_features = []
@@ -327,7 +383,8 @@ class OptimizationEnvironment:
             max_steps=self.max_steps_per_episode,
             done=False,
             total_cells=len(cell_names),
-            cell_name_to_idx=cell_name_to_idx
+            cell_name_to_idx=cell_name_to_idx,
+            max_replacements=max_replacements
         )
         return self.current_state
 
@@ -354,8 +411,34 @@ class OptimizationEnvironment:
         
         # 安全修正：如果替換索引超出範圍，自動修正到有效範圍
         if replacement_idx >= len(replacement_options):
-            logger.warning(f"⚠️  替換索引 {replacement_idx} 超出範圍 {len(replacement_options)}，使用 mod 運算修正到 {replacement_idx % len(replacement_options)}")
-            replacement_idx = replacement_idx % len(replacement_options)
+            logger.error(f"🔥 PPO 代理採樣錯誤:")
+            logger.error(f"   候選 cell: {target_cell_type}")
+            logger.error(f"   可用替換選項: {replacement_options}")
+            logger.error(f"   替換選項數量: {len(replacement_options)}")
+            logger.error(f"   PPO 採樣的索引: {replacement_idx}")
+            
+            # 檢查當前的動作遮罩
+            if hasattr(self.current_state, 'action_mask') and self.current_state.action_mask:
+                mask_info = self.current_state.action_mask
+                if 'candidate_replacement_masks' in mask_info:
+                    if candidate_idx < len(mask_info['candidate_replacement_masks']):
+                        candidate_mask = mask_info['candidate_replacement_masks'][candidate_idx]
+                        valid_count = sum(candidate_mask)
+                        logger.error(f"   當前候選 {candidate_idx} 的遮罩: 長度={len(candidate_mask)}, 有效數量={valid_count}")
+                        logger.error(f"   遮罩前10個值: {candidate_mask[:10]}")
+                    else:
+                        logger.error(f"   候選索引 {candidate_idx} 超出遮罩範圍")
+                else:
+                    logger.error(f"   遮罩中沒有 'candidate_replacement_masks' 鍵")
+            else:
+                logger.error(f"   當前狀態沒有有效的 action_mask")
+            
+            logger.error(f"   這表明 PPO 代理的動作遮罩沒有正確工作")
+            
+            # 使用 mod 運算作為緊急修正
+            corrected_idx = replacement_idx % len(replacement_options)
+            logger.warning(f"⚠️  使用 mod 運算修正到索引 {corrected_idx} -> {replacement_options[corrected_idx]}")
+            replacement_idx = corrected_idx
 
         target_replacement = replacement_options[replacement_idx]
         optimization_action = OptimizationAction(
@@ -547,13 +630,28 @@ class OptimizationEnvironment:
             else:
                 new_action_mask.append([False])
         
-        # 填充到統一長度
-        max_replacements = max(len(mask) for mask in new_action_mask) if new_action_mask else 1
-        for mask in new_action_mask:
-            while len(mask) < max_replacements:
-                mask.append(False)
+        # 填充到統一長度 - 使用配置的固定值
+        max_replacements = getattr(self.config, 'max_replacements', 84)  # 使用配置的固定值
+        dynamic_max = max(len(mask) for mask in new_action_mask) if new_action_mask else 1
         
-        self.current_state.action_mask = new_action_mask
+        # 確保不會超出配置的限制
+        if dynamic_max > max_replacements:
+            logger.warning(f"⚠️ 動態狀態更新: 動態 max_replacements ({dynamic_max}) 超出配置限制 ({max_replacements})")
+        
+        # 修正每個 mask 到統一長度
+        for i, mask in enumerate(new_action_mask):
+            # 先截斷到配置限制
+            if len(mask) > max_replacements:
+                new_action_mask[i] = mask[:max_replacements]
+            # 然後填充到配置長度
+            while len(new_action_mask[i]) < max_replacements:
+                new_action_mask[i].append(False)
+        
+        self.current_state.action_mask = {
+            'candidate_mask': np.ones(max(len(candidate_cells), 1)),  # 所有候選都可用
+            'replacement_mask': np.zeros(max_replacements),  # 將在需要時更新
+            'candidate_replacement_masks': new_action_mask  # 詳細的每候選遮罩
+        }
         self.current_state.max_replacements = max_replacements
         
         # 🎯 重新計算候選 cell 的 GNN 和動態特徵
@@ -663,17 +761,21 @@ class OptimizationEnvironment:
         # 🔄 移除誤導性的基線獎勵，改用真實的改善獎勵
         base_reward = 0.0  # 不給無條件獎勵
 
-        # 📈 對稱的獎勵/懲罰機制 - 修正版（處理除零）
+        # 📈 對稱的獎勵/懲罰機制 - 修正版（處理除零）- 使用動態權重
         step_reward = 0.0
+        
+        # 獲取當前權重
+        tns_weight, power_weight = self.get_current_weights()
+        
         # TNS獎勵：改善和惡化使用相同權重，處理除零情況
         if abs(global_initial_tns) > 1e-6:  # 有意義的初始TNS值
             if tns_improvement > 0:  # TNS真正改善了
-                step_reward += 5.0 * (tns_improvement / abs(global_initial_tns))
+                step_reward += tns_weight * 5.0 * (tns_improvement / abs(global_initial_tns))
             else:  # TNS惡化了
-                step_reward += 5.0 * (tns_improvement / abs(global_initial_tns))  # 等權重負獎勵
+                step_reward += tns_weight * 5.0 * (tns_improvement / abs(global_initial_tns))  # 等權重負獎勵
         else:  # 初始TNS接近0（組合邏輯電路），使用絕對改善值
             if abs(tns_improvement) > 1e-6:  # 有意義的TNS變化
-                step_reward += 1.0 if tns_improvement > 0 else -1.0
+                step_reward += tns_weight * (1.0 if tns_improvement > 0 else -1.0)
             
         # WNS獎勵：改善和惡化使用相同權重，處理除零情況
         if abs(global_initial_wns) > 1e-6:  # 有意義的初始WNS值
@@ -685,51 +787,53 @@ class OptimizationEnvironment:
             if abs(wns_improvement) > 1e-6:  # 有意義的WNS變化
                 step_reward += 0.5 if wns_improvement > 0 else -0.5
             
-        # Power獎勵：改善和惡化使用相同權重，處理除零情況
+        # Power獎勵：改善和惡化使用相同權重，處理除零情況 - 使用動態權重
         if abs(global_initial_power) > 1e-9:  # 有意義的初始功耗值
             if power_improvement > 0:  # 功耗減少了
-                step_reward += 1.0 * (power_improvement / global_initial_power)
+                step_reward += power_weight * 1.5 * (power_improvement / global_initial_power)
             else:  # 功耗增加了
-                step_reward += 1.75 * (power_improvement / global_initial_power)  # 等權重負獎勵
+                step_reward += power_weight * 2 * (power_improvement / global_initial_power)  # 等權重負獎勵
         else:  # 初始功耗接近0（不太可能但防禦性編程）
             if abs(power_improvement) > 1e-9:
-                step_reward += 0.1 if power_improvement > 0 else -0.1
+                step_reward += power_weight * (0.1 if power_improvement > 0 else -0.1)
 
-        # 🎖️ 里程碑獎勵：只獎勵相對於初始電路的改善，處理除零情況
+        # 🎖️ 里程碑獎勵：只獎勵相對於初始電路的改善，處理除零情況 - 使用動態權重
         milestone_reward = 0.0
         global_tns_improvement = abs(global_initial_tns) - abs(new_tns)  # 相對初始的改善
         global_wns_improvement = abs(global_initial_wns) - abs(new_wns)  # 相對初始的改善
         global_power_improvement = abs(global_initial_power) - abs(new_power)
 
+        # TNS 里程碑獎勵
         if global_tns_improvement > 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態有改善且有意義
             improvement_ratio = global_tns_improvement / abs(global_initial_tns)
             if improvement_ratio > 0.05:  # 5%以上改善
-                milestone_reward += 10.0
+                milestone_reward += tns_weight * 10.0
             elif improvement_ratio > 0.01:  # 1%以上改善
-                milestone_reward += 5.0
+                milestone_reward += tns_weight * 5.0
         elif global_tns_improvement > 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路的改善
             # 對於無時序約束的電路，任何有意義的TNS改善都給小獎勵
             if abs(global_tns_improvement) > 1e-6:
-                milestone_reward += 2.0
+                milestone_reward += tns_weight * 2.0
         elif global_tns_improvement < 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態惡化且有意義
             degradation_ratio = abs(global_tns_improvement) / abs(global_initial_tns)
             if degradation_ratio > 0.2:  # 惡化超過20%
-                milestone_reward -= 5.0
+                milestone_reward -= tns_weight * 20.0
         elif global_tns_improvement < 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路的惡化
             # 對於無時序約束的電路，任何有意義的TNS惡化都給小懲罰
             if abs(global_tns_improvement) > 1e-6:
-                milestone_reward -= 1.0
+                milestone_reward -= tns_weight * 1.0
 
+        # Power 里程碑獎勵
         if global_power_improvement > 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態有改善且有意義
             improvement_ratio = global_power_improvement / abs(global_initial_power)
             if improvement_ratio > 0.05:  # 5%以上改善
-                milestone_reward += 10.0
+                milestone_reward += power_weight * 10.0
             elif improvement_ratio > 0.01:  # 1%以上改善
-                milestone_reward += 5.0
+                milestone_reward += power_weight * 5.0
         elif global_power_improvement < 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態惡化且有意義
             degradation_ratio = abs(global_power_improvement) / abs(global_initial_power)
             if degradation_ratio > 0.2:  # 惡化超過20%
-                milestone_reward -= 10.0
+                milestone_reward -= power_weight * 10.0
 
         # 🚫 移除額外懲罰機制，讓自然負獎勵發揮作用
         penalty = 0.0
@@ -739,7 +843,7 @@ class OptimizationEnvironment:
         total_reward = base_reward + step_reward + milestone_reward - penalty
 
         # 🔧 對稱的獎勵範圍：允許充分的負獎勵來引導學習
-        reward = np.clip(total_reward, -15.0, 15.0)
+        reward = np.clip(total_reward, -20.0, 15.0)
 
         return float(reward)
 

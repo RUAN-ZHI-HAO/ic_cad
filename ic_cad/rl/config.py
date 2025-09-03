@@ -43,7 +43,7 @@ class RLConfig:
     eps_clip: float = 0.2              # PPO epsilon 裁剪 (標準設定)
     gamma: float = 0.99                # 折扣因子 (標準設定)
     gae_lambda: float = 0.95           # GAE lambda 參數
-    entropy_coef: float = 0.01         # 熵係數 (適度探索)
+    entropy_coef: float = 0.03         # 熵係數 (增加探索能力)
     value_coef: float = 0.5            # 價值函數係數
     target_kl: float = 0.01            # 目標 KL 散度 (適中)
     max_grad_norm: float = 0.5         # 梯度裁剪 (標準設定)
@@ -52,17 +52,17 @@ class RLConfig:
     buffer_size: int = 2048            # 經驗緩衝區大小
     buffer_capacity: int = 2048        # 緩衝區容量（別名）
     
-    # === 訓練參數 === (適合長時間運行)
+    # === 訓練參數 === (平衡效率與效果)
     max_episodes: int = 2000        # 最大訓練回合數 (增加)
-    max_steps_per_episode: int = 40 # 每回合最大步數 (稍微減少)
+    max_steps_per_episode: int = 25 # 每回合最大步數 (折衷方案)
     update_interval: int = 256      # 更新間隔
     save_interval: int = 50         # 模型保存間隔 (更頻繁保存)
     eval_interval: int = 25         # 評估間隔 (更頻繁評估)
     
-    # === 智能停止參數 === (更有耐心的設定)
-    early_stop_patience: int = 200  # 早停耐心值（更有耐心）
-    min_improvement: float = 0.005  # 認為有改善的最小閾值 (更寬鬆)
-    convergence_window: int = 75    # 收斂判斷窗口 (增加)
+    # === 智能停止參數 === (平衡效率與完整性)
+    early_stop_patience: int = 75   # 早停耐心值（適中）
+    min_improvement: float = 0.008  # 認為有改善的最小閾值 (適中)
+    convergence_window: int = 40    # 收斂判斷窗口 (適中)
     convergence_threshold: float = 0.0005  # 收斂閾值（更嚴格的收斂）
     
     # === 環境參數 ===
@@ -77,6 +77,12 @@ class RLConfig:
     tns_goal_threshold: float = -0.1      # TNS 目標閾值 (更實際)
     wns_goal_threshold: float = -0.1      # WNS 目標閾值 (更實際)
     goal_bonus: float = 1.5               # 目標達成獎勵 (適中)
+    
+    # === 動態權重配置 ===
+    use_dynamic_weights: bool = False     # 是否使用動態權重
+    dynamic_tns_weight: float = 1.0       # 動態 TNS 權重
+    dynamic_power_weight: float = 1.0     # 動態 Power 權重
+    normalize_weights: bool = True        # 是否正規化權重
     
     # === 設備配置 ===
     device: str = "auto"  # "auto", "cuda", "cpu" - auto 會自動選擇最佳設備

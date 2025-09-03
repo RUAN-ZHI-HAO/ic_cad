@@ -234,7 +234,8 @@ class OpenRoadInterface:
                 original_cell_name = original_master.getName()  
                 # print(f"Original cell: {original_cell_name}")
 
-                print(f"original cell : {original_cell_name} new cell : {action.new_cell_type}")
+                print(f"original cell : {original_cell_name} new cell : {action.new_cell_type} target cell : {action.target_cell}")
+                print()
                 if not inst:
                     logger.error(f"Instance {action.target_cell} not found.")
                     return False
@@ -242,11 +243,11 @@ class OpenRoadInterface:
                 if not master:
                     logger.error(f"Master cell {action.new_cell_type} not found.")
                     return False
-                print(inst.swapMaster(master))
+                inst.swapMaster(master)
 
                 design.evalTclString("update_timing") 
 
-                logger.info(f"Replaced instance {action.target_cell} with master {action.new_cell_type}.")
+                # logger.info(f"Replaced instance {action.target_cell} with master {action.new_cell_type}.")
             
             elif action.action_type == "auto_replace_cell":
                 design.evalTclString('set_dont_touch [get_cells "*"]')

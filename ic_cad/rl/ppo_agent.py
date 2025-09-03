@@ -230,20 +230,27 @@ class TwoDimensionalPolicyNetwork(nn.Module):
                 # 關鍵修正：確保不超出實際替換選項範圍
                 actual_num_replacements = len(rmask_list)
                 
-                # 先將所有超出實際範圍的 logits 設為 -inf
+                # DEBUG: 添加調試資訊
+                if logger.isEnabledFor(logging.DEBUG):
+                    logger.debug(f"🔍 候選 {ci}: 實際替換選項數={actual_num_replacements}, "
+                               f"PPO logits維度={repl_logits_sel.numel()}")
+                
+                # 🔥 強制性安全措施：確保 PPO 不會採樣超出實際範圍的索引
+                # 方法1: 直接截斷 logits 到實際大小
                 if actual_num_replacements < repl_logits_sel.numel():
+                    # 保留前 actual_num_replacements 個，其餘設為 -inf
                     repl_logits_sel[actual_num_replacements:] = float('-inf')
+                    # 進一步截斷張量以完全避免越界採樣
+                    repl_logits_sel = repl_logits_sel[:actual_num_replacements].clone()
                 
                 # 轉換為 tensor 並應用 mask
                 rmask = torch.as_tensor(rmask_list, device=device, dtype=torch.bool)
                 
-                # 確保 mask 長度不超過 repl_logits_sel
-                if rmask.numel() > repl_logits_sel.numel():
-                    rmask = rmask[:repl_logits_sel.numel()]
-                
-                # 應用 mask 到對應的 logits
-                invalid = ~rmask
-                repl_logits_sel[:rmask.numel()][invalid] = float('-inf')
+                # 應用 mask 到有效的 logits
+                if rmask.numel() > 0:
+                    effective_size = min(rmask.numel(), repl_logits_sel.numel())
+                    invalid = ~rmask[:effective_size]
+                    repl_logits_sel[:effective_size][invalid] = float('-inf')
                 
                 # 安全檢查：確保至少有一個有效選項
                 if torch.isinf(repl_logits_sel).all():
@@ -257,13 +264,51 @@ class TwoDimensionalPolicyNetwork(nn.Module):
                         # 如果沒有有效選項，強制第0個（作為最後安全措施）
                         if repl_logits_sel.numel() > 0:
                             repl_logits_sel[0] = 0.0
+        else:
+            # 🔥 沒有遮罩時的安全措施：限制到合理範圍
+            # 這種情況下我們不知道實際的替換選項數，所以保守處理
+            max_safe_size = min(84, repl_logits_sel.numel())  # 使用配置的最大值作為上限
+            if repl_logits_sel.numel() > max_safe_size:
+                repl_logits_sel = repl_logits_sel[:max_safe_size].clone()
 
         # ---- sample replacement ----
+        # 🔒 最終安全檢查：確保 logits 有有效值可採樣
+        if torch.isinf(repl_logits_sel).all():
+            logger.warning("⚠️ 所有替換 logits 都是 -inf，強制設置第0個為可用")
+            if repl_logits_sel.numel() > 0:
+                repl_logits_sel[0] = 0.0
+        
+        # 🎯 關鍵修正：限制採樣範圍到實際有效的替換選項
+        if action_mask is not None and 'candidate_replacement_masks' in action_mask:
+            rmasks = action_mask['candidate_replacement_masks']
+            if ci < len(rmasks):
+                actual_valid_size = len([x for x in rmasks[ci] if x])
+                if actual_valid_size > 0 and actual_valid_size < repl_logits_sel.numel():
+                    # 進一步限制採樣範圍：只保留實際有效的部分
+                    max_valid_idx = max(i for i, valid in enumerate(rmasks[ci]) if valid)
+                    safe_size = min(max_valid_idx + 1, repl_logits_sel.numel())
+                    repl_logits_sel = repl_logits_sel[:safe_size].clone()
+                    if logger.isEnabledFor(logging.DEBUG):
+                        logger.debug(f"🔒 限制替換採樣範圍到前 {safe_size} 個索引")
+        
         repl_dist = Categorical(logits=repl_logits_sel)
         if deterministic:
             repl_act = torch.argmax(repl_logits_sel)
         else:
             repl_act = repl_dist.sample()
+        
+        # 🔒 最終驗證：確保採樣的索引不會超出原始範圍
+        repl_act_item = int(repl_act.item())
+        if action_mask is not None and 'candidate_replacement_masks' in action_mask:
+            rmasks = action_mask['candidate_replacement_masks']
+            if ci < len(rmasks):
+                if repl_act_item >= len(rmasks[ci]) or not rmasks[ci][repl_act_item]:
+                    logger.warning(f"⚠️ PPO 採樣了無效的替換索引 {repl_act_item}，回退到第一個有效選項")
+                    valid_indices = [i for i, valid in enumerate(rmasks[ci]) if valid]
+                    if valid_indices:
+                        repl_act_item = valid_indices[0]
+                    else:
+                        repl_act_item = 0
         
         repl_logp = repl_dist.log_prob(repl_act)                 # ()
         repl_ent = repl_dist.entropy()                           # ()
@@ -271,7 +316,7 @@ class TwoDimensionalPolicyNetwork(nn.Module):
         total_logp = cand_logp[b] + repl_logp
         total_ent = cand_ent[b] + repl_ent
 
-        action = (int(cand_act[b].item()), int(repl_act.item()))
+        action = (int(cand_act[b].item()), repl_act_item)  # 使用驗證後的索引
         return action, total_logp, total_ent
 
     def get_action_and_log_prob(self,

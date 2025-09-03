@@ -91,18 +91,23 @@ class TwoDimensionalICCADOptimizer:
         return True
     
     def train_rl_agent(self, case_names: List[str], 
-                      train_episodes: int = 1000) -> Dict[str, any]:
+                      train_episodes: int = 1000,
+                      tns_weight: float = 1.0,
+                      power_weight: float = 1.0) -> Dict[str, any]:
         """
         訓練 2D 動作空間 RL 代理
         
         Args:
             case_names: 訓練案例名稱列表
             train_episodes: 訓練回合數
+            tns_weight: TNS 獎勵權重
+            power_weight: Power 獎勵權重
             
         Returns:
             訓練結果字典
         """
         logger.info(f"開始訓練 2D 動作空間 RL 代理 - 案例: {case_names}")
+        logger.info(f"使用權重 - TNS: {tns_weight}, Power: {power_weight}")
         
         # 檢查必要檔案
         if not self._check_required_files():
@@ -110,6 +115,9 @@ class TwoDimensionalICCADOptimizer:
         
         # 更新配置
         self.rl_config.max_episodes = train_episodes
+        self.rl_config.dynamic_tns_weight = tns_weight
+        self.rl_config.dynamic_power_weight = power_weight
+        self.rl_config.use_dynamic_weights = True
         
         # 建立訓練目錄
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -132,6 +140,8 @@ class TwoDimensionalICCADOptimizer:
             'model_path': model_save_path,
             'total_episodes': train_episodes,
             'case_names': case_names,
+            'tns_weight': tns_weight,
+            'power_weight': power_weight,
             'training_results': training_results,
             'config': {
                 'max_candidates': self.rl_config.max_candidates,
@@ -148,7 +158,9 @@ class TwoDimensionalICCADOptimizer:
     def optimize_circuit(self, case_names: List[str], 
                         model_path: Optional[str] = None,
                         max_actions: int = 1000,
-                        save_detailed: bool = True) -> Dict[str, any]:
+                        save_detailed: bool = True,
+                        tns_weight: float = 1.0,
+                        power_weight: float = 1.0) -> Dict[str, any]:
         """
         使用訓練好的 2D 動作空間模型優化電路
         
@@ -157,11 +169,14 @@ class TwoDimensionalICCADOptimizer:
             model_path: 模型路徑
             max_actions: 最大優化動作數
             save_detailed: 是否保存詳細結果
+            tns_weight: TNS 獎勵權重
+            power_weight: Power 獎勵權重
             
         Returns:
             優化結果
         """
         logger.info(f"開始 2D 動作空間電路優化: {case_names}")
+        logger.info(f"使用權重 - TNS: {tns_weight}, Power: {power_weight}")
         
         # 設定模型路徑
         if model_path is None:
@@ -173,6 +188,11 @@ class TwoDimensionalICCADOptimizer:
         
         # 更新推論配置
         self.inference_config.max_actions = max_actions
+        
+        # 設置動態權重
+        self.rl_config.dynamic_tns_weight = tns_weight
+        self.rl_config.dynamic_power_weight = power_weight
+        self.rl_config.use_dynamic_weights = True
         
         # 建立推論引擎
         engine = TwoDimensionalInferenceEngine(self.inference_config, self.rl_config)
@@ -250,7 +270,8 @@ class TwoDimensionalICCADOptimizer:
         }
     
     def full_pipeline(self, case_names: List[str], train_episodes: int = 1000, 
-                     max_actions: int = 10, output_dir: str = None) -> Dict[str, any]:
+                     max_actions: int = 10, output_dir: str = None,
+                     tns_weight: float = 1.0, power_weight: float = 1.0) -> Dict[str, any]:
         """
         執行完整流程：訓練 -> 推論 -> 優化
         
@@ -259,11 +280,14 @@ class TwoDimensionalICCADOptimizer:
             train_episodes: 訓練回合數
             max_actions: 最大優化動作數
             output_dir: 輸出目錄（可選）
+            tns_weight: TNS 獎勵權重
+            power_weight: Power 獎勵權重
             
         Returns:
             完整流程結果
         """
         logger.info("開始執行完整 2D 動作空間 RL 優化流程")
+        logger.info(f"使用權重 - TNS: {tns_weight}, Power: {power_weight}")
         
         # 準備輸出目錄
         if output_dir is None:
@@ -274,7 +298,7 @@ class TwoDimensionalICCADOptimizer:
         
         # 步驟 1: 訓練 RL 代理
         logger.info("步驟 1: 訓練 2D 動作空間 RL 代理")
-        train_result = self.train_rl_agent(case_names, train_episodes)
+        train_result = self.train_rl_agent(case_names, train_episodes, tns_weight, power_weight)
         
         # 保存訓練結果
         train_result_file = os.path.join(output_dir, 'train_results.json')
@@ -288,7 +312,9 @@ class TwoDimensionalICCADOptimizer:
             case_names, 
             model_path=best_model_path,
             max_actions=max_actions,
-            save_detailed=True
+            save_detailed=True,
+            tns_weight=tns_weight,
+            power_weight=power_weight
         )
         
         # 保存優化結果
@@ -362,6 +388,10 @@ def main():
                        help='模型路徑（僅限 optimize 模式）')
     parser.add_argument('--output-dir', type=str,
                        help='輸出目錄')
+    parser.add_argument('--tns-weight', type=float, default=1.0,
+                       help='TNS 獎勵權重')
+    parser.add_argument('--power-weight', type=float, default=1.0,
+                       help='Power 獎勵權重')
     
     args = parser.parse_args()
     
@@ -370,26 +400,34 @@ def main():
     
     try:
         if args.mode == 'train':
-            result = optimizer.train_rl_agent(args.cases, args.episodes)
+            result = optimizer.train_rl_agent(args.cases, args.episodes, 
+                                            args.tns_weight, args.power_weight)
             print(f"2D 動作空間訓練完成，模型保存至: {result['model_path']}")
+            print(f"使用權重 - TNS: {args.tns_weight}, Power: {args.power_weight}")
             
         elif args.mode == 'optimize':
             result = optimizer.optimize_circuit(
                 args.cases, 
                 model_path=args.model_path,
                 max_actions=args.max_actions,
-                save_detailed=True
+                save_detailed=True,
+                tns_weight=args.tns_weight,
+                power_weight=args.power_weight
             )
             print(f"2D 動作空間優化完成，總結: {result['summary']}")
+            print(f"使用權重 - TNS: {args.tns_weight}, Power: {args.power_weight}")
             
         elif args.mode == 'full':
             result = optimizer.full_pipeline(
                 args.cases,
                 train_episodes=args.episodes,
                 max_actions=args.max_actions,
-                output_dir=args.output_dir
+                output_dir=args.output_dir,
+                tns_weight=args.tns_weight,
+                power_weight=args.power_weight
             )
             print(f"完整 2D 動作空間流程完成，結果目錄: {result['output_directory']}")
+            print(f"使用權重 - TNS: {args.tns_weight}, Power: {args.power_weight}")
             
     except Exception as e:
         logger.error(f"執行錯誤: {e}")

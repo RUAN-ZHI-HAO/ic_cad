@@ -28,7 +28,7 @@ from graph_builder import build_graph_from_case, collect_all_cell_types
 class ConfigurableGATEncoder(torch.nn.Module):
     """可配置 GAT 編碼器（附 cell embedding，concat=False 省顯存）"""
     def __init__(self, in_channels, out_channels, num_layers=2, heads_schedule=None, dropout=0.1,
-                 cell_embedding_dim=16, num_cells=854):
+                 cell_embedding_dim=8, num_cells=854):
         super().__init__()
         from torch_geometric.nn import GATConv
         self.cell_embedding = torch.nn.Embedding(num_cells, cell_embedding_dim)
@@ -129,6 +129,7 @@ def load_encoder(model_path: Optional[str] = None, meta_path: Optional[str] = 'e
     dropout = meta.get('dropout', 0.2)
     heads_schedule = meta.get('heads_schedule')  # 允許為 None 時採預設
     feature_dim = meta.get('feature_dim', 23)  # 預設使用訓練時的特徵維度（23 = 22 基礎 + 1 cell_id）
+    cell_embedding_dim = meta.get('cell_embed_dim', 16)  # 從 meta 檔案讀取 cell_embed_dim
     
     # 獲取 cell 數量用於 embedding
     try:
@@ -138,11 +139,11 @@ def load_encoder(model_path: Optional[str] = None, meta_path: Optional[str] = 'e
     except:
         num_cells = 854  # 預設值 (852 + terminal_NI + unknown)
 
-    print(f'📚 載入模型：feature_dim={feature_dim}, hidden_dim={hidden_dim}, num_layers={num_layers}, num_cells={num_cells}')
+    print(f'📚 載入模型：feature_dim={feature_dim}, hidden_dim={hidden_dim}, num_layers={num_layers}, num_cells={num_cells}, cell_embed_dim={cell_embedding_dim}')
     
     # 使用 meta 中的 feature_dim 構建編碼器
     encoder = ConfigurableGATEncoder(feature_dim, hidden_dim, num_layers=num_layers, heads_schedule=heads_schedule, 
-                                   dropout=dropout, num_cells=num_cells)
+                                   dropout=dropout, cell_embedding_dim=cell_embedding_dim, num_cells=num_cells)
     
     try:
         state_dict = torch.load(model_path, map_location='cpu')

@@ -43,7 +43,7 @@ except ImportError as e:
 class ConfigurableGATEncoder(torch.nn.Module):
     """可配置 GAT 編碼器（附 cell embedding，concat=False 省顯存）"""
     def __init__(self, in_channels, out_channels, num_layers=2, heads_schedule=None, dropout=0.1,
-                 cell_embedding_dim=16, num_cells=854):
+                 cell_embedding_dim=8, num_cells=854):
         super().__init__()
         from torch_geometric.nn import GATConv
         self.cell_embedding = torch.nn.Embedding(num_cells, cell_embedding_dim)
@@ -159,10 +159,12 @@ class GNNInference:
         meta = self._load_meta()
         num_layers = 3
         dropout = 0.1
+        cell_embedding_dim = 8  # 預設值
         if meta:
             hidden_dim = meta.get('hidden_dim', hidden_dim)
             num_layers = meta.get('num_layers', num_layers)
             dropout = meta.get('dropout', dropout)
+            cell_embedding_dim = meta.get('cell_embed_dim', 8)  # 從 meta 檔案讀取
         
         # 獲取 cell 數量用於 embedding
         try:
@@ -173,7 +175,7 @@ class GNNInference:
             num_cells = 854  # 預設值
             
         self.encoder = ConfigurableGATEncoder(input_dim, hidden_dim, num_layers=num_layers, 
-                                            dropout=dropout, num_cells=num_cells)
+                                            dropout=dropout, cell_embedding_dim=cell_embedding_dim, num_cells=num_cells)
         encoder_type = 'Configurable'
         try:
             state_dict = torch.load(self.model_path, map_location='cpu')

@@ -99,6 +99,24 @@ class TwoDimensionalInferenceEngine:
             actions_taken = []
             successful_actions = 0
             
+            # 獲取當前權重用於評分
+            tns_weight, power_weight = self.env.get_current_weights()
+            
+            # 追蹤最佳表現的前三名
+            best_performances = []  # 存儲 (step, score, tns_improvement, power_improvement, metrics)
+            
+            # 記錄初始狀態作為 step 0
+            initial_score = 0.0  # 初始狀態評分為 0
+            best_performances.append({
+                'step': 0,
+                'score': initial_score,
+                'tns_improvement': 0.0,
+                'power_improvement': 0.0,
+                'tns': initial_tns,
+                'wns': initial_wns,
+                'power': initial_power
+            })
+            
             step_count = 0
             while not environment_state.done and step_count < self.inference_config.max_actions:
                 # 獲取二維動作
@@ -118,9 +136,17 @@ class TwoDimensionalInferenceEngine:
                 if env_info.get('action_success', False):
                     successful_actions += 1
                 
-                # 記錄步驟
+                # 計算當前步驟的改善和評分
+                current_tns_improvement = initial_tns - next_environment_state.current_tns
+                current_power_improvement = initial_power - next_environment_state.current_power
+                
+                # 使用權重計算綜合評分（越高越好）
+                current_score = (tns_weight * current_tns_improvement + 
+                               power_weight * current_power_improvement)
+                
+                # 記錄步驟詳細資訊
                 step_info = {
-                    'step': step_count,
+                    'step': step_count + 1,
                     'action': {
                         'candidate_idx': candidate_idx,
                         'replacement_idx': replacement_idx,
@@ -137,6 +163,11 @@ class TwoDimensionalInferenceEngine:
                         'wns': next_environment_state.current_wns,
                         'power': next_environment_state.current_power
                     },
+                    'improvements': {
+                        'tns': current_tns_improvement,
+                        'power': current_power_improvement
+                    },
+                    'score': current_score,
                     'reward': reward,
                     'success': env_info.get('action_success', False),
                     'log_prob': info.get('log_prob', 0.0),
@@ -144,6 +175,22 @@ class TwoDimensionalInferenceEngine:
                 }
                 optimization_steps.append(step_info)
                 actions_taken.append(action)
+                
+                # 更新最佳表現記錄
+                performance_record = {
+                    'step': step_count + 1,
+                    'score': current_score,
+                    'tns_improvement': current_tns_improvement,
+                    'power_improvement': current_power_improvement,
+                    'tns': next_environment_state.current_tns,
+                    'wns': next_environment_state.current_wns,
+                    'power': next_environment_state.current_power
+                }
+                
+                # 將當前表現插入到最佳表現列表中（保持按評分降序排列）
+                best_performances.append(performance_record)
+                best_performances.sort(key=lambda x: x['score'], reverse=True)
+                best_performances = best_performances[:3]  # 只保留前三名
                 
                 # 更新狀態
                 environment_state = next_environment_state
@@ -153,7 +200,7 @@ class TwoDimensionalInferenceEngine:
                            f"TNS={environment_state.current_tns:.4f}, "
                            f"WNS={environment_state.current_wns:.4f}, "
                            f"Power={environment_state.current_power:.6f}, "
-                           f"獎勵={reward:.4f}, 成功={step_info['success']}")
+                           f"評分={current_score:.4f}, 獎勵={reward:.4f}, 成功={step_info['success']}")
             
             # 計算優化結果
             final_tns = environment_state.current_tns
@@ -171,6 +218,17 @@ class TwoDimensionalInferenceEngine:
             tns_goal_achieved = final_tns >= self.rl_config.tns_goal_threshold
             wns_goal_achieved = final_wns >= self.rl_config.wns_goal_threshold
             convergence = tns_goal_achieved and wns_goal_achieved
+            
+            # 輸出最佳表現前三名
+            logger.info("=" * 60)
+            logger.info(f"🏆 最佳表現前三名 (權重 TNS:{tns_weight:.2f}, Power:{power_weight:.2f}):")
+            for i, perf in enumerate(best_performances[:3], 1):
+                logger.info(f"第{i}名 - 步驟 {perf['step']}: "
+                           f"評分={perf['score']:.4f}, "
+                           f"TNS改善={perf['tns_improvement']:+.4f}, "
+                           f"Power改善={perf['power_improvement']:+.6f}, "
+                           f"TNS={perf['tns']:.4f}, Power={perf['power']:.6f}")
+            logger.info("=" * 60)
             
             result = {
                 'case_name': case_name,
@@ -201,6 +259,11 @@ class TwoDimensionalInferenceEngine:
                     'tns_goal_achieved': tns_goal_achieved,
                     'wns_goal_achieved': wns_goal_achieved
                 },
+                'weights_used': {
+                    'tns_weight': tns_weight,
+                    'power_weight': power_weight
+                },
+                'best_performances': best_performances,  # 新增：最佳表現前三名
                 'optimization_steps': optimization_steps,
                 'actions_taken': actions_taken
             }
@@ -265,11 +328,20 @@ class TwoDimensionalInferenceEngine:
             優化結果列表
         """
         results = []
+        all_best_performances = []  # 收集所有案例的最佳表現
         
         for case_name in case_names:
             try:
                 result = self.optimize_single_case(case_name)
                 results.append(result)
+                
+                # 收集最佳表現（添加案例名稱）
+                if 'best_performances' in result:
+                    for perf in result['best_performances']:
+                        perf_with_case = perf.copy()
+                        perf_with_case['case_name'] = case_name
+                        all_best_performances.append(perf_with_case)
+                        
             except Exception as e:
                 logger.error(f"優化案例 {case_name} 失敗: {e}")
                 # 建立錯誤結果
@@ -283,6 +355,26 @@ class TwoDimensionalInferenceEngine:
                     }
                 }
                 results.append(error_result)
+        
+        # 總結跨案例的最佳表現前三名
+        if all_best_performances:
+            # 按評分排序，取前三名
+            all_best_performances.sort(key=lambda x: x['score'], reverse=True)
+            top_3_overall = all_best_performances[:3]
+            
+            logger.info("=" * 80)
+            logger.info("🌟 跨所有案例的最佳表現前三名:")
+            for i, perf in enumerate(top_3_overall, 1):
+                logger.info(f"第{i}名 - {perf['case_name']} 步驟 {perf['step']}: "
+                           f"評分={perf['score']:.4f}, "
+                           f"TNS改善={perf['tns_improvement']:+.4f}, "
+                           f"Power改善={perf['power_improvement']:+.6f}")
+            logger.info("=" * 80)
+            
+            # 將跨案例最佳表現添加到結果中
+            for result in results:
+                if 'error' not in result:
+                    result['overall_best_performances'] = top_3_overall
         
         return results
     

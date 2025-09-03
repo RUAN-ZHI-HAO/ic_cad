@@ -16,9 +16,12 @@ if [ $# -eq 0 ]; then
     echo "範例:"
     echo "  $0 test                                          # 運行系統測試"
     echo "  $0 train c17 c432                               # 訓練模式"
+    echo "  $0 train c17 --tns-weight 2.0 --power-weight 1.0  # 訓練模式（指定權重）"
     echo "  $0 optimize c17                                 # 優化模式 (使用預設模型)"
     echo "  $0 optimize c17 /path/to/model.pth             # 優化模式 (指定模型)"
+    echo "  $0 optimize c17 --tns-weight 1.5 --power-weight 0.5  # 優化模式（指定權重）"
     echo "  $0 full c17 c432                               # 完整流程"
+    echo "  $0 full c17 --tns-weight 3.0 --power-weight 1.0     # 完整流程（指定權重）"
     echo ""
     exit 1
 fi
