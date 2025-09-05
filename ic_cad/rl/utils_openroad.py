@@ -40,16 +40,12 @@ class CellInformation:
     """Cell 相關資訊"""
     cell_type: str
     total_power: float
-    static_power_total: float
-    dynamic_power_total: float
     delay: float
     drive_resistance: float
-    vt_type: str
+    vt_type: float  # 改為數值型別
     fanout_count: int
     output_cap: float
     output_slew: float
-    width: float
-    height: float
     area: float
     is_endpoint: bool
 
@@ -210,6 +206,7 @@ class OpenRoadInterface:
                 "design": design, 
                 "tech": case_tech,  # 保存 tech 引用避免被垃圾回收
                 "metrics": MetricsReport(0.0, 0.0, 0.0), 
+                "state_norm": {"power": [float("inf"), float("-inf")], "capacitance": [float("inf"), float("-inf")], "slew": [float("inf"), float("-inf")], "area": [43740, 700380], "fanout_count": [float("inf"), float("-inf")], "delay": [float("inf"), float("-inf")]},  # 初始範圍
                 "cell_information": {}
             }
             logger.info(f"✅ 成功載入案例: {case_name}")
@@ -320,8 +317,8 @@ class OpenRoadInterface:
     def create_equal_weight_score(self, cell_info_list):  
         # 提取並標準化各項指標  
         powers = [x[2] for x in cell_info_list]  # 功耗值  
-        delay = [x[5] for x in cell_info_list]  # 使用絕對值的 delay
-        slew = [x[10] for x in cell_info_list]  # 使用絕對值的 output slew
+        delay = [x[3] for x in cell_info_list]  # 使用絕對值的 delay
+        slew = [x[8] for x in cell_info_list]  # 使用絕對值的 output slew
         
         max_power = max(powers) if powers else 1  
         max_delay = max(delay) if delay else 1  
@@ -334,8 +331,8 @@ class OpenRoadInterface:
 
         def optimization_score(x):  
             power_norm = x[2] / max_power  
-            delay_norm = x[5] / max_delay  
-            slew_norm = x[10] / max_slew
+            delay_norm = x[3] / max_delay  
+            slew_norm = x[8] / max_slew
 
             return power_weight * power_norm + delay_weight * delay_norm + slew_weight * slew_norm  
         
@@ -365,8 +362,6 @@ class OpenRoadInterface:
             cell_type = master.getName()  
             
             total_power = 0  
-            static_power_total = 0  
-            dynamic_power_total = 0
             worst_slack = float('inf')  
             
             try:
@@ -375,8 +370,6 @@ class OpenRoadInterface:
                     try:
                         static_power = timing.staticPower(inst, corner)  
                         dynamic_power = timing.dynamicPower(inst, corner)  
-                        static_power_total += static_power  
-                        dynamic_power_total += dynamic_power
                         total_power += static_power + dynamic_power
                     except Exception as e:
                         logger.debug(f"功耗計算失敗 {inst_name}: {e}")
@@ -389,13 +382,13 @@ class OpenRoadInterface:
             # 簡化的 VT 類型解析（從 cell 名稱）  
             vt_type = "L"  # 默認值  
             if "_SRAM" in cell_type:  
-                vt_type = "SRAM"  
+                vt_type = 0.0  
             elif "_SL" in cell_type:
-                vt_type = "SL"
+                vt_type = 0.25
             elif "_R" in cell_type:  
-                vt_type = "R"  
+                vt_type = 0.5 
             elif "_L" in cell_type:  
-                vt_type = "L"  
+                vt_type = 1.0
             
             # 電氣特性分析 - 更安全的實現
             output_cap = 0  
@@ -514,20 +507,34 @@ class OpenRoadInterface:
                 drive_resistance = 6.0
             
             try:
+                # 做一些數值修正
+                output_cap *= 1e15  
+                output_slew *= 1e12
+                delay *= 1e12
+
+                # 更新最大/最小範圍
+                norm = self.sessions[case_name]["state_norm"]
+                norm["power"][0] = min(norm["power"][0], total_power)
+                norm["power"][1] = max(norm["power"][1], total_power)
+                norm["capacitance"][0] = min(norm["capacitance"][0], output_cap)
+                norm["capacitance"][1] = max(norm["capacitance"][1], output_cap)
+                norm["slew"][0] = min(norm["slew"][0], output_slew)
+                norm["slew"][1] = max(norm["slew"][1], output_slew)
+                norm["fanout_count"][0] = min(norm["fanout_count"][0], fanout_count)
+                norm["fanout_count"][1] = max(norm["fanout_count"][1], fanout_count)
+                norm["delay"][0] = min(norm["delay"][0], delay)
+                norm["delay"][1] = max(norm["delay"][1], delay)
+
                 # 創建 CellInformation 物件 - 更安全的實現
                 cell_info = CellInformation(
                     cell_type=cell_type,
                     total_power=total_power,
-                    static_power_total=static_power_total,
-                    dynamic_power_total=dynamic_power_total,
                     delay=delay,
                     drive_resistance=drive_resistance,
                     vt_type=vt_type,
                     fanout_count=fanout_count,
                     output_cap=output_cap,
                     output_slew=output_slew,
-                    width=master.getWidth(),
-                    height=master.getHeight(),
                     area=master.getArea(),
                     is_endpoint=is_endpoint 
                 )
@@ -540,18 +547,14 @@ class OpenRoadInterface:
                     inst_name,                # Instance  0
                     cell_type,                # Cell Type    1
                     total_power,              # Total Power  2
-                    static_power_total,       # Leakage Power  3
-                    dynamic_power_total,      # Dynamic Power  4
-                    delay,                    # Delay  5
-                    drive_resistance,         # Drive Strength  6
-                    vt_type,                  # VT Type   7
-                    fanout_count,             # Fanout   8
-                    output_cap,               # Out Cap  9
-                    output_slew,              # Out Slew  10
-                    master.getWidth(),        # Width  11
-                    master.getHeight(),       # Height  12
-                    master.getArea(),         # Area  13
-                    is_endpoint               # Endpoint  14
+                    delay,                    # Delay  3
+                    drive_resistance,         # Drive Strength  4
+                    vt_type,                  # VT Type   5
+                    fanout_count,             # Fanout   6
+                    output_cap,               # Out Cap  7
+                    output_slew,              # Out Slew  8
+                    master.getArea(),         # Area  9
+                    is_endpoint               # Endpoint  10
                 ))
 
             except Exception as e:
@@ -565,7 +568,7 @@ class OpenRoadInterface:
 
         return cell_info_list
 
-    def get_candidate_cells(self, case_name: str, top_delay: int = 50, top_power: int = 50) -> List[Tuple[str, str]]:
+    def get_candidate_cells(self, case_name: str, top_delay: int = 15, top_power: int = 15, top_slew: int = 15) -> List[Tuple[str, str]]:
         """
         獲取候選 cell 集合：Top-P 最壞 delay + Top-H 最大功耗的 cells + Top-S 最大輸出 slew
         這些 cell 將作為優化的目標
@@ -600,7 +603,7 @@ class OpenRoadInterface:
             reverse=True
         )
 
-        cellls_by_output_slew = sorted(
+        cells_by_output_slew = sorted(
             cell_info_dict.items(),
             key=lambda x: x[1].output_slew,
             reverse=True
@@ -622,6 +625,16 @@ class OpenRoadInterface:
         
         return candidate_pairs
 
+    def normalize_feature(self, values: float, min_val: float, max_val: float, negative: bool) -> float:
+        """將特徵值標準化到 [0, 1] 範圍"""
+        if max_val - min_val == 0:
+            return 0.0
+        
+        if negative:
+            return 2 * (values - min_val) / (max_val - min_val) - 1
+        else:
+            return (values - min_val) / (max_val - min_val)
+
     def get_dynamic_features(self, case_name: str) -> np.ndarray:
         """
         計算每個 cell 的動態特徵
@@ -630,6 +643,7 @@ class OpenRoadInterface:
             [N, F_dyn] 的 numpy array，每一行是一個 cell 的動態特徵
         """
         cell_info_dict = self.sessions[case_name]["cell_information"]
+        norm = self.sessions[case_name]["state_norm"]
         
         if not cell_info_dict:
             self.update_cell_information(case_name)
@@ -641,20 +655,27 @@ class OpenRoadInterface:
         
         for inst_name, cell_info in cell_info_dict.items():
             # 動態特徵向量 (可以根據需要調整)
+            total_power = self.normalize_feature(cell_info.total_power, norm["power"][0], norm["power"][1], negative=False)
+            delay = self.normalize_feature(cell_info.delay, norm["delay"][0], norm["delay"][1], negative=False)  # 假設 delay 範圍與 slew 相似，且越小越好
+            drive_resistance = self.normalize_feature(cell_info.drive_resistance, 0.2, 6.0, negative=False)  # 假設驅動強度範圍在 0.2 到 6.0
+            fanout_count = self.normalize_feature(cell_info.fanout_count, norm["fanout_count"][0], norm["fanout_count"][1], negative=False)
+            output_cap = self.normalize_feature(cell_info.output_cap, norm["capacitance"][0], norm["capacitance"][1], negative=False)
+            output_slew = self.normalize_feature(cell_info.output_slew, norm["slew"][0], norm["slew"][1], negative=False)
+            area = self.normalize_feature(cell_info.area, norm["area"][0], norm["area"][1], negative=False)
+            
+            # VT type 已經是數值，直接使用
+            vt_type_value = cell_info.vt_type
+            
             feature_vector = [
-                cell_info.worst_slack,              # local slack
-                cell_info.total_power,              # power consumption
-                cell_info.static_power_total,       # static power
-                cell_info.drive_resistance,         # drive strength
-                cell_info.fanout_count,             # fanout count
-                cell_info.output_cap,               # output capacitance
-                cell_info.output_slew,               # input slew
-                cell_info.area,                     # cell area
-                # VT type (one-hot encoding)
-                0.5 if cell_info.vt_type == "L" else 0.0,      # LVT
-                0.75 if cell_info.vt_type == "R" else 0.0,      # RVT  
-                0.25 if cell_info.vt_type == "SL" else 0.0,     # SLVT
-                1.0 if cell_info.vt_type == "SRAM" else 0.0,   # SRAM
+                total_power,                                            # power consumption
+                delay,                                                  # delay
+                drive_resistance,                                       # drive strength
+                vt_type_value,                                          # VT type (numerical)
+                fanout_count,                                           # fanout count
+                output_cap,                                             # output capacitance
+                output_slew,                                            # input slew
+                area,                                                   # cell area
+                1.0 if cell_info.is_endpoint else 0.0,                 # is timing endpoint
             ]
             
             features.append(feature_vector)
@@ -673,14 +694,15 @@ class OpenRoadInterface:
 
 if __name__ == "__main__":
     # 測試用：確保 OpenROAD 可以正常載入
-    benchmark = "s1196"
+    benchmark = "c17"
     interface = OpenRoadInterface()
     interface.load_case(benchmark)
     interface.report_metrics(benchmark)
     interface.update_cell_information(benchmark)
-    cells = interface.get_cell_information(benchmark)
-    for i in cells:
-        print(i, cells[i])
+    cells = interface.get_dynamic_features(benchmark)
+    for cell in cells:
+        print(cell)
+
     # cells = interface.get_candidate_cells(benchmark, top_slack=15, top_power=5)
     # print(len(cells))
     # for i in cells:

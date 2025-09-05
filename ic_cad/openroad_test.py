@@ -530,8 +530,8 @@ def test():
 # === 主流程 ===
 def main():
     # analyze_sta_summary()
-    test()
-    # analyze_critical_paths()
+    # test()
+    analyze_critical_paths()
     # find_equivalent_cells(tech, design, "O2A1O1Ixp33_ASAP7_75t_L")
 
     # groups = create_cell_groups(tech, design, include_singletons=True)

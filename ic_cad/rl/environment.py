@@ -27,31 +27,6 @@ from cell_replacement_manager import CellReplacementManager
 
 logger = logging.getLogger(__name__)
 
-# ---- 狀態表示結構 ----
-@dataclass
-class CandidateCell:
-    """候選cell的表示"""
-    name: str
-    master: str
-    x: float = 0.0
-    y: float = 0.0
-
-@dataclass 
-class CircuitState:
-    """電路狀態表示"""
-    candidate_cells: List[Any]  # CandidateCell instances or List[str]
-    current_tns: float
-    current_wns: float
-    current_power: float
-    step_count: int
-    circuit_metrics: Any
-    candidate_gnn_features: List[List[float]]
-    initial_tns: Optional[float] = None
-    initial_wns: Optional[float] = None
-    initial_power: Optional[float] = None
-
-logger = logging.getLogger(__name__)
-
 # ---- 嘗試載入 GNN API（可選）----
 try:
     # 若你的 gnn_api 不在 python path，這裡自行調整/刪除
@@ -167,16 +142,6 @@ class OptimizationEnvironment:
         self.global_initial_tns: Optional[float] = None
         self.global_initial_wns: Optional[float] = None
         self.global_initial_power: Optional[float] = None
-
-        # 動作空間設定
-        self.action_library: List[Dict[str, Any]] = getattr(config, "action_library", [])
-        self.allowed_action_types: Tuple[str, ...] = ("replace_cell",)  # 只使用 replace_cell
-
-        self.action_space_size: int = getattr(config, "action_space_size", 0)
-        if self.action_space_size <= 0:
-            self.action_space_size = len(self.action_library) if self.action_library else 2
-        elif self.action_library:
-            self.action_space_size = len(self.action_library)
 
         self.max_steps_per_episode: int = getattr(config, "max_steps_per_episode", 20)
 
@@ -601,7 +566,7 @@ class OptimizationEnvironment:
                     candidate_gnn_features = candidate_gnn_features[:self.gnn_embed_dim]
         
         # 2) 候選 cells 的動態特徵
-        candidate_dyn_features = np.zeros(5, dtype=np.float32)  # 假設取 5 個主要動態特徵
+        candidate_dyn_features = np.zeros(9, dtype=np.float32)  # 現在是 9 維動態特徵
         if (self.current_state.node_dyn is not None and 
             self.current_state.candidate_cells):
             # 使用 candidate_cells 名單來獲取對應的動態特徵
@@ -612,13 +577,17 @@ class OptimizationEnvironment:
             
             if candidate_indices:
                 candidate_dynamics = self.current_state.node_dyn[candidate_indices]
-                # 取一些關鍵特徵的統計值
+                # 使用所有 9 維特徵的統計值
                 candidate_dyn_features = np.array([
-                    np.mean(candidate_dynamics[:, 0]),  # avg worst slack
-                    np.mean(candidate_dynamics[:, 1]),  # avg power
-                    np.std(candidate_dynamics[:, 0]),   # slack diversity  
-                    np.max(candidate_dynamics[:, 1]),   # max power
-                    len(candidate_dynamics)             # candidate count
+                    np.mean(candidate_dynamics[:, 0]),  # avg total_power
+                    np.mean(candidate_dynamics[:, 1]),  # avg delay
+                    np.mean(candidate_dynamics[:, 2]),  # avg drive_resistance
+                    np.mean(candidate_dynamics[:, 3]),  # avg vt_type
+                    np.mean(candidate_dynamics[:, 4]),  # avg fanout_count
+                    np.mean(candidate_dynamics[:, 5]),  # avg output_cap
+                    np.mean(candidate_dynamics[:, 6]),  # avg output_slew
+                    np.mean(candidate_dynamics[:, 7]),  # avg area
+                    np.mean(candidate_dynamics[:, 8]),  # avg is_endpoint ratio
                 ], dtype=np.float32)
 
         # 3) 全域特徵
@@ -750,43 +719,6 @@ class OptimizationEnvironment:
         if candidate_dynamic_features:
             self.current_state.candidate_dynamic_features = np.array(candidate_dynamic_features)
 
-    def _decode_action_for_cell(self, target_cell: str) -> OptimizationAction:
-        """
-        為特定 cell 創建優化動作
-        這裡可以根據 cell 的特性選擇適當的動作類型
-        """
-        # 簡單版本：預設使用 replace_cell
-        return OptimizationAction(
-            action_type="replace_cell",
-            target_cell=target_cell
-        )
-
-    def _decode_action(self, action_idx: int) -> OptimizationAction:
-        """
-        舊版動作解碼方法 - 現在主要使用 _decode_action_for_cell
-        保留此方法作為向後相容性
-        """
-        # 1) 使用 action_library（建議）
-        if self.action_library:
-            spec = self.action_library[action_idx % len(self.action_library)]
-            a_type = spec.get("action_type", "replace_cell")
-            if a_type not in self.allowed_action_types:
-                a_type = "replace_cell"
-
-            return OptimizationAction(
-                action_type=a_type,
-                target_cell=spec.get("target_cell", ""),
-                new_cell_type=spec.get("new_cell_type"),
-                position=spec.get("position"),
-            )
-
-        # 2) 範例動作 - 統一使用 replace_cell
-        target_cell = getattr(self.config, "demo_target_cell", "_1_")
-        new_master = getattr(self.config, "demo_new_master", "NAND2xp33_ASAP7_75t_L")
-        return OptimizationAction(action_type="replace_cell",
-                                  target_cell=target_cell,
-                                  new_cell_type=new_master)
-
     def _calculate_reward(
         self,
         old_tns: float,
@@ -821,7 +753,7 @@ class OptimizationEnvironment:
         power_improvement = old_power - new_power      # 正值表示功耗減少
 
         # 🎁 提供更大的基線獎勵：鼓勵智能體探索
-        base_reward = 0.5  # 增加基線獎勵
+        base_reward = 0.0  # 增加基線獎勵
 
         # 📈 更寬容的不對稱獎勵機制
         step_reward = 0.0
@@ -833,7 +765,7 @@ class OptimizationEnvironment:
         if abs(global_initial_tns) > 1e-6:  # 有意義的初始TNS值
             tns_ratio = tns_improvement / abs(global_initial_tns)
             if tns_improvement > 0:  # TNS真正改善了
-                step_reward += tns_weight * 10.0 * tns_ratio  # 更高獎勵
+                step_reward += tns_weight * 8.0 * tns_ratio  # 更高獎勵
             else:  # TNS惡化了 - 更寬容的懲罰
                 step_reward += tns_weight * 1.0 * tns_ratio  # 大幅減少懲罰
         else:  # 初始TNS接近0（組合邏輯電路）
@@ -844,9 +776,9 @@ class OptimizationEnvironment:
         if abs(global_initial_wns) > 1e-6:  # 有意義的初始WNS值
             wns_ratio = wns_improvement / abs(global_initial_wns)
             if wns_improvement > 0:  # WNS真正改善了
-                step_reward += 6.0 * wns_ratio  # 更高獎勵
+                step_reward += 4.0 * wns_ratio  # 更高獎勵
             else:  # WNS惡化了 - 更寬容的懲罰
-                step_reward += 0.5 * wns_ratio  # 大幅減少懲罰
+                step_reward += 1.0 * wns_ratio  # 大幅減少懲罰
         else:  # 初始WNS接近0
             if abs(wns_improvement) > 1e-6:
                 step_reward += 1.5 if wns_improvement > 0 else -0.1  # 更寬容
@@ -855,9 +787,9 @@ class OptimizationEnvironment:
         if abs(global_initial_power) > 1e-9:  # 有意義的初始功耗值
             power_ratio = power_improvement / global_initial_power
             if power_improvement > 0:  # 功耗減少了
-                step_reward += power_weight * 4.0 * power_ratio  # 更高獎勵
+                step_reward += power_weight * 2.0 * power_ratio  # 更高獎勵
             else:  # 功耗增加了 - 更寬容的懲罰
-                step_reward += power_weight * 0.2 * power_ratio  # 大幅減少懲罰
+                step_reward += power_weight * 0.1 * power_ratio  # 大幅減少懲罰
         else:  # 初始功耗接近0
             if abs(power_improvement) > 1e-9:
                 step_reward += power_weight * (0.3 if power_improvement > 0 else -0.02)  # 更寬容
@@ -884,9 +816,9 @@ class OptimizationEnvironment:
                 milestone_reward += tns_weight * 8.0
         elif global_tns_improvement < 0 and abs(global_initial_tns) > 1e-6:  # 惡化 - 大幅減少懲罰
             degradation_ratio = abs(global_tns_improvement) / abs(global_initial_tns)
-            if degradation_ratio > 1.0:  # 惡化超過100% - 才給懲罰
+            if degradation_ratio > 0.75:  # 惡化超過75% - 才給懲罰
                 milestone_reward -= tns_weight * 5.0
-            elif degradation_ratio > 0.75:  # 惡化超過75%
+            elif degradation_ratio > 0.50:  # 惡化超過50%
                 milestone_reward -= tns_weight * 3.0
         elif global_tns_improvement < 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路惡化 - 輕懲罰
             if abs(global_tns_improvement) > 1e-6:
@@ -903,7 +835,7 @@ class OptimizationEnvironment:
                 milestone_reward += power_weight * 8.0
         elif global_power_improvement < 0 and abs(global_initial_power) > 1e-9:  # 惡化 - 大幅減少懲罰
             degradation_ratio = abs(global_power_improvement) / abs(global_initial_power)
-            if degradation_ratio > 0.50:  # 惡化超過50% - 才給懲罰
+            if degradation_ratio > 0.20:  # 惡化超過20% - 才給懲罰
                 milestone_reward -= power_weight * 2.0
 
         # 🚫 移除額外懲罰機制
@@ -913,7 +845,7 @@ class OptimizationEnvironment:
         total_reward = base_reward + step_reward + milestone_reward - penalty
 
         # 🔧 更寬容的獎勵範圍：大幅提高最低獎勵
-        reward = np.clip(total_reward, -2.0, 20.0)  # 進一步縮小負獎勵範圍
+        reward = np.clip(total_reward, -10.0, 20.0)  # 進一步縮小負獎勵範圍
 
         return float(reward)
 

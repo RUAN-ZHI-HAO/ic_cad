@@ -23,8 +23,8 @@ class RLConfig:
     gnn_embed_dim: int = 64         # GNN 嵌入維度 (配合新模型的 64 維輸出)
     cell_embedding_dim: int = 32        # Cell type embedding 維度
     effective_feature_dim: int = 54     # 實際處理維度 (22 基礎 + 32 embedding)
-    dynamic_feature_dim: int = 12   # 動態特徵維度 (worst_slack, total_power, etc.)
-    global_feature_dim: int = 9     # 全域特徵維度 (TNS, WNS, Power, etc.)
+    dynamic_feature_dim: int = 9        # 動態特徵維度 (total_power, delay, drive_resistance, vt_type, fanout_count, output_cap, output_slew, area, is_endpoint)
+    global_feature_dim: int = 9         # 全域特徵維度 (TNS, WNS, Power, etc.)
     hidden_dim: int = 256           # Policy/Value 網路隱藏層維度
     actor_hidden_dim: int = 256     # Actor 網路隱藏層維度
     critic_hidden_dim: int = 256    # Critic 網路隱藏層維度
@@ -54,7 +54,7 @@ class RLConfig:
     
     # === 訓練參數 === (平衡效率與效果)
     max_episodes: int = 2000        # 最大訓練回合數 (增加)
-    max_steps_per_episode: int = 25 # 每回合最大步數 (折衷方案)
+    max_steps_per_episode: int = 20 # 每回合最大步數 (折衷方案)
     update_interval: int = 256      # 更新間隔
     save_interval: int = 50         # 模型保存間隔 (更頻繁保存)
     eval_interval: int = 25         # 評估間隔 (更頻繁評估)
