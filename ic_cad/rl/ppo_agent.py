@@ -24,49 +24,90 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 # -----------------------------
-# Feature Extractor
+# Shared Circuit Attention
 # -----------------------------
-class GNNFeatureExtractor(nn.Module):
+class CircuitAttentionLayer(nn.Module):
     """
-    GNN-based feature extractor for circuit elements with cell embedding support
+    共享的電路注意力機制，避免 Policy 和 Value 網絡重複代碼
     """
-    def __init__(self, input_dim: int, hidden_dim: int, num_layers: int = 3, 
-                 cell_embedding_dim: int = 32, num_cells: int = 854):
+    def __init__(self, feature_dim: int, hidden_dim: int):
         super().__init__()
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
-        self.num_layers = num_layers
+        self.circuit_attention = nn.MultiheadAttention(
+            embed_dim=hidden_dim,
+            num_heads=8,
+            dropout=0.1,
+            batch_first=True
+        )
+        self.circuit_norm = nn.LayerNorm(hidden_dim)
+        self.circuit_proj = nn.Linear(feature_dim, hidden_dim)
         
-        # Cell embedding layer（保留接口；目前 node_features 已是 GNN 輸出，先不使用）
-        self.cell_embedding = nn.Embedding(num_cells, cell_embedding_dim)
-
-        # 投影到 hidden 維度
-        self.input_proj = nn.Linear(input_dim, hidden_dim)
-        
-        # 「簡化版 GNN」：多層前饋 + skip
-        self.gnn_layers = nn.ModuleList([
-            nn.Linear(hidden_dim, hidden_dim) for _ in range(num_layers)
-        ])
-        self.output_proj = nn.Linear(hidden_dim, hidden_dim)
-        self.dropout = nn.Dropout(0.1)
-        
-    def forward(self, node_features: torch.Tensor) -> torch.Tensor:
+    def forward(self, circuit_features: torch.Tensor) -> torch.Tensor:
         """
         Args:
-            node_features: (B, C, F) - 已是 GNN 嵌入特徵
+            circuit_features: (B, N_total, F) - 全電路特徵
         Returns:
-            node_embeddings: (B, C, H)
+            attended_features: (B, N_total, H) - 注意力處理後的特徵
         """
-        x = self.input_proj(node_features)
-        x = F.relu(x)
-        for layer in self.gnn_layers:
-            residual = x
-            x = layer(x)
-            x = F.relu(x)
-            x = self.dropout(x)
-            x = x + residual  # Skip connection
-        x = self.output_proj(x)
-        return x
+        # 投影到hidden維度
+        projected = self.circuit_proj(circuit_features)  # (B, N_total, H)
+        
+        # Self-attention
+        attended, _ = self.circuit_attention(projected, projected, projected)
+        
+        # 層歸一化 + 殘差連接
+        return self.circuit_norm(attended + projected)
+
+# -----------------------------
+# Feature Extractor
+# -----------------------------
+class CellTypeAwareFeatureExtractor(nn.Module):
+    """
+    Cell-type aware feature extractor that combines GNN features with cell type embeddings
+    """
+    def __init__(self, gnn_dim: int, hidden_dim: int, 
+                 cell_embedding_dim: int = 32, num_cell_types: int = 854):
+        super().__init__()
+        self.gnn_dim = gnn_dim
+        self.hidden_dim = hidden_dim
+        self.cell_embedding_dim = cell_embedding_dim
+        
+        # Cell type embedding - 將 cell type 編碼為學習向量
+        self.cell_type_embedding = nn.Embedding(num_cell_types, cell_embedding_dim)
+        
+        # 投影層：組合 GNN 特徵 + Cell Type 嵌入
+        combined_dim = gnn_dim + cell_embedding_dim
+        self.feature_proj = nn.Sequential(
+            nn.Linear(combined_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim, hidden_dim)
+        )
+        
+    def forward(self, gnn_features: torch.Tensor, 
+                cell_type_ids: Optional[torch.Tensor] = None) -> torch.Tensor:
+        """
+        Args:
+            gnn_features: (B, C, gnn_dim) - GNN 幾何/拓撲特徵
+            cell_type_ids: (B, C) - Cell type IDs, 可選
+        Returns:
+            enhanced_features: (B, C, hidden_dim)
+        """
+        B, C, _ = gnn_features.shape
+        
+        if cell_type_ids is not None:
+            # 使用真實的 cell type embedding
+            cell_emb = self.cell_type_embedding(cell_type_ids)  # (B, C, emb_dim)
+        else:
+            # Fallback: 零向量 (保持向後兼容)
+            cell_emb = torch.zeros(B, C, self.cell_embedding_dim, 
+                                 device=gnn_features.device, dtype=gnn_features.dtype)
+        
+        # 組合 GNN 特徵 + Cell Type 特徵
+        combined = torch.cat([gnn_features, cell_emb], dim=-1)  # (B, C, gnn_dim + emb_dim)
+        
+        # 投影到統一維度
+        enhanced = self.feature_proj(combined)  # (B, C, hidden_dim)
+        return enhanced
 
 # -----------------------------
 # Policy & Value Networks
@@ -74,19 +115,30 @@ class GNNFeatureExtractor(nn.Module):
 class TwoDimensionalPolicyNetwork(nn.Module):
     """
     Policy network for 2D action space (candidate selection + replacement selection)
+    支持全電路信息輸入的版本
     """
     def __init__(self, feature_dim: int, hidden_dim: int,
                  max_candidates: int = 20, max_replacements: int = 20,
-                 global_feature_dim: int = 9, num_cells: int = 854):
+                 global_feature_dim: int = 9, num_cells: int = 854,
+                 use_full_circuit: bool = True):
         super().__init__()
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.max_candidates = max_candidates
         self.max_replacements = max_replacements
         self.global_feature_dim = global_feature_dim
+        self.use_full_circuit = use_full_circuit
         
-        # GNN features for candidates
-        self.gnn = GNNFeatureExtractor(feature_dim, hidden_dim, num_cells=num_cells)
+        if use_full_circuit:
+            # 使用共享的電路注意力機制
+            self.circuit_processor = CircuitAttentionLayer(feature_dim, hidden_dim)
+        
+        # 無論是否使用全電路，都創建 cell_aware_extractor 作為 fallback
+        self.cell_aware_extractor = CellTypeAwareFeatureExtractor(
+            gnn_dim=feature_dim, 
+            hidden_dim=hidden_dim, 
+            num_cell_types=num_cells
+        )
         
         # Global feature processing
         self.global_processor = nn.Sequential(
@@ -125,10 +177,11 @@ class TwoDimensionalPolicyNetwork(nn.Module):
                     nn.init.zeros_(layer.bias)
         
     def forward(self,
-                candidate_gnn_features: torch.Tensor,      # (B, C, F)
-                candidate_dynamic_features: torch.Tensor,  # (B, C, D) 目前未用，可擴充
+                candidate_gnn_features: torch.Tensor,      # (B, C, F) - 候選特徵 (向後兼容)
                 global_features: torch.Tensor,             # (B, G)
-                action_mask: Optional[Dict] = None
+                action_mask: Optional[Dict] = None,
+                all_circuit_features: Optional[torch.Tensor] = None,  # (B, N_total, F) - 全電路特徵
+                candidate_indices: Optional[torch.Tensor] = None       # (B, C) - 候選在全電路中的索引
                 ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Returns:
@@ -138,8 +191,28 @@ class TwoDimensionalPolicyNetwork(nn.Module):
         B, C, _ = candidate_gnn_features.shape
         device = candidate_gnn_features.device
 
-        # ---- Candidate branch ----
-        cand_emb = self.gnn(candidate_gnn_features)              # (B, C, H)
+        # ---- 全電路處理 (新設計) or 候選處理 (舊設計) ----
+        if self.use_full_circuit and all_circuit_features is not None:
+            # 使用共享的電路注意力處理
+            attended_features = self.circuit_processor(all_circuit_features)  # (B, N_total, H)
+            
+            # 從全電路特徵中提取候選特徵
+            if candidate_indices is not None:
+                # 使用候選索引提取對應特徵
+                cand_emb = torch.zeros(B, C, self.hidden_dim, device=device)
+                for b in range(B):
+                    for c in range(C):
+                        if c < len(candidate_indices[b]) and candidate_indices[b][c] >= 0:
+                            idx = candidate_indices[b][c]
+                            if idx < attended_features.shape[1]:
+                                cand_emb[b, c] = attended_features[b, idx]
+            else:
+                # 如果沒有索引，使用平均pooling作為fallback
+                cand_emb = torch.mean(attended_features, dim=1, keepdim=True).expand(-1, C, -1)
+        else:
+            # 原始候選處理方式 (向後兼容) - 使用增強的特徵提取
+            cand_emb = self.cell_aware_extractor(candidate_gnn_features)  # (B, C, H)
+            
         cand_emb = torch.clamp(cand_emb, -10, 10)
         glob = self.global_processor(global_features)            # (B, H)
         glob = torch.clamp(glob, -10, 10)
@@ -321,13 +394,15 @@ class TwoDimensionalPolicyNetwork(nn.Module):
 
     def get_action_and_log_prob(self,
                                 candidate_gnn_features: torch.Tensor,
-                                candidate_dynamic_features: torch.Tensor,
                                 global_features: torch.Tensor,
                                 action_mask: Optional[Dict] = None,
-                                deterministic: bool = False
+                                deterministic: bool = False,
+                                all_circuit_features: Optional[torch.Tensor] = None,
+                                candidate_indices: Optional[torch.Tensor] = None
                                 ) -> Tuple[Tuple[int, int], torch.Tensor, torch.Tensor]:
         cand_logits, repl_logits = self.forward(
-            candidate_gnn_features, candidate_dynamic_features, global_features, action_mask
+            candidate_gnn_features, global_features, action_mask,
+            all_circuit_features=all_circuit_features, candidate_indices=candidate_indices
         )
         # NaN/Inf 防護
         cand_logits = torch.where(torch.isfinite(cand_logits), cand_logits, torch.full_like(cand_logits, -10.0))
@@ -335,15 +410,27 @@ class TwoDimensionalPolicyNetwork(nn.Module):
         return self._mask_and_sample(cand_logits, repl_logits, action_mask, deterministic)
 
 class TwoDimensionalValueNetwork(nn.Module):
-    """Value network for state value estimation"""
+    """Value network for state value estimation - 支持全電路輸入"""
     def __init__(self, feature_dim: int, hidden_dim: int,
-                 global_feature_dim: int = 9, num_cells: int = 854):
+                 global_feature_dim: int = 9, num_cells: int = 854,
+                 use_full_circuit: bool = True):
         super().__init__()
         self.feature_dim = feature_dim
         self.hidden_dim = hidden_dim
         self.global_feature_dim = global_feature_dim
+        self.use_full_circuit = use_full_circuit
         
-        self.gnn = GNNFeatureExtractor(feature_dim, hidden_dim, num_cells=num_cells)
+        if use_full_circuit:
+            # 使用共享的電路注意力機制
+            self.circuit_processor = CircuitAttentionLayer(feature_dim, hidden_dim)
+            
+        # 無論是否使用全電路，都創建 cell_aware_extractor 作為 fallback
+        self.cell_aware_extractor = CellTypeAwareFeatureExtractor(
+            gnn_dim=feature_dim, 
+            hidden_dim=hidden_dim, 
+            num_cell_types=num_cells
+        )
+            
         self.global_processor = nn.Sequential(
             nn.Linear(global_feature_dim, hidden_dim // 2),
             nn.ReLU(),
@@ -366,11 +453,22 @@ class TwoDimensionalValueNetwork(nn.Module):
                 nn.init.zeros_(layer.bias)
         
     def forward(self,
-                candidate_gnn_features: torch.Tensor,   # (B, C, F)
-                global_features: torch.Tensor           # (B, G)
+                candidate_gnn_features: torch.Tensor,   # (B, C, F) - 向後兼容
+                global_features: torch.Tensor,          # (B, G)
+                all_circuit_features: Optional[torch.Tensor] = None  # (B, N_total, F) - 全電路特徵
                 ) -> torch.Tensor:
-        node_embeddings = self.gnn(candidate_gnn_features)        # (B, C, H)
-        graph_embedding = torch.mean(node_embeddings, dim=1)      # (B, H)
+        
+        if self.use_full_circuit and all_circuit_features is not None:
+            # 使用共享的電路注意力處理
+            attended_features = self.circuit_processor(all_circuit_features)  # (B, N_total, H)
+            
+            # 全電路特徵的全域pooling
+            graph_embedding = torch.mean(attended_features, dim=1)  # (B, H)
+        else:
+            # 原始候選處理方式 - 使用增強的特徵提取
+            node_embeddings = self.cell_aware_extractor(candidate_gnn_features)  # (B, C, H)
+            graph_embedding = torch.mean(node_embeddings, dim=1)      # (B, H)
+            
         processed_global = self.global_processor(global_features) # (B, H)
         combined = torch.cat([graph_embedding, processed_global], dim=-1)
         value = self.value_head(combined)                         # (B, 1)
@@ -425,12 +523,15 @@ class TwoDimensionalPPOAgent:
         except Exception:
             num_cells = 854  # fallback
         
-        # Networks
+        # Networks (支持全電路特徵)
+        use_full_circuit = True  # 啟用全電路處理
         self.policy_network = TwoDimensionalPolicyNetwork(
-            feature_dim, hidden_dim, max_candidates, max_replacements, global_feature_dim=9, num_cells=num_cells
+            feature_dim, hidden_dim, max_candidates, max_replacements, 
+            global_feature_dim=9, num_cells=num_cells, use_full_circuit=use_full_circuit
         ).to(self.device)  # 移動到指定設備
         self.value_network = TwoDimensionalValueNetwork(
-            feature_dim, hidden_dim, global_feature_dim=9, num_cells=num_cells
+            feature_dim, hidden_dim, global_feature_dim=9, num_cells=num_cells,
+            use_full_circuit=use_full_circuit
         ).to(self.device)  # 移動到指定設備
         
         # Optimizers（actor/critic 可不同 LR）
@@ -480,12 +581,18 @@ class TwoDimensionalPPOAgent:
             self.policy_network.eval()
             self.value_network.eval()
             with torch.no_grad():
-                # features
-                cand_gnn, cand_dyn, glob, a_mask = self._prepare_features(state)
+                # 準備特徵 (包含全電路特徵)
+                cand_gnn, cand_dyn, glob, a_mask, all_circuit_features, candidate_indices = self._prepare_features(state)
+                
+                # 獲取動作 (移除 candidate_dynamic_features)
                 action, log_prob, entropy = self.policy_network.get_action_and_log_prob(
-                    cand_gnn, cand_dyn, glob, a_mask, deterministic
+                    cand_gnn, glob, a_mask, deterministic,
+                    all_circuit_features=all_circuit_features,
+                    candidate_indices=candidate_indices
                 )
-                value = self.value_network(cand_gnn, glob)
+                
+                # 計算價值 (傳遞全電路特徵)
+                value = self.value_network(cand_gnn, glob, all_circuit_features=all_circuit_features)
 
                 # store
                 self.buffer['states'].append(state)
@@ -545,12 +652,12 @@ class TwoDimensionalPPOAgent:
             logger.warning(f"⚠️ Buffer 組件長度不一致: {lengths}")
 
     def _prepare_features(self, state):
-        """將環境的 state 轉成網路輸入（fallback 改為 0 向量，避免分布飄移）"""
-        # candidates
+        """將環境的 state 轉成網路輸入（支持全電路特徵）"""
+        # 候選特徵 (保持向後兼容)
         cand_instances = getattr(state, 'candidate_instances', [])
         if hasattr(state, 'candidate_gnn_features') and state.candidate_gnn_features is not None:
-            arr = np.asarray(state.candidate_gnn_features, dtype=np.float32)  # 一次堆好
-            gnn_features = torch.from_numpy(arr)  # 這行不會複製，速度快
+            arr = np.asarray(state.candidate_gnn_features, dtype=np.float32)
+            gnn_features = torch.from_numpy(arr)
             cand_gnn = gnn_features.unsqueeze(0) if gnn_features.ndim == 2 else gnn_features
         elif cand_instances:
             C = len(cand_instances)
@@ -558,22 +665,39 @@ class TwoDimensionalPPOAgent:
         else:
             cand_gnn = torch.zeros(1, 1, self.feature_dim, dtype=torch.float32)
 
-        # dynamic
+        # 動態特徵
         if hasattr(state, 'candidate_dynamic_features') and state.candidate_dynamic_features is not None:
             arr = np.asarray(state.candidate_dynamic_features, dtype=np.float32)
-            dyn = torch.from_numpy(arr)  # 比 torch.as_tensor(list) 快很多
+            dyn = torch.from_numpy(arr)
             cand_dyn = dyn.unsqueeze(0) if dyn.ndim == 2 else dyn
         else:
             C = cand_gnn.shape[1]
             cand_dyn = torch.zeros(1, C, 10, dtype=torch.float32)
 
-        # global
+        # 全電路特徵 (新添加)
+        all_circuit_features = None
+        candidate_indices = None
+        
+        if hasattr(state, 'all_cell_gnn_features') and state.all_cell_gnn_features is not None:
+            # 將全電路特徵轉換為張量
+            all_features = np.asarray(state.all_cell_gnn_features, dtype=np.float32)
+            all_circuit_features = torch.from_numpy(all_features).unsqueeze(0)  # (1, N_total, F)
+            
+            # 獲取候選索引
+            if hasattr(state, 'candidate_indices') and state.candidate_indices is not None:
+                indices = np.asarray(state.candidate_indices, dtype=np.int64)
+                # 過濾無效索引
+                valid_indices = [idx for idx in indices if idx >= 0]
+                if valid_indices:
+                    candidate_indices = torch.tensor([valid_indices], dtype=torch.int64)  # (1, C)
+
+        # 全域特徵
         if hasattr(state, 'global_features') and state.global_features is not None:
             glob = torch.as_tensor(state.global_features, dtype=torch.float32).unsqueeze(0)
         else:
             glob = torch.zeros(1, 9, dtype=torch.float32)
 
-        # mask
+        # 動作遮罩
         if hasattr(state, 'action_mask') and state.action_mask is not None:
             a_mask = state.action_mask
         else:
@@ -588,7 +712,13 @@ class TwoDimensionalPPOAgent:
         cand_gnn = cand_gnn.to(dev)
         cand_dyn = cand_dyn.to(dev)
         glob = glob.to(dev)
-        return cand_gnn, cand_dyn, glob, a_mask
+        
+        if all_circuit_features is not None:
+            all_circuit_features = all_circuit_features.to(dev)
+        if candidate_indices is not None:
+            candidate_indices = candidate_indices.to(dev)
+            
+        return cand_gnn, cand_dyn, glob, a_mask, all_circuit_features, candidate_indices
 
     # ---------- Updating ----------
     def update(self):
@@ -598,10 +728,9 @@ class TwoDimensionalPPOAgent:
             logger.warning("⚠️ PPO update 被調用但 buffer 為空，跳過更新")
             return {}
 
-        # 檢查所有必需的 buffer 組件
+                # 檢查所有必需的 buffer 組件
         required_keys = ['rewards', 'log_probs', 'values', 'dones', 
-                        'candidate_gnn_features', 'candidate_dynamic_features', 
-                        'global_features', 'action_masks', 'actions']
+                        'candidate_gnn_features', 'global_features', 'action_masks', 'actions']
         for key in required_keys:
             if key not in self.buffer or len(self.buffer[key]) == 0:
                 logger.error(f"❌ Buffer 缺少必需組件 '{key}' 或為空，跳過更新")
@@ -657,7 +786,7 @@ class TwoDimensionalPPOAgent:
                     action = self.buffer['actions'][i]  # (cand_idx, repl_idx)
 
                     cand_logits, repl_logits = self.policy_network.forward(
-                        cand_feat, dyn_feat, glob_feat, action_mask
+                        cand_feat, glob_feat, action_mask
                     )
 
                     # candidate dist

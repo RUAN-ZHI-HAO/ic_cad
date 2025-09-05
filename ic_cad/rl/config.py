@@ -36,18 +36,18 @@ class RLConfig:
     candidate_selection_top_h: int = 5   # Top-H high power candidates (降低)
     
     # === PPO 參數 === (針對穩定和有效的 PPO 訓練優化)
-    learning_rate: float = 3e-4        # 學習率 (標準 PPO 設定)
-    lr_actor: float = 3e-4             # Actor 網路學習率 (標準設定)
-    lr_critic: float = 3e-4            # Critic 網路學習率 (與 actor 相同)
-    clip_range: float = 0.2            # PPO 裁剪範圍 (標準設定)
-    eps_clip: float = 0.2              # PPO epsilon 裁剪 (標準設定)
+    learning_rate: float = 1e-4        # 學習率 (降低避免過度更新)
+    lr_actor: float = 1e-4             # Actor 網路學習率 (降低)
+    lr_critic: float = 2e-4            # Critic 網路學習率 (稍高幫助價值估計)
+    clip_range: float = 0.1            # PPO 裁剪範圍 (降低避免太激進)
+    eps_clip: float = 0.1              # PPO epsilon 裁剪 (降低)
     gamma: float = 0.99                # 折扣因子 (標準設定)
     gae_lambda: float = 0.95           # GAE lambda 參數
-    entropy_coef: float = 0.03         # 熵係數 (增加探索能力)
+    entropy_coef: float = 0.05         # 熵係數 (增加探索能力)
     value_coef: float = 0.5            # 價值函數係數
-    target_kl: float = 0.01            # 目標 KL 散度 (適中)
+    target_kl: float = 0.02            # 目標 KL 散度 (放寬避免頻繁早停)
     max_grad_norm: float = 0.5         # 梯度裁剪 (標準設定)
-    ppo_epochs: int = 4                # PPO 更新次數 (標準設定)
+    ppo_epochs: int = 3                # PPO 更新次數 (減少避免過擬合)
     batch_size: int = 64               # 批次大小
     buffer_size: int = 2048            # 經驗緩衝區大小
     buffer_capacity: int = 2048        # 緩衝區容量（別名）
@@ -70,13 +70,13 @@ class RLConfig:
     target_frequency: float = 1e9      # 目標頻率 (Hz)
     
     # === 獎勵權重 === (更平衡的長期訓練設定)
-    reward_weight_tns: float = 12.0    # TNS 獎勵權重 (稍微降低避免過於激進)
-    reward_weight_wns: float = 4.0     # WNS 獎勵權重 (稍微提高)
-    reward_weight_power: float = 1.0   # Power 獎勵權重 (提高一點關注度)
-    fail_penalty: float = 0.2             # 失敗懲罰 (更寬鬆)
-    tns_goal_threshold: float = -0.1      # TNS 目標閾值 (更實際)
-    wns_goal_threshold: float = -0.1      # WNS 目標閾值 (更實際)
-    goal_bonus: float = 1.5               # 目標達成獎勵 (適中)
+    reward_weight_tns: float = 3.0     # TNS 獎勵權重 (大幅降低避免過於激進)
+    reward_weight_wns: float = 2.0     # WNS 獎勵權重 (降低)
+    reward_weight_power: float = 0.5   # Power 獎勵權重 (降低)
+    fail_penalty: float = 0.1          # 失敗懲罰 (更寬鬆)
+    tns_goal_threshold: float = -0.1   # TNS 目標閾值 (更實際)
+    wns_goal_threshold: float = -0.1   # WNS 目標閾值 (更實際)
+    goal_bonus: float = 1.0            # 目標達成獎勵 (適中)
     
     # === 動態權重配置 ===
     use_dynamic_weights: bool = False     # 是否使用動態權重

@@ -1,12 +1,15 @@
-from openroad import Tech, Design
+from openroad import Tech, Design, Timing
 import openroad
 import os
 import json
 import re
 from typing import Set
+import rcx
 
 # === 建立技術與設計物件 ===
 tech = Tech()
+design = Design(tech)
+design.evalTclString("define_corners tt") 
 pdk_path = os.path.expanduser("~/solution/testcases/ASAP7")
 design_path = os.path.expanduser("~/solution/testcases")
 
@@ -61,13 +64,13 @@ for lib_file in lib_files:
 #     print(f"Successfully loaded: {lib_file}")
 
 
-benchmark = "s1488"
+benchmark = "s1196"
 # === 載入設計與 RC 資訊 ===
-design = Design(tech)
-design.readDef(f"{design_path}/{benchmark}/{benchmark}_placed.def")
-design.evalTclString(f"read_sdc {design_path}/{benchmark}/{benchmark}_orig_gtlvl.sdc")
+design.readDef(f"{design_path}/{benchmark}/{benchmark}.def")
+design.evalTclString(f"read_sdc {design_path}/{benchmark}/{benchmark}.sdc")
 design.evalTclString(f"source {pdk_path}/setRC.tcl")
-design.evalTclString("estimate_parasitics -placement") 
+design.evalTclString("estimate_parasitics -placement")  
+
 # === 優化流程函式 ===
 def replace_cells():
     db = openroad.get_db()
@@ -258,15 +261,281 @@ def save_groups_to_json(groups, path: str):
         f.write("]\n")
 
 
+def analyze_critical_paths():  
+    """  
+    分析 TNS 貢獻最多的前五條路徑中的所有 cells  
+    """  
+    # 報告前5條最差的timing paths  
+    # result = design.evalTclString("report_checks -path_delay max -format full_clock_expanded -fields {input_pin slew capacitance} -digits 3 -group_count 5")  
+    # print("前5條關鍵路徑:")  
+    # print(result)  
+      
+    # 也可以使用更詳細的報告  
+    detailed_result = design.evalTclString("report_checks -path_delay max -format full -fields {input_pin output_pin slew capacitance delay arrival required} -digits 3 -group_count 1")  
+    print("\n詳細時序報告:")  
+    print(detailed_result)  
+      
+    # return result
+
+def update_cell_information():
+    sta = tech.getSta()
+    design.evalTclString("update_timing")
+
+    print(', '.join(dir(sta)))
+    print(', '.join(dir(design)))
+    print(', '.join(dir(tech)))
+
+    try:
+        timing = Timing(design) 
+    except Exception as e:
+        logger.error(f"無法創建 Timing 物件: {e}")
+        return
+        
+    cell_info_list = []  # 初始化 cell_info_list
+    
+    # graph_delay_calc = sta.graphDelayCalc()  
+    corners = timing.getCorners()  
+    default_corner = corners[0] if corners else None  
+ 
+    for inst in design.getBlock().getInsts():  
+        inst_name = inst.getName()  
+        master = inst.getMaster()  
+        cell_type = master.getName()  
+        
+        total_power = 0  
+        static_power_total = 0  
+        dynamic_power_total = 0
+        worst_slack = float('inf')  
+        
+        try:
+            # 功耗分析 - 更安全的實現
+            for corner in timing.getCorners():  
+                try:
+                    static_power = timing.staticPower(inst, corner)  
+                    dynamic_power = timing.dynamicPower(inst, corner)  
+                    static_power_total += static_power  
+                    dynamic_power_total += dynamic_power
+                    total_power += static_power + dynamic_power
+                except Exception as e:
+                    logger.debug(f"功耗計算失敗 {inst_name}: {e}")
+                    continue
+        except Exception as e:
+            logger.debug(f"功耗分析失敗 {inst_name}: {e}")
+
+        # print(f"total_power : {total_power} static_power_total :{static_power_total} dynamic_power_total : {dynamic_power_total}")
+
+        # 簡化的 VT 類型解析（從 cell 名稱）  
+        vt_type = "L"  # 默認值  
+        if "_SRAM" in cell_type:  
+            vt_type = "SRAM"  
+        elif "_SL" in cell_type:
+            vt_type = "SL"
+        elif "_R" in cell_type:  
+            vt_type = "R"  
+        elif "_L" in cell_type:  
+            vt_type = "L"  
+        
+        # 電氣特性分析 - 更安全的實現
+        output_cap = 0  
+        input_slew = 0  
+        fanout_count = 0  
+        is_endpoint = False
+        
+        try:
+            for iTerm in inst.getITerms():  
+                if not iTerm.getNet():  
+                    continue  
+
+                # 檢查是否為 timing endpoint  
+                try:  
+                    if timing.isEndpoint(iTerm):  
+                        is_endpoint = True  
+                except Exception as e:  
+                    logger.debug(f"Endpoint 檢查失敗: {e}")
+                
+                try:  
+                    # 簡化的 Slack 分析 - 使用預設 corner  
+                    rise_slack = timing.getPinSlack(iTerm, Timing.Rise, Timing.Max)  
+                    fall_slack = timing.getPinSlack(iTerm, Timing.Fall, Timing.Max)  
+                    pin_worst_slack = min(rise_slack, fall_slack)  
+                    worst_slack = min(worst_slack, pin_worst_slack)  
+                except Exception as e:  
+                    logger.debug(f"Slack 分析失敗 {inst_name}/{iTerm.getMTerm().getName()}: {e}")
+                
+                try:
+                    # 電氣特性  
+                    mterm = iTerm.getMTerm()  
+                    if mterm.getIoType() == "OUTPUT":  
+                        try:
+
+                            # 使用 corner-specific 的 capacitance 計算  
+                            for corner in timing.getCorners():  
+                                port_cap = timing.getPortCap(iTerm, corner, Timing.Max)  
+                                if iTerm.getNet():  
+                                    net_cap = timing.getNetCap(iTerm.getNet(), corner, Timing.Max)  
+                                    total_cap = port_cap + net_cap  
+                                    output_cap = max(output_cap, total_cap)  
+                            
+                            # 如果 corner-specific 方法失敗，使用原始方法  
+                            if output_cap == 0:  
+                                output_cap = timing.getMaxCapLimit(mterm) 
+
+                        except Exception as e:
+                            logger.debug(f"Cap limit 取得失敗: {e}")
+                            output_cap = 0
+                            
+                        # 計算 fanout 數量  
+                        net = iTerm.getNet()  
+                        if net:  
+                            fanout_count = len(list(net.getITerms())) - 1   
+                            
+                    elif mterm.getIoType() == "INPUT":  
+                        # 完全跳過 getMaxSlewLimit 調用，因為它會導致段錯誤
+                        try:  
+                            max_slew = timing.getMaxSlewLimit(mterm)  
+                            input_slew = max(input_slew, max_slew)  
+                        except Exception as e:  
+                            logger.debug(f"Slew limit 取得失敗 {inst_name}/{mterm.getName()}: {e}")
+                            input_slew = 0
+                except Exception as e:
+                    logger.debug(f"電氣特性分析失敗 {inst_name}: {e}")
+                    continue
+        except Exception as e:
+            logger.warning(f"ITerm 分析失敗 {inst_name}: {e}")
+
+
+        drive_resistance = 0.0  
+        try:  
+            for mterm in master.getMTerms():  
+                if mterm.getIoType() == "OUTPUT":  
+                    fanout_terms = timing.getTimingFanoutFrom(mterm)  
+                    if fanout_terms:  
+                        # 基於實際的 timing arc 數量計算  
+                        drive_resistance = 1.0 / max(1, len(fanout_terms))  
+                        break  # 找到第一個 output port 即可  
+        except Exception as e:  
+            # 簡化的驅動強度計算  
+            drive_resistance = 0.0  
+            if "xp2" in cell_type:  
+                drive_resistance = 0.2
+            elif "xp25" in cell_type:  
+                drive_resistance = 0.25
+            elif "xp33" in cell_type:  
+                drive_resistance = 0.33  
+            elif "xp5" in cell_type:  
+                drive_resistance = 0.5  
+            elif "xp67" in cell_type:  
+                drive_resistance = 0.67 
+            elif "xp75" in cell_type:  
+                drive_resistance = 0.75
+            elif "x1" in cell_type:  
+                drive_resistance = 1.0  
+            elif "x1p5" in cell_type:  
+                drive_resistance = 1.5
+            elif "x2" in cell_type:  
+                drive_resistance = 2.0
+            elif "x3" in cell_type:  
+                drive_resistance = 3.0  
+            elif "x4" in cell_type:  
+                drive_resistance = 4.0
+            elif "x6" in cell_type:  
+                drive_resistance = 6.0
+
+            logger.warning(f"Liberty-based 驅動強度計算失敗: {e}") 
+                    
+        
+        try:
+            # 同時保留原本的 tuple 格式用於排序
+            cell_info_list.append((  
+                inst_name,                # Instance  0
+                cell_type,                # Cell Type    1
+                total_power,              # Total Power  2
+                static_power_total,       # Leakage Power  3
+                dynamic_power_total,      # Dynamic Power  4
+                worst_slack,              # Slack  5
+                drive_resistance,         # Drive Strength  6
+                vt_type,                  # VT Type   7
+                fanout_count,             # Fanout   8
+                output_cap,               # Out Cap  9
+                input_slew,               # In Slew  10
+                master.getWidth(),        # Width  11
+                master.getHeight(),       # Height  12
+                master.getArea(),          # Area  13
+                is_endpoint                # Endpoint  14
+            ))
+
+        except Exception as e:
+            logger.warning(f"創建 CellInformation 失敗 {inst_name}: {e}")
+            continue
+            
+    # 按功耗排序並顯示  
+    if cell_info_list:  # 確保 list 不為空
+        score_func = self.create_equal_weight_score(cell_info_list)
+        cell_info_list.sort(key=score_func, reverse=True)
+
+    return cell_info_list
+
+def test():
+    timing = Timing(design)
+    print(dir(timing))
+
+    # input_pin = design.evalTclString("get_pins _248_/A")
+    # output_pin = design.evalTclString("get_pins _248_/Y")
+    # output_net = design.evalTclString("get_nets -hierarchical -of_objects _248_/Y")
+    # print(input_pin)
+    # print(output_pin)
+    # print(output_net)
+
+    inst = design.getBlock().findInst("_248_")
+    print(dir(inst))
+    input_pin = inst.findITerm("A")  
+    output_pin = inst.findITerm("Y") 
+
+    arrival_rise = timing.getPinArrival(input_pin, Timing.Rise)  
+    arrival_fall = timing.getPinArrival(input_pin, Timing.Fall)
+    input_arrival = min(arrival_rise, arrival_fall)
+    output_arrival_rise = timing.getPinArrival(output_pin, Timing.Rise)
+    output_arrival_fall = timing.getPinArrival(output_pin, Timing.Fall)
+    output_arrival = max(output_arrival_rise, output_arrival_fall)
+    slack = timing.getPinSlack(output_pin, Timing.Rise, Timing.Max)
+
+    slew = timing.getPinSlew(output_pin, Timing.Max)
+
+    print(f"Slack: {slack}")
+    print(f"Arrival Rise: {arrival_rise}")
+    print(f"Arrival Fall: {arrival_fall}")
+    print(f"delay: {output_arrival - input_arrival}")
+    print(f"Slew: {slew}")
+
+    # design.evalTclString(f"report_dcalc -from {input_pin} -to {output_pin} -corner tt -max -digits 3")
+
+    # design.evalTclString(f"report_slews -corner tt {output_pin}")
+
+    # design.evalTclString(f"report_net -corner tt -digits 4 _216_")
+
+    pin_commands = [  
+        # "get_pins *",  # 獲取所有 pins  
+        "get_pins _248_/*",  # 獲取特定 instance 的 pins  
+        "[get_property [get_pins _248_/Y] capacitance]",  # 獲取 pin 電容  
+        "[get_property [get_pins _248_/Y] slew]"  # 獲取 pin slew  
+    ]
+
+    # pins = design.evalTclString("get_pins _1_/*")
+
+    # print(dir(pins))
+
+    # for method in pin_commands:
+    #     print(design.evalTclString(method))  # 初始化 result 為空列表
 
 # === 主流程 ===
 def main():
-    analyze_sta_summary()
-
+    # analyze_sta_summary()
+    test()
+    # analyze_critical_paths()
     # find_equivalent_cells(tech, design, "O2A1O1Ixp33_ASAP7_75t_L")
 
-    groups = create_cell_groups(tech, design, include_singletons=True)
-    save_groups_to_json(groups, "equiv_groups.json")
+    # groups = create_cell_groups(tech, design, include_singletons=True)
+    # save_groups_to_json(groups, "equiv_groups.json")
 
     # design.evalTclString("report_cell_usage")
 
@@ -303,7 +572,7 @@ def main():
     # design.evalTclString("repair_design")
     # MAX_BUFFER_PERCENT = 10.0
     # design.evalTclString(f"repair_timing -setup -hold -max_buffer_percent {MAX_BUFFER_PERCENT} -skip_pin_swap -skip_gate_cloning -skip_buffer_removal")
-    analyze_sta_summary()
+    # analyze_sta_summary()
     # optimize_and_report()
     print("✅ Writing output files...")
     write_output()

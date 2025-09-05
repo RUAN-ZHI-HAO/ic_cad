@@ -177,9 +177,9 @@ class TwoDimensionalTrainingManager:
                           f"WNS={self.global_initial_wns:.1f}ns, Power={self.global_initial_power:.6f}W")
             
             # 計算與最初電路的絕對差距 (負值表示變差，正值表示改善)
-            global_tns_improvement = self.global_initial_tns - final_tns
-            global_wns_improvement = self.global_initial_wns - final_wns
-            global_power_improvement = self.global_initial_power - final_power
+            global_tns_improvement = final_tns - self.global_initial_tns
+            global_wns_improvement = final_wns - self.global_initial_wns
+            global_power_improvement = final_power - self.global_initial_power
             
             # 確保每個回合都顯示vs最初的基本比較
             logger.info(f"📊 回合 {episode + 1}/{self.config.max_episodes} - "
@@ -188,19 +188,19 @@ class TwoDimensionalTrainingManager:
                        f"vs最初WNS改善: {global_wns_improvement:+.2f}ns")
             
             # 每5回合詳細顯示與最初電路的比較，確保用戶能看到持續的vs最初比較
-            if (episode + 1) % 5 == 0 or episode < 10:
-                # 防止除零錯誤
-                tns_pct = (global_tns_improvement/abs(self.global_initial_tns)*100) if self.global_initial_tns != 0 else 0.0
-                wns_pct = (global_wns_improvement/abs(self.global_initial_wns)*100) if self.global_initial_wns != 0 else 0.0
-                power_pct = (global_power_improvement/self.global_initial_power*100) if self.global_initial_power != 0 else 0.0
-                
-                logger.info(f"🔍 vs最初電路詳細比較 ({case_name}): "
-                          f"TNS: {self.global_initial_tns:.1f}→{final_tns:.1f} "
-                          f"({global_tns_improvement:+.1f}ns, {tns_pct:+.1f}%), "
-                          f"WNS: {self.global_initial_wns:.1f}→{final_wns:.1f} "
-                          f"({global_wns_improvement:+.1f}ns, {wns_pct:+.1f}%), "
-                          f"Power: {self.global_initial_power:.6f}→{final_power:.6f} "
-                          f"({global_power_improvement:+.6f}W, {power_pct:+.1f}%)")
+            # if (episode + 1) % 5 == 0 or episode < 10:
+            # 防止除零錯誤
+            tns_pct = (global_tns_improvement/abs(self.global_initial_tns)*100) if self.global_initial_tns != 0 else 0.0
+            wns_pct = (global_wns_improvement/abs(self.global_initial_wns)*100) if self.global_initial_wns != 0 else 0.0
+            power_pct = (global_power_improvement/self.global_initial_power*100) if self.global_initial_power != 0 else 0.0
+            
+            logger.info(f"🔍 vs最初電路詳細比較 ({case_name}): "
+                        f"TNS: {self.global_initial_tns:.1f}→{final_tns:.1f} "
+                        f"({global_tns_improvement:+.1f}ns, {tns_pct:+.1f}%), "
+                        f"WNS: {self.global_initial_wns:.1f}→{final_wns:.1f} "
+                        f"({global_wns_improvement:+.1f}ns, {wns_pct:+.1f}%), "
+                        f"Power: {self.global_initial_power:.6f}→{final_power:.6f} "
+                        f"({global_power_improvement:+.6f}W, {power_pct:+.1f}%)")
 
             # 如果這是最後一個回合，一定要顯示最終的vs最初比較
             if episode + 1 == self.config.max_episodes:
@@ -320,9 +320,9 @@ class TwoDimensionalTrainingManager:
         final_wns = state.current_wns
         final_power = state.current_power
         
-        tns_improvement = initial_tns - final_tns
-        wns_improvement = initial_wns - final_wns
-        power_improvement = initial_power - final_power
+        tns_improvement = final_tns - initial_tns
+        wns_improvement = final_wns - initial_wns
+        power_improvement = final_power - initial_power
         success_rate = successful_actions / step_count if step_count > 0 else 0.0
         
         # Log episode information

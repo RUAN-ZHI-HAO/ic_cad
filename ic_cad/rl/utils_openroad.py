@@ -41,15 +41,17 @@ class CellInformation:
     cell_type: str
     total_power: float
     static_power_total: float
-    worst_slack: float
+    dynamic_power_total: float
+    delay: float
     drive_resistance: float
     vt_type: str
     fanout_count: int
     output_cap: float
-    input_slew: float
+    output_slew: float
     width: float
     height: float
     area: float
+    is_endpoint: bool
 
 # -------- OpenROAD Interface --------
 class OpenRoadInterface:
@@ -60,7 +62,7 @@ class OpenRoadInterface:
                  design_root: str = "~/solution/testcases",
                  max_buffer_percent: float = 10.0,
                  auto_repair_each_step: bool = True,
-                 cell_groups_json: str = "/root/cell_groups.json"):
+                 cell_groups_json: str = "/root/ruan_workspace/ic_cad/gnn/cell_groups.json"):
         self.work_dir = os.path.abspath(os.path.expanduser(work_dir))
         self.pdk_root = os.path.abspath(os.path.expanduser(pdk_root))
         self.design_root = os.path.abspath(os.path.expanduser(design_root))
@@ -235,7 +237,6 @@ class OpenRoadInterface:
                 # print(f"Original cell: {original_cell_name}")
 
                 print(f"original cell : {original_cell_name} new cell : {action.new_cell_type} target cell : {action.target_cell}")
-                print()
                 if not inst:
                     logger.error(f"Instance {action.target_cell} not found.")
                     return False
@@ -308,6 +309,7 @@ class OpenRoadInterface:
         print(f"Power: {total_power} W")  
         print(f"TNS  : {tns} ns")  
         print(f"WNS  : {wns} ns")
+        print()
 
         metrics.tns = tns
         metrics.wns = wns
@@ -318,26 +320,31 @@ class OpenRoadInterface:
     def create_equal_weight_score(self, cell_info_list):  
         # 提取並標準化各項指標  
         powers = [x[2] for x in cell_info_list]  # 功耗值  
-        slacks = [abs(x[4]) for x in cell_info_list]  # 使用絕對值的 slack  
+        delay = [x[5] for x in cell_info_list]  # 使用絕對值的 delay
+        slew = [x[10] for x in cell_info_list]  # 使用絕對值的 output slew
         
         max_power = max(powers) if powers else 1  
-        max_slack = max(slacks) if slacks else 1  
-        
+        max_delay = max(delay) if delay else 1  
+        max_slew = max(slew) if slew else 1
+
         # 設置相等權重  
         power_weight = 0.5  
-        slack_weight = 0.5  
-        
+        delay_weight = 0.5  
+        slew_weight = 0.5
+
         def optimization_score(x):  
             power_norm = x[2] / max_power  
-            slack_norm = abs(x[4]) / max_slack  
-            
-            return power_weight * power_norm + slack_weight * slack_norm  
+            delay_norm = x[5] / max_delay  
+            slew_norm = x[10] / max_slew
+
+            return power_weight * power_norm + delay_weight * delay_norm + slew_weight * slew_norm  
         
         return optimization_score
 
     def update_cell_information(self, case_name: str):
         design = self.sessions[case_name]["design"]
-        
+        tech = design.getTech()
+        sta = tech.getSta()
         design.evalTclString("update_timing")
 
         try:
@@ -348,6 +355,10 @@ class OpenRoadInterface:
             
         cell_info_list = []  # 初始化 cell_info_list
         
+        # graph_delay_calc = sta.graphDelayCalc()  
+        corners = timing.getCorners()  
+        default_corner = corners[0] if corners else None  
+
         for inst in design.getBlock().getInsts():  
             inst_name = inst.getName()  
             master = inst.getMaster()  
@@ -355,6 +366,7 @@ class OpenRoadInterface:
             
             total_power = 0  
             static_power_total = 0  
+            dynamic_power_total = 0
             worst_slack = float('inf')  
             
             try:
@@ -363,14 +375,17 @@ class OpenRoadInterface:
                     try:
                         static_power = timing.staticPower(inst, corner)  
                         dynamic_power = timing.dynamicPower(inst, corner)  
-                        total_power += static_power + dynamic_power  
                         static_power_total += static_power  
+                        dynamic_power_total += dynamic_power
+                        total_power += static_power + dynamic_power
                     except Exception as e:
                         logger.debug(f"功耗計算失敗 {inst_name}: {e}")
                         continue
             except Exception as e:
                 logger.debug(f"功耗分析失敗 {inst_name}: {e}")
-                
+
+            # print(f"total_power : {total_power} static_power_total :{static_power_total} dynamic_power_total : {dynamic_power_total}")
+
             # 簡化的 VT 類型解析（從 cell 名稱）  
             vt_type = "L"  # 默認值  
             if "_SRAM" in cell_type:  
@@ -384,49 +399,90 @@ class OpenRoadInterface:
             
             # 電氣特性分析 - 更安全的實現
             output_cap = 0  
-            input_slew = 0  
+            output_slew = 0  
             fanout_count = 0  
+            delay = 0.0
+            is_endpoint = False
             
             try:
+                input_arrival_rise = 0.0
+                input_arrival_fall = 0.0
+                input_arrival = 0.0
+                output_arrival_rise = 0.0
+                output_arrival_fall = 0.0
+                output_arrival = 0.0
                 for iTerm in inst.getITerms():  
                     if not iTerm.getNet():  
                         continue  
+
+                    # 檢查是否為 timing endpoint  
+                    try:  
+                        if timing.isEndpoint(iTerm):  
+                            is_endpoint = True  
+                    except Exception as e:  
+                        logger.debug(f"Endpoint 檢查失敗: {e}")
                     
-                    try:
-                        # Slack 分析  
-                        rise_max_slack = timing.getPinSlack(iTerm, Timing.Rise, Timing.Max)  
-                        fall_max_slack = timing.getPinSlack(iTerm, Timing.Fall, Timing.Max)  
-                        pin_worst_slack = min(rise_max_slack, fall_max_slack)  
-                        worst_slack = min(worst_slack, pin_worst_slack)  
-                    except Exception as e:
-                        logger.debug(f"Slack 分析失敗 {inst_name}/{iTerm.getMTerm().getName()}: {e}")
-                        continue
                     
                     try:
                         # 電氣特性  
                         mterm = iTerm.getMTerm()  
+                        pin_name = mterm.getName()
                         if mterm.getIoType() == "OUTPUT":  
                             try:
-                                output_cap = timing.getMaxCapLimit(mterm)
+                                
+                                # 使用 corner-specific 的 capacitance 計算  
+                                for corner in timing.getCorners():  
+                                    port_cap = timing.getPortCap(iTerm, corner, Timing.Max)  
+                                    if iTerm.getNet():  
+                                        net_cap = timing.getNetCap(iTerm.getNet(), corner, Timing.Max)  
+                                        total_cap = port_cap + net_cap  
+                                        output_cap = max(output_cap, total_cap)  
+                                
+                                # 如果 corner-specific 方法失敗，使用原始方法  
+                                if output_cap == 0:  
+                                    output_cap = timing.getMaxCapLimit(mterm) 
+
+
                             except Exception as e:
                                 logger.debug(f"Cap limit 取得失敗: {e}")
                                 output_cap = 0
                                 
+                            try:
+                                output_pin = inst.findITerm(pin_name)
+                                output_arrival_rise = timing.getPinArrival(output_pin, Timing.Rise)
+                                output_arrival_fall = timing.getPinArrival(output_pin, Timing.Fall)
+                                output_arrival = max(output_arrival_rise, output_arrival_fall)
+                            except Exception as e:
+                                logger.debug(f"Pin arrival 取得失敗 {inst_name}/{pin_name}: {e}")
+                                output_arrival = 0.0
+
+                            try:
+                                output_slew = timing.getPinSlew(output_pin, Timing.Max)
+                            except Exception as e:
+                                logger.debug(f"Pin slew 取得失敗 {inst_name}/{pin_name}: {e}")
+                                output_slew = 0.0
+
                             # 計算 fanout 數量  
                             net = iTerm.getNet()  
                             if net:  
                                 fanout_count = len(list(net.getITerms())) - 1   
                                 
                         elif mterm.getIoType() == "INPUT":  
-                            # 完全跳過 getMaxSlewLimit 調用，因為它會導致段錯誤
                             try:  
-                                input_slew = timing.getMaxSlewLimit(mterm)  
+                                input_pin = inst.findITerm(pin_name)
+                                input_arrival_rise = timing.getPinArrival(input_pin, Timing.Rise)
+                                input_arrival_fall = timing.getPinArrival(input_pin, Timing.Fall)
+                                input_arrival = min(input_arrival, input_arrival_rise, input_arrival_fall)
                             except Exception as e:  
-                                logger.debug(f"Slew limit 取得失敗 {inst_name}/{mterm.getName()}: {e}")
-                                input_slew = 0
+                                logger.debug(f"Pin arrival 取得失敗 {inst_name}/{pin_name}: {e}")
+                                input_arrival = 0.0
+
                     except Exception as e:
                         logger.debug(f"電氣特性分析失敗 {inst_name}: {e}")
                         continue
+
+                delay = output_arrival - input_arrival
+
             except Exception as e:
                 logger.warning(f"ITerm 分析失敗 {inst_name}: {e}")
 
@@ -455,7 +511,7 @@ class OpenRoadInterface:
             elif "x4" in cell_type:  
                 drive_resistance = 4.0
             elif "x6" in cell_type:  
-                drive_resistance = 6.0       
+                drive_resistance = 6.0
             
             try:
                 # 創建 CellInformation 物件 - 更安全的實現
@@ -463,15 +519,17 @@ class OpenRoadInterface:
                     cell_type=cell_type,
                     total_power=total_power,
                     static_power_total=static_power_total,
-                    worst_slack=worst_slack if worst_slack != float('inf') else 0.0,
+                    dynamic_power_total=dynamic_power_total,
+                    delay=delay,
                     drive_resistance=drive_resistance,
                     vt_type=vt_type,
                     fanout_count=fanout_count,
                     output_cap=output_cap,
-                    input_slew=input_slew,
+                    output_slew=output_slew,
                     width=master.getWidth(),
                     height=master.getHeight(),
-                    area=master.getArea()
+                    area=master.getArea(),
+                    is_endpoint=is_endpoint 
                 )
                 
                 # 存儲到字典中，以 instance 名稱為 key
@@ -483,16 +541,18 @@ class OpenRoadInterface:
                     cell_type,                # Cell Type    1
                     total_power,              # Total Power  2
                     static_power_total,       # Leakage Power  3
-                    worst_slack,              # Slack  4
-                    drive_resistance,         # Drive Strength  5
-                    vt_type,                  # VT Type   6
-                    fanout_count,             # Fanout   7
-                    output_cap,               # Out Cap  8
-                    input_slew,               # In Slew  9
-                    master.getWidth(),        # Width  10
-                    master.getHeight(),       # Height  11
-                    master.getArea()          # Area  12
-                ))  
+                    dynamic_power_total,      # Dynamic Power  4
+                    delay,                    # Delay  5
+                    drive_resistance,         # Drive Strength  6
+                    vt_type,                  # VT Type   7
+                    fanout_count,             # Fanout   8
+                    output_cap,               # Out Cap  9
+                    output_slew,              # Out Slew  10
+                    master.getWidth(),        # Width  11
+                    master.getHeight(),       # Height  12
+                    master.getArea(),         # Area  13
+                    is_endpoint               # Endpoint  14
+                ))
 
             except Exception as e:
                 logger.warning(f"創建 CellInformation 失敗 {inst_name}: {e}")
@@ -505,14 +565,16 @@ class OpenRoadInterface:
 
         return cell_info_list
 
-    def get_candidate_cells(self, case_name: str, top_slack: int = 50, top_power: int = 50) -> List[Tuple[str, str]]:
+    def get_candidate_cells(self, case_name: str, top_delay: int = 50, top_power: int = 50) -> List[Tuple[str, str]]:
         """
-        獲取候選 cell 集合：Top-P 最壞 slack + Top-H 最大功耗的 cells
+        獲取候選 cell 集合：Top-P 最壞 delay + Top-H 最大功耗的 cells + Top-S 最大輸出 slew
+        這些 cell 將作為優化的目標
         
         Args:
             case_name: case 名稱
-            top_slack: 取 slack 最壞的前 N 個 cells
+            top_delay: 取 delay 最壞的前 N 個 cells
             top_power: 取功耗最大的前 N 個 cells
+            top_slew: 取輸出 slew 最大的前 N 個 cells
             
         Returns:
             候選 cell 的 (instance_name, cell_type) 對列表
@@ -523,11 +585,12 @@ class OpenRoadInterface:
             # 如果還沒有 cell information，先更新
             self.update_cell_information(case_name)
             cell_info_dict = self.sessions[case_name]["cell_information"]
-        
-        # 按 worst slack 排序 (越小越壞)
-        cells_by_slack = sorted(
-            cell_info_dict.items(), 
-            key=lambda x: x[1].worst_slack
+
+        # 按 worst delay 排序 (越大越壞)
+        cells_by_delay = sorted(
+            cell_info_dict.items(),
+            key=lambda x: x[1].delay,
+            reverse=True
         )
         
         # 按 power 排序 (越大越耗電)
@@ -536,14 +599,21 @@ class OpenRoadInterface:
             key=lambda x: x[1].total_power,
             reverse=True
         )
+
+        cellls_by_output_slew = sorted(
+            cell_info_dict.items(),
+            key=lambda x: x[1].output_slew,
+            reverse=True
+        )
         
         # 取 top candidates 的 instance names
-        slack_candidates = [name for name, _ in cells_by_slack[:top_slack]]
+        delay_candidates = [name for name, _ in cells_by_delay[:top_delay]]
         power_candidates = [name for name, _ in cells_by_power[:top_power]]
-        
+        slew_candidates = [name for name, _ in cells_by_output_slew[:top_slew]]
+
         # 合併並去重 instance names
-        candidate_instances = list(set(slack_candidates + power_candidates))
-        
+        candidate_instances = list(set(delay_candidates + power_candidates + slew_candidates))
+
         # 返回 (instance_name, cell_type) 對
         candidate_pairs = []
         for inst_name in candidate_instances:
@@ -578,7 +648,7 @@ class OpenRoadInterface:
                 cell_info.drive_resistance,         # drive strength
                 cell_info.fanout_count,             # fanout count
                 cell_info.output_cap,               # output capacitance
-                cell_info.input_slew,               # input slew
+                cell_info.output_slew,               # input slew
                 cell_info.area,                     # cell area
                 # VT type (one-hot encoding)
                 0.5 if cell_info.vt_type == "L" else 0.0,      # LVT
@@ -590,7 +660,7 @@ class OpenRoadInterface:
             features.append(feature_vector)
             cell_names.append(inst_name)
         
-        return np.array(features, dtype=np.float32), cell_names
+        
 
         # print("Top 10 Power Consuming Cells - Complete Optimization Analysis:")  
         # print("Rank | Instance | Cell Type    | Power   | Leakage | Slack  | Drive | VT  | Fanout | Cap   | Slew  | Width | Height | Area")  
@@ -599,17 +669,29 @@ class OpenRoadInterface:
         # for i, (inst_name, cell_type, power, leakage, slack, drive, vt, fanout, cap, slew, width, height, area) in enumerate(cell_info_list[:10]):  
         #     print(f"{i+1:4d} | {inst_name:8s} | {cell_type:12s} | {power:.2e} | {leakage:.2e} | {slack:.3f} | {drive:.1f} | {vt:4s} | {fanout:6d} | {cap:.3e} | {slew:.3e} | {width:5d} | {height:6d} | {area:4d}")
 
+        return np.array(features, dtype=np.float32), cell_names
+
 if __name__ == "__main__":
     # 測試用：確保 OpenROAD 可以正常載入
-    benchmark = "c17"
+    benchmark = "s1196"
     interface = OpenRoadInterface()
     interface.load_case(benchmark)
-    cell = interface.update_cell_information(benchmark)
-    print(cell)
-    print()
-    print(interface.apply_action(benchmark, OptimizationAction(action_type = "replace_cell", target_cell = "_1_", new_cell_type = "NAND2x1_ASAP7_75t_L")))
-    cell = interface.update_cell_information(benchmark)
-    print(cell)
-    print()
-    report = interface.report_metrics(benchmark)
-    print(f"TNS: {report.tns}, WNS: {report.wns}, Power: {report.total_power}")
+    interface.report_metrics(benchmark)
+    interface.update_cell_information(benchmark)
+    cells = interface.get_cell_information(benchmark)
+    for i in cells:
+        print(i, cells[i])
+    # cells = interface.get_candidate_cells(benchmark, top_slack=15, top_power=5)
+    # print(len(cells))
+    # for i in cells:
+    #     print(i)
+
+    # cell = interface.update_cell_information(benchmark)
+    # print(cell)
+    # print()
+    # print(interface.apply_action(benchmark, OptimizationAction(action_type = "replace_cell", target_cell = "_1_", new_cell_type = "NAND2x1_ASAP7_75t_L")))
+    # cell = interface.update_cell_information(benchmark)
+    # print(cell)
+    # print()
+    # report = interface.report_metrics(benchmark)
+    # print(f"TNS: {report.tns}, WNS: {report.wns}, Power: {report.total_power}")

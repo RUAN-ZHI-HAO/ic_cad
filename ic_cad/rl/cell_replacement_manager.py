@@ -52,12 +52,26 @@ class CellReplacementManager:
             # 計算最大 group 大小（用於 action mask）
             self.max_group_size = max(len(group) for group in self.cell_groups) if self.cell_groups else 0
             
+            # 🎯 自動檢測第 0 個群組大小作為推薦的 max_replacements
+            self.recommended_max_replacements = len(self.cell_groups[0]) if self.cell_groups else 84
+            
             logger.info(f"Loaded {len(self.cell_groups)} cell groups")
             logger.info(f"Max group size: {self.max_group_size}")
+            logger.info(f"Recommended max_replacements (from group 0): {self.recommended_max_replacements}")
             
         except Exception as e:
             logger.error(f"Failed to load cell groups from {self.json_file_path}: {e}")
             raise
+    
+    def get_recommended_max_replacements(self) -> int:
+        """
+        獲取推薦的 max_replacements 值
+        基於第 0 個群組大小（通常是最大的群組）
+        
+        Returns:
+            推薦的 max_replacements 值
+        """
+        return getattr(self, 'recommended_max_replacements', 84)
     
     def _build_index(self):
         """建立 cell_name -> group_index 的映射"""

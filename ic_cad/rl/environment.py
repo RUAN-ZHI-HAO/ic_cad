@@ -73,17 +73,23 @@ class EnvironmentState:
     candidate_cells: List[str]  # cell types for CellReplacementManager  
     candidate_instances: List[str]  # corresponding instance names for OpenROAD
     
-    # 2. PPO 代理期望的特徵格式
-    candidate_gnn_features: List[np.ndarray]     # GNN features for candidates
-    candidate_dynamic_features: List[np.ndarray] # Dynamic features for candidates
+    # 2. 全電路特徵 (新設計：包含所有cells的完整信息)
+    all_cell_gnn_features: Optional[np.ndarray]     # [N_total, D] - 全電路GNN特徵
+    all_cell_dynamic_features: Optional[np.ndarray] # [N_total, F_dyn] - 全電路動態特徵
+    all_cell_names: List[str]                       # 所有cell的名稱列表，與特徵對應
+    candidate_indices: List[int]                    # 候選cells在全電路中的索引
+    
+    # 3. PPO 代理期望的特徵格式 (保持向後兼容)
+    candidate_gnn_features: List[np.ndarray]     # GNN features for candidates (從全電路提取)
+    candidate_dynamic_features: List[np.ndarray] # Dynamic features for candidates (從全電路提取)
     global_features: np.ndarray                  # Global state features
     action_mask: Dict[str, np.ndarray]           # Action validity masks
     
-    # 3. 靜態特徵 (GNN embeddings, computed once per reset)
-    node_emb_full: Optional[np.ndarray]  # [N, D] - 全圖 GNN embeddings
+    # 4. 靜態特徵 (GNN embeddings, computed once per reset)
+    node_emb_full: Optional[np.ndarray]  # [N, D] - 全圖 GNN embeddings (別名，指向all_cell_gnn_features)
     
-    # 4. 動態特徵 (updated every step)
-    node_dyn: Optional[np.ndarray]  # [N, F_dyn] - 每個 cell 的動態特徵
+    # 5. 動態特徵 (updated every step)
+    node_dyn: Optional[np.ndarray]  # [N, F_dyn] - 每個 cell 的動態特徵 (別名，指向all_cell_dynamic_features)
     
     # 5. 訓練所需的狀態（必須有預設值）
     current_tns: float = 0.0
@@ -117,6 +123,20 @@ class OptimizationEnvironment:
         # Initialize Cell Replacement Manager 
         cell_groups_json = getattr(config, "cell_groups_path", "cell_groups.json")
         self.cell_replacement_manager = CellReplacementManager(cell_groups_json)
+        
+        # 🎯 自動檢測並更新 max_replacements 配置
+        recommended_max_replacements = self.cell_replacement_manager.get_recommended_max_replacements()
+        config_max_replacements = getattr(config, 'max_replacements', 84)
+        
+        if recommended_max_replacements != config_max_replacements:
+            logger.info(f"🔧 自動更新 max_replacements: {config_max_replacements} -> {recommended_max_replacements}")
+            # 動態更新配置
+            if hasattr(config, 'max_replacements'):
+                config.max_replacements = recommended_max_replacements
+            self.auto_max_replacements = recommended_max_replacements
+        else:
+            self.auto_max_replacements = config_max_replacements
+            logger.info(f"✅ max_replacements 配置正確: {config_max_replacements}")
         
         self.openroad = openroad or OpenRoadInterface(
             work_dir=getattr(config, "openroad_work_dir", "/tmp/openroad_work"),
@@ -223,7 +243,7 @@ class OptimizationEnvironment:
             if total > 0:
                 return (self.reward_weight_tns / total, self.reward_weight_power / total)
             else:
-                return (1.0, 1.0)
+                return (0.8, 0.2)  # 預設比例：80% TNS, 20% Power
 
     # ---- Public API ----
     def reset(self, case_name: str) -> EnvironmentState:
@@ -290,16 +310,17 @@ class OptimizationEnvironment:
                 candidate_group_indices.append(-1)
                 action_mask.append([False])
         
-        # 填充 action_mask 到統一長度 - 使用配置的固定值而非動態計算
-        max_replacements = getattr(self.config, 'max_replacements', 84)  # 使用配置的固定值
+        # 填充 action_mask 到統一長度 - 使用自動檢測的值
+        max_replacements = self.auto_max_replacements
         dynamic_max = max(len(mask) for mask in action_mask) if action_mask else 1
         
-        print(f"DEBUG: Environment - 配置的 max_replacements: {max_replacements}")
-        print(f"DEBUG: Environment - 當前動態 max_replacements: {dynamic_max}")
+        # 偵測配置不匹配時才記錄警告
+        if dynamic_max > max_replacements:
+            logger.warning(f"⚠️ 動態計算的 max_replacements ({dynamic_max}) 超出自動檢測限制 ({max_replacements})，將截斷")
+        elif dynamic_max > max_replacements * 0.8:  # 接近限制時的調試信息
+            logger.debug(f"🔧 動態 max_replacements: {dynamic_max}, 自動檢測限制: {max_replacements}")
         
         # 確保不會超出配置的限制
-        if dynamic_max > max_replacements:
-            logger.warning(f"⚠️ 動態計算的 max_replacements ({dynamic_max}) 超出配置限制 ({max_replacements})，將截斷")
         
         # 修正每個 mask 到統一長度
         for i, mask in enumerate(action_mask):
@@ -310,7 +331,21 @@ class OptimizationEnvironment:
             while len(action_mask[i]) < max_replacements:
                 action_mask[i].append(False)
 
-        # 準備 PPO 代理期望的特徵格式
+        # 準備全電路特徵 (新設計：包含所有cells)
+        all_cell_gnn_features = node_emb_full  # [N_total, 128]
+        all_cell_dynamic_features = node_dyn   # [N_total, F_dyn]
+        all_cell_names = cell_names            # List[str]
+        
+        # 計算候選cells在全電路中的索引
+        candidate_indices = []
+        for instance_name in candidate_instances:
+            if instance_name in cell_name_to_idx:
+                candidate_indices.append(cell_name_to_idx[instance_name])
+            else:
+                logger.warning(f"⚠️ 候選cell {instance_name} 未在全電路cell列表中找到")
+                candidate_indices.append(-1)  # 標記為無效
+        
+        # 準備 PPO 代理期望的特徵格式 (保持向後兼容)
         candidate_gnn_features = []
         candidate_dynamic_features = []
         
@@ -365,14 +400,27 @@ class OptimizationEnvironment:
         }
 
         self.current_state = EnvironmentState(
+            # 候選集合
             candidate_cells=candidate_cells,
             candidate_instances=candidate_instances,
+            
+            # 全電路特徵 (新設計)
+            all_cell_gnn_features=all_cell_gnn_features,
+            all_cell_dynamic_features=all_cell_dynamic_features,
+            all_cell_names=all_cell_names,
+            candidate_indices=candidate_indices,
+            
+            # PPO 代理期望的特徵格式 (保持向後兼容)
             candidate_gnn_features=candidate_gnn_features,
             candidate_dynamic_features=candidate_dynamic_features,
             global_features=global_features,
-            action_mask=action_mask_dict,  # 使用正確的字段名稱
+            action_mask=action_mask_dict,
+            
+            # 靜態和動態特徵 (別名)
             node_emb_full=node_emb_full,
             node_dyn=node_dyn,
+            
+            # 狀態信息
             current_tns=initial_report.tns,
             current_wns=initial_report.wns,
             current_power=initial_report.total_power,
@@ -601,7 +649,11 @@ class OptimizationEnvironment:
         # 更新動態特徵
         node_dyn, cell_names = self.openroad.get_dynamic_features(self.current_case)
         cell_name_to_idx = {name: idx for idx, name in enumerate(cell_names)}
-        self.current_state.node_dyn = node_dyn
+        
+        # 更新全電路信息
+        self.current_state.all_cell_dynamic_features = node_dyn
+        self.current_state.all_cell_names = cell_names
+        self.current_state.node_dyn = node_dyn  # 別名，保持向後兼容
         self.current_state.cell_name_to_idx = cell_name_to_idx
         
         # 🎯 重新選擇候選集合 - 根據最新的時序分析結果
@@ -617,6 +669,16 @@ class OptimizationEnvironment:
         self.current_state.candidate_instances = candidate_instances
         self.current_state.candidate_cells = candidate_cells
         
+        # 重新計算候選cells在全電路中的索引
+        candidate_indices = []
+        for instance_name in candidate_instances:
+            if instance_name in cell_name_to_idx:
+                candidate_indices.append(cell_name_to_idx[instance_name])
+            else:
+                logger.warning(f"⚠️ 候選cell {instance_name} 未在全電路cell列表中找到")
+                candidate_indices.append(-1)  # 標記為無效
+        self.current_state.candidate_indices = candidate_indices
+        
         # 重新計算候選集合的動作 mask
         new_action_mask = []
         for cell_name in candidate_cells:
@@ -630,13 +692,13 @@ class OptimizationEnvironment:
             else:
                 new_action_mask.append([False])
         
-        # 填充到統一長度 - 使用配置的固定值
-        max_replacements = getattr(self.config, 'max_replacements', 84)  # 使用配置的固定值
+        # 填充到統一長度 - 使用自動檢測的值
+        max_replacements = self.auto_max_replacements
         dynamic_max = max(len(mask) for mask in new_action_mask) if new_action_mask else 1
         
-        # 確保不會超出配置的限制
+        # 確保不會超出自動檢測的限制
         if dynamic_max > max_replacements:
-            logger.warning(f"⚠️ 動態狀態更新: 動態 max_replacements ({dynamic_max}) 超出配置限制 ({max_replacements})")
+            logger.warning(f"⚠️ 動態狀態更新: 動態 max_replacements ({dynamic_max}) 超出自動檢測限制 ({max_replacements})")
         
         # 修正每個 mask 到統一長度
         for i, mask in enumerate(new_action_mask):
@@ -736,11 +798,11 @@ class OptimizationEnvironment:
         success: bool,
     ) -> float:
         """
-        革新的獎勵機制：使用獎勵塑形(Reward Shaping)和基線獎勵
-        重點：讓代理從小的改善中學習，避免持續負獎勵
+        改良的獎勵機制：解決持續負獎勵問題
+        重點：提供基線獎勵 + 不對稱懲罰 + 更好的學習信號
         """
         if not success:
-            return -1.0  # 減輕失敗懲罰
+            return -0.5  # 減輕失敗懲罰
 
         # 獲取全域初始狀態作為基準
         if self.global_initial_tns is not None:
@@ -758,92 +820,100 @@ class OptimizationEnvironment:
         wns_improvement = abs(old_wns) - abs(new_wns)  # 正值表示WNS改善(絕對值減小)
         power_improvement = old_power - new_power      # 正值表示功耗減少
 
-        # 🔄 移除誤導性的基線獎勵，改用真實的改善獎勵
-        base_reward = 0.0  # 不給無條件獎勵
+        # 🎁 提供更大的基線獎勵：鼓勵智能體探索
+        base_reward = 0.5  # 增加基線獎勵
 
-        # 📈 對稱的獎勵/懲罰機制 - 修正版（處理除零）- 使用動態權重
+        # 📈 更寬容的不對稱獎勵機制
         step_reward = 0.0
         
         # 獲取當前權重
         tns_weight, power_weight = self.get_current_weights()
         
-        # TNS獎勵：改善和惡化使用相同權重，處理除零情況
+        # TNS獎勵：更寬容的設計
         if abs(global_initial_tns) > 1e-6:  # 有意義的初始TNS值
+            tns_ratio = tns_improvement / abs(global_initial_tns)
             if tns_improvement > 0:  # TNS真正改善了
-                step_reward += tns_weight * 5.0 * (tns_improvement / abs(global_initial_tns))
-            else:  # TNS惡化了
-                step_reward += tns_weight * 5.0 * (tns_improvement / abs(global_initial_tns))  # 等權重負獎勵
-        else:  # 初始TNS接近0（組合邏輯電路），使用絕對改善值
-            if abs(tns_improvement) > 1e-6:  # 有意義的TNS變化
-                step_reward += tns_weight * (1.0 if tns_improvement > 0 else -1.0)
+                step_reward += tns_weight * 10.0 * tns_ratio  # 更高獎勵
+            else:  # TNS惡化了 - 更寬容的懲罰
+                step_reward += tns_weight * 1.0 * tns_ratio  # 大幅減少懲罰
+        else:  # 初始TNS接近0（組合邏輯電路）
+            if abs(tns_improvement) > 1e-6:
+                step_reward += tns_weight * (3.0 if tns_improvement > 0 else -0.2)  # 更寬容
             
-        # WNS獎勵：改善和惡化使用相同權重，處理除零情況
+        # WNS獎勵：更寬容的設計
         if abs(global_initial_wns) > 1e-6:  # 有意義的初始WNS值
+            wns_ratio = wns_improvement / abs(global_initial_wns)
             if wns_improvement > 0:  # WNS真正改善了
-                step_reward += 3.0 * (wns_improvement / abs(global_initial_wns))
-            else:  # WNS惡化了
-                step_reward += 3.0 * (wns_improvement / abs(global_initial_wns))  # 等權重負獎勵
-        else:  # 初始WNS接近0，使用絕對改善值
-            if abs(wns_improvement) > 1e-6:  # 有意義的WNS變化
-                step_reward += 0.5 if wns_improvement > 0 else -0.5
+                step_reward += 6.0 * wns_ratio  # 更高獎勵
+            else:  # WNS惡化了 - 更寬容的懲罰
+                step_reward += 0.5 * wns_ratio  # 大幅減少懲罰
+        else:  # 初始WNS接近0
+            if abs(wns_improvement) > 1e-6:
+                step_reward += 1.5 if wns_improvement > 0 else -0.1  # 更寬容
             
-        # Power獎勵：改善和惡化使用相同權重，處理除零情況 - 使用動態權重
+        # Power獎勵：更寬容的設計
         if abs(global_initial_power) > 1e-9:  # 有意義的初始功耗值
+            power_ratio = power_improvement / global_initial_power
             if power_improvement > 0:  # 功耗減少了
-                step_reward += power_weight * 1.5 * (power_improvement / global_initial_power)
-            else:  # 功耗增加了
-                step_reward += power_weight * 2 * (power_improvement / global_initial_power)  # 等權重負獎勵
-        else:  # 初始功耗接近0（不太可能但防禦性編程）
+                step_reward += power_weight * 4.0 * power_ratio  # 更高獎勵
+            else:  # 功耗增加了 - 更寬容的懲罰
+                step_reward += power_weight * 0.2 * power_ratio  # 大幅減少懲罰
+        else:  # 初始功耗接近0
             if abs(power_improvement) > 1e-9:
-                step_reward += power_weight * (0.1 if power_improvement > 0 else -0.1)
+                step_reward += power_weight * (0.3 if power_improvement > 0 else -0.02)  # 更寬容
 
-        # 🎖️ 里程碑獎勵：只獎勵相對於初始電路的改善，處理除零情況 - 使用動態權重
+        # 🎖️ 更寬容的里程碑獎勵設計
         milestone_reward = 0.0
         global_tns_improvement = abs(global_initial_tns) - abs(new_tns)  # 相對初始的改善
         global_wns_improvement = abs(global_initial_wns) - abs(new_wns)  # 相對初始的改善
         global_power_improvement = abs(global_initial_power) - abs(new_power)
 
-        # TNS 里程碑獎勵
-        if global_tns_improvement > 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態有改善且有意義
+        # TNS 里程碑獎勵：大幅減少懲罰
+        if global_tns_improvement > 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態有改善
             improvement_ratio = global_tns_improvement / abs(global_initial_tns)
-            if improvement_ratio > 0.05:  # 5%以上改善
+            if improvement_ratio > 0.20:  # 20%以上改善 - 大獎勵
+                milestone_reward += tns_weight * 30.0
+            elif improvement_ratio > 0.10:  # 10%以上改善 - 中獎勵
+                milestone_reward += tns_weight * 20.0
+            elif improvement_ratio > 0.05:  # 5%以上改善 - 小獎勵
                 milestone_reward += tns_weight * 10.0
-            elif improvement_ratio > 0.01:  # 1%以上改善
+            elif improvement_ratio > 0.01:  # 1%以上改善 - 微獎勵
                 milestone_reward += tns_weight * 5.0
-        elif global_tns_improvement > 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路的改善
-            # 對於無時序約束的電路，任何有意義的TNS改善都給小獎勵
+        elif global_tns_improvement > 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路改善
             if abs(global_tns_improvement) > 1e-6:
-                milestone_reward += tns_weight * 2.0
-        elif global_tns_improvement < 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態惡化且有意義
+                milestone_reward += tns_weight * 8.0
+        elif global_tns_improvement < 0 and abs(global_initial_tns) > 1e-6:  # 惡化 - 大幅減少懲罰
             degradation_ratio = abs(global_tns_improvement) / abs(global_initial_tns)
-            if degradation_ratio > 0.2:  # 惡化超過20%
-                milestone_reward -= tns_weight * 20.0
-        elif global_tns_improvement < 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路的惡化
-            # 對於無時序約束的電路，任何有意義的TNS惡化都給小懲罰
+            if degradation_ratio > 1.0:  # 惡化超過100% - 才給懲罰
+                milestone_reward -= tns_weight * 5.0
+            elif degradation_ratio > 0.75:  # 惡化超過75%
+                milestone_reward -= tns_weight * 3.0
+        elif global_tns_improvement < 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路惡化 - 輕懲罰
             if abs(global_tns_improvement) > 1e-6:
                 milestone_reward -= tns_weight * 1.0
 
-        # Power 里程碑獎勵
-        if global_power_improvement > 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態有改善且有意義
+        # Power 里程碑獎勵：大幅減少懲罰
+        if global_power_improvement > 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態有改善
             improvement_ratio = global_power_improvement / abs(global_initial_power)
-            if improvement_ratio > 0.05:  # 5%以上改善
-                milestone_reward += power_weight * 10.0
-            elif improvement_ratio > 0.01:  # 1%以上改善
-                milestone_reward += power_weight * 5.0
-        elif global_power_improvement < 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態惡化且有意義
+            if improvement_ratio > 0.15:  # 15%以上改善 - 大獎勵
+                milestone_reward += power_weight * 20.0
+            elif improvement_ratio > 0.10:  # 10%以上改善 - 中獎勵
+                milestone_reward += power_weight * 15.0
+            elif improvement_ratio > 0.05:  # 5%以上改善 - 小獎勵
+                milestone_reward += power_weight * 8.0
+        elif global_power_improvement < 0 and abs(global_initial_power) > 1e-9:  # 惡化 - 大幅減少懲罰
             degradation_ratio = abs(global_power_improvement) / abs(global_initial_power)
-            if degradation_ratio > 0.2:  # 惡化超過20%
-                milestone_reward -= power_weight * 10.0
+            if degradation_ratio > 0.50:  # 惡化超過50% - 才給懲罰
+                milestone_reward -= power_weight * 2.0
 
-        # 🚫 移除額外懲罰機制，讓自然負獎勵發揮作用
+        # 🚫 移除額外懲罰機制
         penalty = 0.0
-        # 原本的step_reward已經包含適當的負獎勵，不需要額外懲罰
 
         # 🏆 最終獎勵組合
         total_reward = base_reward + step_reward + milestone_reward - penalty
 
-        # 🔧 對稱的獎勵範圍：允許充分的負獎勵來引導學習
-        reward = np.clip(total_reward, -20.0, 15.0)
+        # 🔧 更寬容的獎勵範圍：大幅提高最低獎勵
+        reward = np.clip(total_reward, -2.0, 20.0)  # 進一步縮小負獎勵範圍
 
         return float(reward)
 
