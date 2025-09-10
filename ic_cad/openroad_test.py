@@ -140,19 +140,31 @@ def analyze_sta_summary():
 
     print("🔍 Analyzing STA summary...")
 
-    power_str = design.evalTclString("report_power -corner default -digits 3")
-    tns_str = design.evalTclString("report_tns -digits 3")
-    wns_str = design.evalTclString("report_wns -digits 3")
+    # power_str = design.evalTclString("report_power -corner default -digits 3")
+    design.evalTclString("update_timing")
+    timing = Timing(design)
+    total_power = 0.0
+    for inst in design.getBlock().getInsts():  
+        for corner in timing.getCorners():  
+            try:
+                static_power = timing.staticPower(inst, corner)  
+                dynamic_power = timing.dynamicPower(inst, corner)  
+                total_power += static_power + dynamic_power  
+            except Exception as e:
+                logger.debug(f"功耗計算失敗 {inst.getName()}: {e}")
+                continue
+    tns = float(design.evalTclString("total_negative_slack -max"))
+    wns = float(design.evalTclString("worst_negative_slack -max"))  
 
-    power = extract_number(power_str)
-    tns = extract_number(tns_str)
-    wns = extract_number(wns_str)
+    # power = extract_number(power_str)
+    # tns = extract_number(tns_str)
+    # wns = extract_number(wns_str)
 
-    # print(f"📊 Power: {power} uW")
-    # print(f"📉 TNS  : {tns} ns")
-    # print(f"📉 WNS  : {wns} ns")
+    print(f"📊 Power: {total_power} uW")
+    print(f"📉 TNS  : {tns} ns")
+    print(f"📉 WNS  : {wns} ns")
 
-    return power, tns, wns
+    # return power, tns, wns
 
 def find_equivalent_cells(tech, design, cell_name):  
     """  
@@ -529,9 +541,15 @@ def test():
 
 # === 主流程 ===
 def main():
-    # analyze_sta_summary()
+    # print(dir(openroad.get_db()))
+    # print(dir(design.getDb()))
+    
+    analyze_sta_summary()
+    design.evalTclString('global_placement -timing_driven -density 1')
+    design.evalTclString('detailed_placement')
+    design.evalTclString('repair_timing -setup')
     # test()
-    analyze_critical_paths()
+    # analyze_critical_paths()
     # find_equivalent_cells(tech, design, "O2A1O1Ixp33_ASAP7_75t_L")
 
     # groups = create_cell_groups(tech, design, include_singletons=True)
@@ -572,7 +590,7 @@ def main():
     # design.evalTclString("repair_design")
     # MAX_BUFFER_PERCENT = 10.0
     # design.evalTclString(f"repair_timing -setup -hold -max_buffer_percent {MAX_BUFFER_PERCENT} -skip_pin_swap -skip_gate_cloning -skip_buffer_removal")
-    # analyze_sta_summary()
+    analyze_sta_summary()
     # optimize_and_report()
     print("✅ Writing output files...")
     write_output()
