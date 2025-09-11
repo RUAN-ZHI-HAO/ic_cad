@@ -7,69 +7,65 @@ from typing import Set
 import rcx
 
 # === 建立技術與設計物件 ===
-tech = Tech()
-design = Design(tech)
-design.evalTclString("define_corners tt") 
-pdk_path = os.path.expanduser("~/solution/testcases/ASAP7")
-design_path = os.path.expanduser("~/solution/testcases")
+def load_case(pdk_path, design_path, benchmark):
+    tech = Tech()
+    design = Design(tech)
+    # design.evalTclString("define_corners tt") 
+    # pdk_path = os.path.expanduser("~/solution/testcases/ASAP7")
+    # design_path = os.path.expanduser("~/solution/testcases")
 
-# === 載入 PDK 資料 ===
-tech.readLef(f"{pdk_path}/techlef/asap7_tech_1x_201209.lef")
+    # === 載入 PDK 資料 ===
+    tech.readLef(f"{pdk_path}/techlef/asap7_tech_1x_201209.lef")
 
-lef_files = [
-    "LEF/asap7sc7p5t_28_L_1x_220121a.lef",
-    "LEF/asap7sc7p5t_28_R_1x_220121a.lef",
-    "LEF/asap7sc7p5t_28_SL_1x_220121a.lef",
-    "LEF/asap7sc7p5t_28_SRAM_1x_220121a.lef",
-    "LEF/sram_asap7_16x256_1rw.lef",
-    "LEF/sram_asap7_32x256_1rw.lef",
-    "LEF/sram_asap7_64x256_1rw.lef",
-    "LEF/sram_asap7_64x64_1rw.lef"
-]
-for lef_file in lef_files:
-    tech.readLef(f"{pdk_path}/{lef_file}")
+    lef_files = [
+        "LEF/asap7sc7p5t_28_L_1x_220121a.lef",
+        "LEF/asap7sc7p5t_28_R_1x_220121a.lef",
+        "LEF/asap7sc7p5t_28_SL_1x_220121a.lef",
+        "LEF/asap7sc7p5t_28_SRAM_1x_220121a.lef",
+        "LEF/sram_asap7_16x256_1rw.lef",
+        "LEF/sram_asap7_32x256_1rw.lef",
+        "LEF/sram_asap7_64x256_1rw.lef",
+        "LEF/sram_asap7_64x64_1rw.lef"
+    ]
+    for lef_file in lef_files:
+        tech.readLef(f"{pdk_path}/{lef_file}")
 
-lib_files = [  
-    "LIB/asap7sc7p5t_AO_LVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_AO_RVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_AO_SLVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_AO_SRAM_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_INVBUF_LVT_TT_nldm_220122.lib",  
-    "LIB/asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib",  
-    "LIB/asap7sc7p5t_INVBUF_SLVT_TT_nldm_220122.lib",  
-    "LIB/asap7sc7p5t_INVBUF_SRAM_TT_nldm_220122.lib",  
-    "LIB/asap7sc7p5t_OA_LVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_OA_RVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_OA_SLVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_OA_SRAM_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_SEQ_LVT_TT_nldm_220123.lib",  
-    "LIB/asap7sc7p5t_SEQ_RVT_TT_nldm_220123.lib",  
-    "LIB/asap7sc7p5t_SEQ_SLVT_TT_nldm_220123.lib",  
-    "LIB/asap7sc7p5t_SEQ_SRAM_TT_nldm_220123.lib",  
-    "LIB/asap7sc7p5t_SIMPLE_LVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_SIMPLE_SLVT_TT_nldm_211120.lib",  
-    "LIB/asap7sc7p5t_SIMPLE_SRAM_TT_nldm_211120.lib",  
-    "LIB/sram_asap7_16x256_1rw.lib",  
-    "LIB/sram_asap7_32x256_1rw.lib",  
-    "LIB/sram_asap7_64x256_1rw.lib",  
-    "LIB/sram_asap7_64x64_1rw.lib"  
-]  
-for lib_file in lib_files:
-    tech.readLiberty(f"{pdk_path}/{lib_file}")
+    lib_files = [  
+        "LIB/asap7sc7p5t_AO_LVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_AO_RVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_AO_SLVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_AO_SRAM_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_INVBUF_LVT_TT_nldm_220122.lib",  
+        "LIB/asap7sc7p5t_INVBUF_RVT_TT_nldm_220122.lib",  
+        "LIB/asap7sc7p5t_INVBUF_SLVT_TT_nldm_220122.lib",  
+        "LIB/asap7sc7p5t_INVBUF_SRAM_TT_nldm_220122.lib",  
+        "LIB/asap7sc7p5t_OA_LVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_OA_RVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_OA_SLVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_OA_SRAM_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_SEQ_LVT_TT_nldm_220123.lib",  
+        "LIB/asap7sc7p5t_SEQ_RVT_TT_nldm_220123.lib",  
+        "LIB/asap7sc7p5t_SEQ_SLVT_TT_nldm_220123.lib",  
+        "LIB/asap7sc7p5t_SEQ_SRAM_TT_nldm_220123.lib",  
+        "LIB/asap7sc7p5t_SIMPLE_LVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_SIMPLE_RVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_SIMPLE_SLVT_TT_nldm_211120.lib",  
+        "LIB/asap7sc7p5t_SIMPLE_SRAM_TT_nldm_211120.lib",  
+        "LIB/sram_asap7_16x256_1rw.lib",  
+        "LIB/sram_asap7_32x256_1rw.lib",  
+        "LIB/sram_asap7_64x256_1rw.lib",  
+        "LIB/sram_asap7_64x64_1rw.lib"  
+    ]  
+    for lib_file in lib_files:
+        tech.readLiberty(f"{pdk_path}/{lib_file}")
 
-# for lib_file in lib_files:  
-#     print(f"Loading: {lib_file}")  
-#     tech.readLiberty (f"{pdk_path}/{lib_file}")  
-#     print(f"Successfully loaded: {lib_file}")
+    # === 載入設計與 RC 資訊 ===
+    design.readDef(f"{design_path}/{benchmark}/{benchmark}.def")
+    design.evalTclString(f"read_sdc {design_path}/{benchmark}/{benchmark}.sdc")
+    design.evalTclString(f"source {pdk_path}/setRC.tcl")
+    design.evalTclString("estimate_parasitics -placement")  
 
-
-benchmark = "s1196"
-# === 載入設計與 RC 資訊 ===
-design.readDef(f"{design_path}/{benchmark}/{benchmark}.def")
-design.evalTclString(f"read_sdc {design_path}/{benchmark}/{benchmark}.sdc")
-design.evalTclString(f"source {pdk_path}/setRC.tcl")
-design.evalTclString("estimate_parasitics -placement")  
+    return design, tech
 
 # === 優化流程函式 ===
 def replace_cells():
@@ -543,17 +539,20 @@ def test():
 def main():
     # print(dir(openroad.get_db()))
     # print(dir(design.getDb()))
+    pdk_path = os.path.expanduser("~/solution/testcases/ASAP7")
+    design_path = os.path.expanduser("~/solution/testcases")
+    design, tech = load_case(pdk_path, design_path, "c17")
     
-    analyze_sta_summary()
-    design.evalTclString('global_placement -timing_driven -density 1')
-    design.evalTclString('detailed_placement')
-    design.evalTclString('repair_timing -setup')
+    # analyze_sta_summary()
+    # design.evalTclString('global_placement -timing_driven -density 1')
+    # design.evalTclString('detailed_placement')
+    # design.evalTclString('repair_timing -setup')
     # test()
     # analyze_critical_paths()
     # find_equivalent_cells(tech, design, "O2A1O1Ixp33_ASAP7_75t_L")
 
-    # groups = create_cell_groups(tech, design, include_singletons=True)
-    # save_groups_to_json(groups, "equiv_groups.json")
+    groups = create_cell_groups(tech, design, include_singletons=True)
+    save_groups_to_json(groups, "equiv_groups_new.json")
 
     # design.evalTclString("report_cell_usage")
 
@@ -590,9 +589,9 @@ def main():
     # design.evalTclString("repair_design")
     # MAX_BUFFER_PERCENT = 10.0
     # design.evalTclString(f"repair_timing -setup -hold -max_buffer_percent {MAX_BUFFER_PERCENT} -skip_pin_swap -skip_gate_cloning -skip_buffer_removal")
-    analyze_sta_summary()
+    # analyze_sta_summary()
     # optimize_and_report()
-    print("✅ Writing output files...")
-    write_output()
+    # print("✅ Writing output files...")
+    # write_output()
 
 main()
