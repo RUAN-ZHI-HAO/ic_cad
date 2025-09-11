@@ -64,6 +64,7 @@ class OpenRoadInterface:
         os.makedirs(self.work_dir, exist_ok=True)
 
         # 簡化：只存儲單一設計的資料
+        self.cell_count: int = 0
         self.design: Optional[Design] = None
         self.tech: Optional[Tech] = None
         self.metrics: MetricsReport = MetricsReport(0.0, 0.0, 0.0)
@@ -319,8 +320,8 @@ class OpenRoadInterface:
         try:  
             # 創建 Timing 物件  
             self.design.evalTclString("update_timing")
-            timing = Timing(self.design)  
             self.design.evalTclString("estimate_parasitics -placement")
+            timing = Timing(self.design)  
 
             # 更安全的功耗計算
             try:
