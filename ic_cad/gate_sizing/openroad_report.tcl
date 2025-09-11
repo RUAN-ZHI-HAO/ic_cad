@@ -30,10 +30,10 @@ proc report_all {prefix} {
         puts "警告：寄生參數估算失敗：$err"    
     }    
     # 安全地檢查布局   
-    # if {[catch {check_placement} err]} {    
-    #     puts "警告：布局檢查失敗：$err"  
-    #     return 1  
-    # }    
+    if {[catch {check_placement} err]} {    
+        puts "警告：布局檢查失敗：$err"  
+        return 1  
+    }    
       
     # 直接獲取數值，添加調試信息  
     puts "獲取時序數據..."  

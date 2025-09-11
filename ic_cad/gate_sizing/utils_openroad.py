@@ -45,6 +45,7 @@ class CellInformation:
     output_cap: float
     output_slew: float
     area: float
+    worst_slack: float
     is_endpoint: bool
 
 # -------- OpenROAD Interface --------
@@ -178,7 +179,8 @@ class OpenRoadInterface:
                 "slew": [float("inf"), float("-inf")], 
                 "area": [43740, 700380], 
                 "fanout_count": [float("inf"), float("-inf")], 
-                "delay": [float("inf"), float("-inf")]
+                "delay": [float("inf"), float("-inf")],
+                "worst_slack": [float("inf"), float("-inf")]
             }
             
             logger.info(f"✅ 成功載入設計: {self.current_case_name}")
@@ -239,21 +241,20 @@ class OpenRoadInterface:
             return False
             
         try:
-            logger.info("🔧 開始執行優化...")
+            # logger.info("🔧 開始執行優化...")
             
             # 1. 全域佈局 (時序驅動、增量、密度為1)
-            logger.info("   執行全域佈局...")
+            # logger.info("   執行全域佈局...")
             # self.design.evalTclString('global_placement -timing_driven -incremental')
             # self.design.evalTclString('global_placement -incremental')
             # self.design.evalTclString('global_placement -incremental -density 1')
             
             # 2. 時序修復 (設定優化，跳過 pin swap、gate cloning、buffer removal)
             logger.info("   執行時序修復...")
-            # self.design.evalTclString('repair_timing -setup -skip_pin_swap -skip_gate_cloning -skip_buffer_removal')
-            self.design.evalTclString('repair_timing -setup -repair_tns 100 -max_passes 10') 
+            self.design.evalTclString('repair_timing -setup -hold -max_buffer_percent 100 -skip_pin_swap -skip_gate_cloning -skip_buffer_removal')
             
-            logger.info("   執行功耗恢復...")  
-            self.design.evalTclString('repair_timing -recover_power 20')  
+            # logger.info("   執行功耗恢復...")  
+            # self.design.evalTclString('repair_timing -recover_power 20')  
 
             # 3. 詳細佈局
             logger.info("   執行詳細佈局...")
@@ -265,6 +266,22 @@ class OpenRoadInterface:
         except Exception as e:
             logger.error(f"❌ 優化過程失敗: {e}")
             return False
+
+    def analyze_critical_paths(self, top_n: int = 5):  
+        """  
+        分析 TNS 貢獻最多的前五條路徑中的所有 cells  
+        """  
+        # 報告前5條最差的timing paths  
+        # result = design.evalTclString("report_checks -path_delay max -format full_clock_expanded -fields {input_pin slew capacitance} -digits 3 -group_count 5")  
+        # print("前5條關鍵路徑:")  
+        # print(result)  
+        
+        # 也可以使用更詳細的報告  
+        detailed_result = self.design.evalTclString(f"report_checks -path_delay max -format full -fields {{input_pin output_pin slew capacitance delay arrival required}} -digits 3 -group_count {top_n}")  
+        print("\n詳細時序報告:")  
+        print(detailed_result)  
+        
+        # return result
 
     # ---- Output ----
     def write_output(self, output_path: str, benchmark: str):
@@ -302,6 +319,7 @@ class OpenRoadInterface:
 
             # 更安全的功耗計算
             try:
+                # self.design.evalTclString("report_power")
                 for inst in self.design.getBlock().getInsts():  
                     for corner in timing.getCorners():  
                         try:
@@ -397,6 +415,18 @@ class OpenRoadInterface:
             total_power = 0  
             worst_slack = float('inf')  
             
+            for iterm in inst.getITerms(): 
+                if not iterm.getNet():  
+                    continue  
+                try:  
+                    slack_rise = timing.getPinSlack(iterm, Timing.Rise, Timing.Max)  
+                    slack_fall = timing.getPinSlack(iterm, Timing.Fall, Timing.Max)  
+                    pin_slack = min(slack_rise, slack_fall)  
+                    worst_slack = min(worst_slack, pin_slack)  
+                except Exception as e:  
+                    logger.debug(f"Slack 取得失敗 {inst_name}: {e}")
+                    continue
+
             try:
                 # 功耗分析 - 更安全的實現
                 for corner in timing.getCorners():  
@@ -544,6 +574,8 @@ class OpenRoadInterface:
                 output_cap *= 1e15  
                 output_slew *= 1e12
                 delay *= 1e12
+                worst_slack *= 1e12
+                worst_slack = round(worst_slack, 0)
 
                 # 更新最大/最小範圍
                 norm = self.state_norm
@@ -557,6 +589,8 @@ class OpenRoadInterface:
                 norm["fanout_count"][1] = max(norm["fanout_count"][1], fanout_count)
                 norm["delay"][0] = min(norm["delay"][0], delay)
                 norm["delay"][1] = max(norm["delay"][1], delay)
+                norm["worst_slack"][0] = min(norm["worst_slack"][0], worst_slack)
+                norm["worst_slack"][1] = max(norm["worst_slack"][1], worst_slack)
 
                 # 創建 CellInformation 物件 - 更安全的實現
                 cell_info = CellInformation(
@@ -569,6 +603,7 @@ class OpenRoadInterface:
                     output_cap=output_cap,
                     output_slew=output_slew,
                     area=master.getArea(),
+                    worst_slack=worst_slack,
                     is_endpoint=is_endpoint 
                 )
                 
@@ -587,7 +622,8 @@ class OpenRoadInterface:
                     output_cap,               # Out Cap  7
                     output_slew,              # Out Slew  8
                     master.getArea(),         # Area  9
-                    is_endpoint               # Endpoint  10
+                    worst_slack,              # Worst Slack  10
+                    is_endpoint               # Endpoint  11
                 ))
 
             except Exception as e:
@@ -601,7 +637,7 @@ class OpenRoadInterface:
 
         return cell_info_list
 
-    def get_candidate_cells(self, top_delay: int = 15, top_power: int = 15, top_slew: int = 15) -> Tuple[List[Dict[str, str]], List[Dict[str, str]], List[Dict[str, str]]]:
+    def get_candidate_cells(self, top_delay: int = 15, top_power: int = 15, top_slew: int = 15, top_slack: int = 15) -> Tuple[List[Dict[str, str]], List[Dict[str, str]], List[Dict[str, str]]]:
         """
         獲取候選 cell 集合：分別返回 Top delay、Top power、Top slew 的 cells
         這些 cell 將作為優化的目標
@@ -642,6 +678,12 @@ class OpenRoadInterface:
             reverse=True
         )
         
+        cells_by_slack = sorted(
+            self.cell_information.items(),
+            key=lambda x: x[1].worst_slack,
+            reverse=False  # slack 越小越壞
+        )
+
         # 創建三個分別的候選列表
         delay_candidates = []
         for name, cell_info in cells_by_delay[:top_delay]:
@@ -664,7 +706,14 @@ class OpenRoadInterface:
                 "cell_type": cell_info.cell_type
             })
         
-        return delay_candidates, power_candidates, slew_candidates
+        slack_candidates = []
+        for name, cell_info in cells_by_slack[:top_slack]:
+            slack_candidates.append({
+                "instance_name": name,
+                "cell_type": cell_info.cell_type
+            })
+
+        return delay_candidates, power_candidates, slew_candidates, slack_candidates
 
     def normalize_feature(self, values: float, min_val: float, max_val: float, negative: bool) -> float:
         """將特徵值標準化到 [0, 1] 範圍"""
