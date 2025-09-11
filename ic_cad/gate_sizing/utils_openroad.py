@@ -131,7 +131,12 @@ class OpenRoadInterface:
                 "LEF/asap7sc7p5t_28_L_1x_220121a.lef",
                 "LEF/asap7sc7p5t_28_R_1x_220121a.lef", 
                 "LEF/asap7sc7p5t_28_SL_1x_220121a.lef",
-                "LEF/asap7sc7p5t_28_SRAM_1x_220121a.lef"
+                "LEF/asap7sc7p5t_28_SRAM_1x_220121a.lef",
+                "LEF/sram_asap7_16x256_1rw.lef",
+                "LEF/sram_asap7_32x256_1rw.lef",
+                "LEF/sram_asap7_64x64_1rw.lef",
+                "LEF/sram_asap7_64x256_1rw.lef"
+
             ]:
                 self.tech.readLef(f"{self.pdk_root}/{lef}")
             

@@ -39,7 +39,9 @@
     "CKINVDCx20_ASAP7_75t_SRAM",
     "CKINVDCx20_ASAP7_75t_R",
     "CKINVDCx20_ASAP7_75t_L",
-    "CKINVDCx20_ASAP7_75t_SL",
+    "CKINVDCx20_ASAP7_75t_SL"
+  ],
+  [ 
     "INVxp33_ASAP7_75t_SRAM",
     "INVxp33_ASAP7_75t_R",
     "INVxp33_ASAP7_75t_L",
@@ -133,7 +135,9 @@
     "BUFx24_ASAP7_75t_SRAM",
     "BUFx24_ASAP7_75t_R",
     "BUFx24_ASAP7_75t_L",
-    "BUFx24_ASAP7_75t_SL",
+    "BUFx24_ASAP7_75t_SL"
+  ],
+  [
     "HB1xp67_ASAP7_75t_SRAM",
     "HB1xp67_ASAP7_75t_R",
     "HB1xp67_ASAP7_75t_L",

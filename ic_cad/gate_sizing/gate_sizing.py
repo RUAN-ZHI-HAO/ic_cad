@@ -1,6 +1,8 @@
 from utils_openroad import OpenRoadInterface, OptimizationAction, MetricsReport
 import os
 import json
+from openroad import Tech, Design, Timing
+import openroad
 
 def no_slack_cell_optimization(interface: OpenRoadInterface, cell_groups_map, cell_groups):
     interface.update_cell_information()
@@ -14,6 +16,8 @@ def no_slack_cell_optimization(interface: OpenRoadInterface, cell_groups_map, ce
             if cell_index > 0:
                 cell_index -= 1
                 new_cell_type = cell_groups[new_cell_type_index][cell_index]
+            else:
+                continue
             
             # print("cell_type:", cell_type, " new_cell_type:", new_cell_type)
             if "_R" in cell_type and "_SRAM" not in new_cell_type:
@@ -44,6 +48,8 @@ def power_optimization(interface: OpenRoadInterface, cell_groups_map, cell_group
         if cell_index > 0:
             cell_index -= 1
             new_cell_type = cell_groups[new_cell_type_index][cell_index]
+        else:
+            continue
         
         # print("cell_type:", cell_type, " new_cell_type:", new_cell_type)
         if "_R" in cell_type and "_SRAM" not in new_cell_type:
@@ -79,6 +85,8 @@ def delay_optimization(interface: OpenRoadInterface, cell_groups_map, cell_group
         if cell_index < len(cell_groups[new_cell_type_index]) - 1:
             cell_index += 1
             new_cell_type = cell_groups[new_cell_type_index][cell_index]
+        else:
+            continue
         
         # print("cell_type:", cell_type, " new_cell_type:", new_cell_type)
         if "_SRAM" in cell_type and "_R" not in new_cell_type:
@@ -109,6 +117,8 @@ def slew_optimization(interface: OpenRoadInterface, cell_groups_map, cell_groups
         if cell_index < len(cell_groups[new_cell_type_index]) - 1:
             cell_index += 1
             new_cell_type = cell_groups[new_cell_type_index][cell_index]
+        else:
+            continue
         
         # print("cell_type:", cell_type, " new_cell_type:", new_cell_type)
         if "_SRAM" in cell_type and "_R" not in new_cell_type:
@@ -139,6 +149,8 @@ def slack_optimization(interface: OpenRoadInterface, cell_groups_map, cell_group
         if cell_index < len(cell_groups[new_cell_type_index]) - 1:
             cell_index += 1
             new_cell_type = cell_groups[new_cell_type_index][cell_index]
+        else:
+            continue
         
         # print("cell_type:", cell_type, " new_cell_type:", new_cell_type)
         if "_SRAM" in cell_type and "_R" not in new_cell_type:
@@ -206,24 +218,50 @@ def main():
     design_path = os.path.expanduser("~/solution/testcases")
     output_path = "./output"
     os.makedirs(output_path, exist_ok=True)
-    benchmark = "des"
+    # benchmark = "ac97_top"
+    # benchmark = "aes"
     # benchmark = "aes_cipher_top"
+    benchmark = "ariane"
+    # benchmark = "des"
+    # benchmark = "pci_bridge32"
     # benchmark = "s1196"
 
-    with open(os.path.join("../equiv_groups_new.json")) as f:
+
+
+    with open(os.path.join("./equiv_groups_new.json")) as f:
         cell_groups = json.load(f)
         
     cell_groups_map = get_cell_type(cell_groups)
 
     # 創建簡化的介面
     interface = OpenRoadInterface(pdk_root=pdk_root)
-    
+
     # 載入設計檔案
     def_path = f"{design_path}/{benchmark}/{benchmark}.def"
     sdc_path = f"{design_path}/{benchmark}/{benchmark}.sdc"
     
     print(f"🔄 載入設計: {benchmark}")
     interface.load_design(def_path, sdc_path, benchmark)
+
+    # timing = Timing(interface.design)
+    # print(dir(timing))
+    # exit()
+    # for lib in interface.tech.getDB().getLibs():  
+    #     for master in lib.getMasters():  
+    #         print(f"Master: {master.getName()}")  
+    #         for mterm in master.getMTerms():  
+    #             timing_fanouts = timing.getTimingFanoutFrom(mterm)  
+    #             if timing_fanouts:  # 只印出有 fanout 的 pins  
+    #                 print(f"  Pin {mterm.getName()}: {[pin.getName() for pin in timing_fanouts]}")
+    #         exit()
+    #         power = 0.0
+    #         for corner in timing.getCorners():
+    #             static_pow = timing.staticPower(master, corner)
+    #             dynamic_pow = timing.dynamicPower(master, corner)
+    #             power += static_pow + dynamic_pow
+
+    #         print(master.getName(), )
+    # exit()
     
     # 初始分析
     print("📊 初始 STA 分析:")
@@ -254,21 +292,33 @@ def main():
                     #             print(f"  ... 還有 {len(slack_group) - 3} 個 cells")
                     #         print()
 
-    # g325、g42561
+    # g325、g42561、FE_OFC183_n_12937
     # for i in range(len(cell_groups)):
     #     print(f"Cell group {i}", end=" ")
     #     for cell in cell_groups[i]:
     #         print(cell, end=" ")
     #     print()
-    for cell in cell_groups[17]:
-        interface.apply_action(OptimizationAction(action_type="replace_cell", target_cell="g325", new_cell_type=cell))
-        interface.update_cell_information()
-        print(f"new cell type {cell}", "\tdelay:", interface.cell_information["g325"].delay, "\tpower:", interface.cell_information["g325"].total_power)
-    print()
-    for cell in cell_groups[4]:
-        interface.apply_action(OptimizationAction(action_type="replace_cell", target_cell="g42561", new_cell_type=cell))
-        interface.update_cell_information()
-        print(f"new cell type {cell}", "\tdelay:", interface.cell_information["g42561"].delay, "\tpower:", interface.cell_information["g42561"].total_power)
+    # for cell in cell_groups[17]:
+    #     interface.apply_action(OptimizationAction(action_type="replace_cell", target_cell="g325", new_cell_type=cell))
+    #     interface.design.evalTclString("update_timing")
+    #     interface.design.evalTclString("estimate_parasitics -placement")
+    #     interface.update_cell_information()
+    #     print(f"new cell type {cell}", "\tdelay:", interface.cell_information["g325"].delay, "\tpower:", interface.cell_information["g325"].total_power)
+    # print()
+    # for cell in cell_groups[4]:
+    #     interface.apply_action(OptimizationAction(action_type="replace_cell", target_cell="g42561", new_cell_type=cell))
+    #     interface.design.evalTclString("update_timing")
+    #     interface.design.evalTclString("estimate_parasitics -placement")
+    #     interface.update_cell_information()
+    #     print(f"new cell type {cell}", "\tdelay:", interface.cell_information["g42561"].delay, "\tpower:", interface.cell_information["g42561"].total_power)
+    # print()
+    # for cell in cell_groups[2]:
+    #     interface.apply_action(OptimizationAction(action_type="replace_cell", target_cell="FE_OFC183_n_12937", new_cell_type=cell))
+    #     interface.design.evalTclString("update_timing")
+    #     interface.design.evalTclString("estimate_parasitics -placement")
+    #     interface.update_cell_information()
+    #     print(f"new cell type {cell}", "\tdelay:", interface.cell_information["FE_OFC183_n_12937"].delay, "\tpower:", interface.cell_information["FE_OFC183_n_12937"].total_power)
+    # print()
 
 
     # for cell, info in interface.cell_information.items():
@@ -283,52 +333,52 @@ def main():
     # print("📊 openroad 優化後 STA 分析:")
     # interface.report_metrics()
 
-    # power_optimization(interface, cell_groups_map, cell_groups, top_n=50)
-    # # power 優化後分析
-    # print("📊 power 優化後 STA 分析:")
-    # interface.report_metrics()
-    # for i in range(3):
-    #     no_slack_cell_optimization(interface, cell_groups_map, cell_groups)
-    #     # no_slack_cell 優化後分析
-    #     print("📊 no_slack_cell 優化後 STA 分析:")
-    #     interface.report_metrics()
-    # no_slack_cell_optimization(interface, cell_groups_map, cell_groups)
-    # # no_slack_cell 優化後分析
-    # print("📊 no_slack_cell 優化後 STA 分析:")
-    # interface.report_metrics()
+    power_optimization(interface, cell_groups_map, cell_groups, top_n=50)
+    # power 優化後分析
+    print("📊 power 優化後 STA 分析:")
+    interface.report_metrics()
+    for i in range(3):
+        no_slack_cell_optimization(interface, cell_groups_map, cell_groups)
+        # no_slack_cell 優化後分析
+        print("📊 no_slack_cell 優化後 STA 分析:")
+        interface.report_metrics()
+    no_slack_cell_optimization(interface, cell_groups_map, cell_groups)
+    # no_slack_cell 優化後分析
+    print("📊 no_slack_cell 優化後 STA 分析:")
+    interface.report_metrics()
 
-    # delay_optimization(interface, cell_groups_map, cell_groups, top_n=50)
-    # # delay 優化後分析
-    # print("📊 delay 優化後 STA 分析:")
-    # interface.report_metrics()
+    delay_optimization(interface, cell_groups_map, cell_groups, top_n=50)
+    # delay 優化後分析
+    print("📊 delay 優化後 STA 分析:")
+    interface.report_metrics()
 
-    # slew_optimization(interface, cell_groups_map, cell_groups, top_n=50)
-    # # slew 優化後分析
-    # print("📊 slew 優化後 STA 分析:")
-    # interface.report_metrics()
+    slew_optimization(interface, cell_groups_map, cell_groups, top_n=50)
+    # slew 優化後分析
+    print("📊 slew 優化後 STA 分析:")
+    interface.report_metrics()
 
-    # slack_optimization(interface, cell_groups_map, cell_groups, top_n=50)
-    # # slack 優化後分析
-    # print("📊 slack 優化後 STA 分析:")
-    # interface.report_metrics()
+    slack_optimization(interface, cell_groups_map, cell_groups, top_n=50)
+    # slack 優化後分析
+    print("📊 slack 優化後 STA 分析:")
+    interface.report_metrics()
     
-    # power_optimization(interface, cell_groups_map, cell_groups, top_n=50)
-    # # power 優化後分析
-    # print("📊 power 優化後 STA 分析:")
-    # interface.report_metrics()
+    power_optimization(interface, cell_groups_map, cell_groups, top_n=50)
+    # power 優化後分析
+    print("📊 power 優化後 STA 分析:")
+    interface.report_metrics()
 
-    # for i in range(3):
-    #     no_slack_cell_optimization(interface, cell_groups_map, cell_groups)
-    #     # no_slack_cell 優化後分析
-    #     print("📊 no_slack_cell 優化後 STA 分析:")
-    #     interface.report_metrics()
+    for i in range(3):
+        no_slack_cell_optimization(interface, cell_groups_map, cell_groups)
+        # no_slack_cell 優化後分析
+        print("📊 no_slack_cell 優化後 STA 分析:")
+        interface.report_metrics()
 
     interface.design.evalTclString("detailed_placement")
     interface.design.evalTclString("check_placement")
     
     # 輸出結果
-    # print("✅ 寫入輸出檔案...")
-    # interface.write_output(output_path, benchmark)
+    print("✅ 寫入輸出檔案...")
+    interface.write_output(output_path, benchmark)
 
 if __name__ == "__main__":
     main()

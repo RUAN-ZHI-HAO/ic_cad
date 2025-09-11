@@ -39,7 +39,9 @@
     "CKINVDCx20_ASAP7_75t_SRAM",
     "CKINVDCx20_ASAP7_75t_R",
     "CKINVDCx20_ASAP7_75t_L",
-    "CKINVDCx20_ASAP7_75t_SL",
+    "CKINVDCx20_ASAP7_75t_SL"
+  ],
+  [
     "INVxp33_ASAP7_75t_SRAM",
     "INVxp33_ASAP7_75t_R",
     "INVxp33_ASAP7_75t_L",
@@ -133,23 +135,7 @@
     "BUFx24_ASAP7_75t_SRAM",
     "BUFx24_ASAP7_75t_R",
     "BUFx24_ASAP7_75t_L",
-    "BUFx24_ASAP7_75t_SL",
-    "HB1xp67_ASAP7_75t_SRAM",
-    "HB1xp67_ASAP7_75t_R",
-    "HB1xp67_ASAP7_75t_L",
-    "HB1xp67_ASAP7_75t_SL",
-    "HB2xp67_ASAP7_75t_SRAM",
-    "HB2xp67_ASAP7_75t_R",
-    "HB2xp67_ASAP7_75t_L",
-    "HB2xp67_ASAP7_75t_SL",
-    "HB3xp67_ASAP7_75t_SRAM",
-    "HB3xp67_ASAP7_75t_R",
-    "HB3xp67_ASAP7_75t_L",
-    "HB3xp67_ASAP7_75t_SL",
-    "HB4xp67_ASAP7_75t_SRAM",
-    "HB4xp67_ASAP7_75t_R",
-    "HB4xp67_ASAP7_75t_L",
-    "HB4xp67_ASAP7_75t_SL"
+    "BUFx24_ASAP7_75t_SL"
   ],
   [
     "ICGx1_ASAP7_75t_SRAM",
@@ -276,6 +262,24 @@
     "SDFLx4_ASAP7_75t_R",
     "SDFLx4_ASAP7_75t_L",
     "SDFLx4_ASAP7_75t_SL"
+  ],
+  [
+    "HB1xp67_ASAP7_75t_SRAM",
+    "HB1xp67_ASAP7_75t_R",
+    "HB1xp67_ASAP7_75t_L",
+    "HB1xp67_ASAP7_75t_SL",
+    "HB2xp67_ASAP7_75t_SRAM",
+    "HB2xp67_ASAP7_75t_R",
+    "HB2xp67_ASAP7_75t_L",
+    "HB2xp67_ASAP7_75t_SL",
+    "HB3xp67_ASAP7_75t_SRAM",
+    "HB3xp67_ASAP7_75t_R",
+    "HB3xp67_ASAP7_75t_L",
+    "HB3xp67_ASAP7_75t_SL",
+    "HB4xp67_ASAP7_75t_SRAM",
+    "HB4xp67_ASAP7_75t_R",
+    "HB4xp67_ASAP7_75t_L",
+    "HB4xp67_ASAP7_75t_SL"
   ],
   [
     "AND2x2_ASAP7_75t_SRAM",
