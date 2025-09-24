@@ -252,11 +252,11 @@ def main():
     
     # 設定 benchmark (請根據需要選擇)
     # benchmark = "des" 
-    # benchmark = "ac97_top"
+    benchmark = "ac97_top"
     # benchmark = "aes"
     # benchmark = "aes_cipher_top"
     # benchmark = "ariane"
-    benchmark = "pci_bridge32"
+    # benchmark = "pci_bridge32"
     # benchmark = "s1196"
 
 

@@ -408,6 +408,12 @@ def main():
     ]
 
     output_excel(team_name, design_name, metrics, args)
+    
+    # 回傳 P 值
+    return p_value
 
 if __name__ == "__main__":
-    main()
+    result_p = main()
+    print(f"[RESULT] 優化後的 P 數值: {result_p:.6f}")
+    # 為了方便 shell 腳本接收，單獨輸出 P 值
+    print(f"P_VALUE:{result_p:.6f}")
