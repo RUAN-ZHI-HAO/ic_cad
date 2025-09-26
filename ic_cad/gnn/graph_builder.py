@@ -58,7 +58,7 @@ def collect_all_cell_types(benchmarks, root_dir, verilog_root, library_json_path
     # 使用靜態 cell_id_mapping 來確保與 GNN 模型的一致性
     static_mapping = get_or_create_cell_id_mapping()
     global_cell_types = sorted(static_mapping.keys())
-    print(f"🌍 使用靜態映射收集到 {len(global_cell_types)} 個全域 cell types")
+    print(f"使用靜態映射收集到 {len(global_cell_types)} 個全域 cell types")
     return global_cell_types
 
 # === 從 Verilog 擷取 instance to cell type 對應 ===
@@ -156,63 +156,48 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
     if verilog_path:
         cell_type_map = extract_cell_type_mapping_from_verilog(verilog_path)
 
-    # 3. 計算網路連接度統計 (用於後續特徵計算)
-    node_degree = {}
+    # 3. 計算扇入扇出統計 (包含 terminal，用於後續特徵計算)
     node_fanin = {}
     node_fanout = {}
     net_sizes = {}
     
     # 初始化
     for name in nodes.keys():
-        node_degree[name] = 0
         node_fanin[name] = 0
         node_fanout[name] = 0
     
-    # 計算連接度和扇入扇出
+    # 計算扇入扇出 (包含 terminals)
     for net_name, net_pins in nets.items():
         net_size = len(net_pins)
         net_sizes[net_name] = net_size
         
-        # 分析網路拓撲：基於 pin type 來分類
-        driving_logic_gates = []  # 在這個網路中驅動信號的邏輯門 (pin type = 'O')
-        receiving_logic_gates = []  # 在這個網路中接收信號的邏輯門 (pin type = 'I')
-        driving_terminals = []  # 在這個網路中驅動信號的 terminal (輸入端口)
+        # 分析網路拓撲：基於 pin type 來分類，包含所有節點類型
+        drivers = []    # 在這個網路中驅動信號的節點 (pin type = 'O')  
+        receivers = []  # 在這個網路中接收信號的節點 (pin type = 'I')
         
         for pin in net_pins:
             cell_name = pin['cell']
             pin_type = pin.get('type', '')
             is_terminal = nodes[cell_name].get('terminal', False)
             
-            if cell_name in node_degree:
-                node_degree[cell_name] += 1
-            
-            if is_terminal:
-                # Terminal：只有輸出端口 (pin_type='I') 不算作驅動源
-                if pin_type == 'O':  # 輸入端口驅動網路
-                    driving_terminals.append(cell_name)
-            elif cell_name in cell_type_map:
-                # 邏輯門
-                if pin_type == 'O':  # 邏輯門驅動這個網路
-                    driving_logic_gates.append(cell_name)
-                elif pin_type == 'I':  # 邏輯門接收這個網路的信號
-                    receiving_logic_gates.append(cell_name)
+            # 統一處理所有節點類型 (邏輯門 + terminals)
+            if pin_type == 'O':  # 驅動信號
+                drivers.append(cell_name)
+            elif pin_type == 'I':  # 接收信號
+                receivers.append(cell_name)
         
         # 去重（一個元件可能有多個pin在同一個網路中）
-        driving_logic_gates = list(set(driving_logic_gates))
-        receiving_logic_gates = list(set(receiving_logic_gates))
-        driving_terminals = list(set(driving_terminals))
+        drivers = list(set(drivers))
+        receivers = list(set(receivers))
         
-        # 計算總的驅動源數量（邏輯門 + terminals）
-        total_drivers = len(driving_logic_gates) + len(driving_terminals)
+        # 更新 fanin/fanout (包含 terminals):
+        # - 每個驅動者的 fanout += 接收者數量
+        # - 每個接收者的 fanin += 驅動者數量
+        for driver in drivers:
+            node_fanout[driver] += len(receivers)
         
-        # 更新 fanin/fanout：
-        # - 驅動邏輯門的 fanout += 接收信號的邏輯門數量 (不包括 terminal)
-        # - 接收邏輯門的 fanin += 所有驅動信號的數量 (邏輯門 + terminal)
-        for driver in driving_logic_gates:
-            node_fanout[driver] += len(receiving_logic_gates)
-        
-        for receiver in receiving_logic_gates:
-            node_fanin[receiver] += total_drivers
+        for receiver in receivers:
+            node_fanin[receiver] += len(drivers)
 
     # 3.5 計算每個節點的輸出負載電容
     node_output_load_cap = {}
@@ -361,7 +346,6 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
             # 輸入電容統計特徵 (5維)
             input_cap_sum = 0.0
             input_cap_max = 0.0
-            input_cap_min = 0.0
             input_cap_avg = 0.0
             input_cap_std = 0.0
             num_pins = 0.0
@@ -396,14 +380,12 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
                 import numpy as np
                 input_cap_sum = sum(input_caps)
                 input_cap_max = max(input_caps)
-                input_cap_min = min(input_caps)
                 input_cap_avg = input_cap_sum / len(input_caps)
                 input_cap_std = float(np.std(input_caps))
             else:
                 # 沒有輸入引腳的情況
                 input_cap_sum = 0.0
                 input_cap_max = 0.0
-                input_cap_min = 0.0
                 input_cap_avg = 0.0
                 input_cap_std = 0.0
             
@@ -427,8 +409,7 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
         rel_y = y - center_y
         distance_from_center = (rel_x**2 + rel_y**2)**0.5
 
-        # === 拓撲特徵 ===
-        degree = float(node_degree.get(name, 0))
+        # === 拓撲特徵 (包含 terminals) ===
         fanin = float(node_fanin.get(name, 0))
         fanout = float(node_fanout.get(name, 0))
         
@@ -450,17 +431,17 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
         # === 輸出負載電容 ===
         output_load_cap = node_output_load_cap.get(name, 0.0)
 
-        # 組合所有特徵 (22 基礎特徵 + 1 cell ID = 23，embedding 將在 GNN 中處理)
+        # 組合所有特徵 (19 基礎特徵 + 1 cell ID = 20，embedding 將在 GNN 中處理)
         feature_vector = [
-            # 物理特徵 (9): area, leakage, 輸入電容統計(5), output_load_cap, num_pins, drive_strength
-            area, leakage, input_cap_sum, input_cap_max, input_cap_min, input_cap_avg, input_cap_std, output_load_cap, num_pins, drive_strength,
+            # 物理特徵 (8): area, leakage, 輸入電容統計(3), output_load_cap, num_pins, drive_strength
+            area, leakage, input_cap_max, input_cap_avg, input_cap_std, output_load_cap, num_pins, drive_strength,
             # 位置特徵 (6) 
             is_terminal, x, y, rel_x, rel_y, distance_from_center,
-            # 拓撲特徵 (3)
-            degree, fanin, fanout,
+            # 拓撲特徵 (2) - 包含 terminals
+            fanin, fanout,
             # 功能類型特徵 (3)
             is_logic_gate, is_memory, is_complex,
-            # Cell ID (1) - 將在 GNN 中轉換為 16 維 embedding
+            # Cell ID (1) - 將在 GNN 中轉換為 embedding
             cell_id
         ]
 
@@ -471,11 +452,11 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
         # if i < 3:
         #     print(f"\n📊 節點 '{name}' (索引 {i}) 特徵詳情:")
         #     print(f"   Cell Type: {cell_type}")
-        #     print(f"   物理特徵 (9): area={area:.5f}, leakage={leakage:.5f}")
-        #     print(f"      輸入電容統計: sum={input_cap_sum:.5f}, max={input_cap_max:.5f}, min={input_cap_min:.5f}, avg={input_cap_avg:.5f}, std={input_cap_std:.5f}")
+        #     print(f"   物理特徵 (8): area={area:.5f}, leakage={leakage:.5f}")
+        #     print(f"      輸入電容統計: max={input_cap_max:.5f}, avg={input_cap_avg:.5f}, std={input_cap_std:.5f}")
         #     print(f"      其他: output_load_cap={output_load_cap:.5f}, pins={num_pins}, drive={drive_strength}")
         #     print(f"   位置特徵 (6): terminal={is_terminal}, x={x}, y={y}, rel_x={rel_x:.1f}, rel_y={rel_y:.1f}, dist={distance_from_center:.1f}")
-        #     print(f"   拓撲特徵 (3): degree={degree}, fanin={fanin}, fanout={fanout}")
+        #     print(f"   拓撲特徵 (2): fanin={fanin}, fanout={fanout} (包含terminals)")
         #     print(f"   功能特徵 (3): logic={is_logic_gate}, memory={is_memory}, complex={is_complex}")
         #     print(f"   Cell ID (1): {cell_id} (對應 cell_type: {cell_type})")
         #     print(f"   完整向量 ({len(feature_vector)}): {[f'{x:.5f}' for x in feature_vector[:10]]}{'...' if len(feature_vector) > 10 else ''}")
@@ -485,8 +466,8 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
     x = torch.tensor(node_features, dtype=torch.float)
     
     # print(f"Enhanced node features shape: {x.shape}")
-    # print(f"Feature breakdown: Physical(9) + Position(6) + Topology(3) + Function(3) + CellID(1) = {x.shape[1]} total (23 features)")
-    # print(f"Note: Cell ID will be converted to 32-dim embedding in GNN, resulting in 22+32=54 total dimensions")
+    # print(f"Feature breakdown: Physical(8) + Position(6) + Topology(2) + Function(3) + CellID(1) = {x.shape[1]} total (20 features)")
+    # print(f"Note: Cell ID will be converted to embedding in GNN, resulting in 19+embedding_dim total dimensions")
 
     # 5. 建立 edge_index with edge features
     # 5. 建立 edge_index with edge features
@@ -507,12 +488,12 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
                 
                 # 計算edge特徵 - 位置座標欄位索引：
                 # feature layout:
-                # 0 area, 1 leakage, 2-6 input cap stats, 7 output_load_cap, 8 num_pins, 9 drive_strength,
-                # 10 is_terminal, 11 x, 12 y, 13 rel_x, 14 rel_y, 15 dist_center, ...
-                src_x = node_features[src][11]
-                src_y = node_features[src][12]
-                dst_x = node_features[dst][11]
-                dst_y = node_features[dst][12]
+                # 0 area, 1 leakage, 2-4 input cap stats, 5 output_load_cap, 6 num_pins, 7 drive_strength,
+                # 8 is_terminal, 9 x, 10 y, 11 rel_x, 12 rel_y, 13 dist_center, 14 fanin, 15 fanout, ...
+                src_x = node_features[src][9]
+                src_y = node_features[src][10]
+                dst_x = node_features[dst][9]
+                dst_y = node_features[dst][10]
                 
                 distance = ((src_x - dst_x)**2 + (src_y - dst_y)**2)**0.5
                 
@@ -520,7 +501,6 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
                     float(net_size),        # 網路大小
                     distance,               # 物理距離
                     net_importance,         # 網路重要性
-                    1.0                     # 連接強度
                 ]
                 
                 edge_list.append([src, dst])

@@ -7,8 +7,8 @@
 ### 🔧 核心模組
 - **`graph_builder.py`** - 電路圖構建器
   - 將電路數據轉換為 PyTorch Geometric 圖格式
-  - 支援 32 維 cell embedding（替代原 one-hot 編碼）
-  - 生成 23 維特徵向量（22 基礎特徵 + 1 cell_id）
+  - 支援 16 維 cell embedding（替代原 one-hot 編碼）
+  - 生成 20 維特徵向量（19 基礎特徵 + 1 cell_id）
 
 - **`gnn_api.py`** - GNN 模型接口
   - `ConfigurableGATEncoder` - 支援 embedding 的 GAT 編碼器
@@ -66,22 +66,17 @@
 
 ## 🚀 快速開始
 
-### 1. 測試新架構
-```bash
-cd /root/ruan_workspace/ic_cad/gnn
-python test_embedding.py
-```
 
-### 2. 重新訓練模型
+### 1. 重新訓練模型
 ```bash
-# 方法1：手動訓練 GRACE 模型
+# 方法1：手動訓練 DGI 模型
 python config_train_dgi.py --test-only --epochs 50 --save-meta
 
 # 方法2：完整訓練
 python config_train_dgi.py --epochs 200 --save-meta --use-proj
 ```
 
-### 3. 使用訓練好的模型
+### 2. 使用訓練好的模型
 ```python
 from gnn.gnn_api import load_encoder, get_embeddings
 
@@ -92,7 +87,7 @@ encoder, meta = load_encoder('encoder_grace.pt', 'encoder_meta.json')
 embeddings = get_embeddings('c17', encoder)
 ```
 
-### 4. 批量推論
+### 3. 批量推論
 ```python
 from gnn.gnn_api import get_batch_embeddings
 
@@ -104,47 +99,49 @@ batch_results = get_batch_embeddings(circuits, encoder)
 ## 🔄 架構升級
 
 ### 舊架構 → 新架構
-- **輸入維度**: 84 維 → 23 維
-- **編碼方式**: One-hot (852 維) → Embedding (32 維)
-- **記憶體效率**: 13 倍改善
+- **輸入維度**: 84 維 → 20 維  
+- **編碼方式**: One-hot (852 維) → Embedding (16 維)
+- **記憶體效率**: 顯著改善
 - **語義表達**: 學習式 embedding 捕捉 cell 關係
+- **拓撲特徵**: 移除度數，fanin/fanout 包含 I/O terminals
 
 ### 特徵分解
 ```
-輸入: 23 維
-├── 基礎特徵: 22 維
-│   ├── 物理特徵: 9 維 (area, leakage, 電容統計等)
+輸入: 20 維
+├── 基礎特徵: 19 維
+│   ├── 物理特徵: 8 維 (area, leakage, 輸入電容統計(3), output_load_cap, num_pins, drive_strength)
 │   ├── 位置特徵: 6 維 (座標, 相對位置等)
-│   ├── 拓撲特徵: 3 維 (度數, fanin, fanout)
+│   ├── 拓撲特徵: 2 維 (fanin, fanout - 包含terminals)
 │   └── 功能特徵: 3 維 (邏輯門類型, 記憶體, 複雜度)
-└── Cell ID: 1 維 → Embedding → 32 維
+└── Cell ID: 1 維 → Embedding → 8 維
 
-實際處理: 22 + 32 = 54 維
+實際處理: 19 + 8 = 27 維
+邊特徵: 3 維 (網路大小, 物理距離, 網路重要性)
 ```
 
 ## ⚙️ 配置說明
 
 ### 模型參數
-- **隱藏維度**: 128
-- **GAT 層數**: 3
-- **注意力頭數**: 動態調度（8→4→1）
-- **Dropout**: 0.1
-- **Learning Rate**: 0.0005
-- **Cell Embedding**: 32 維
+- **隱藏維度**: 64（低顯存優化）
+- **GAT 層數**: 2
+- **注意力頭數**: [2,1] 調度
+- **Dropout**: 0.3
+- **Learning Rate**: 1e-3
+- **Cell Embedding**: 8 維（低顯存優化）
 
 ### 訓練參數
-- **訓練方法**: GRACE（節點級對比學習）
-- **Epochs**: 200（完整訓練）/ 50（測試）
-- **溫度參數 τ**: 0.2
-- **特徵擾動**: 0.1
-- **邊丟棄**: 0.1
-- **優化器**: AdamW
-- **調度器**: ReduceLROnPlateau
+- **訓練方法**: DGI（Deep Graph Infomax）對比學習
+- **池化方式**: 平均池化（Mean Pooling）
+- **Epochs**: 250（完整訓練）/ 10（測試）
+- **損失函數**: Binary Cross Entropy
+- **優化器**: AdamW (lr=1e-3, weight_decay=5e-4)
+- **調度器**: Cosine Annealing + Linear Warmup
 
 ### 驗證設置
-- **探頭電路**: s1488（獨立於訓練）
-- **驗證指標**: AUC
-- **最佳模型保存**: 基於驗證 AUC
+- **探頭方法**: Link Prediction AUC
+- **驗證頻率**: 每 10 epochs
+- **早停機制**: 基於 loss 改善 (patience=50)
+- **最佳模型保存**: 支援 loss 和 probe 雙重標準
 
 ## 🔧 維護指南
 
@@ -181,6 +178,26 @@ export DUMMY_GNN_NUM_NODES=50
 
 ## 📝 更新記錄
 
+### v2.2 (2025-09-26) 🚀 **最新更新**
+- ✅ **優化拓撲特徵計算**
+  - 移除 degree 特徵，簡化拓撲表示
+  - Fanin/Fanout 現在包含 I/O terminals，更準確反映信號流向
+  - 特徵維度從 23 維降至 20 維
+- ✅ **精簡物理特徵表示**
+  - 輸入電容統計從 5 維降至 3 維 (移除 sum 和 min，保留 max, avg, std)
+  - 更聚焦於關鍵的電容分布特性
+- ✅ **邊特徵優化**
+  - 移除冗餘的連接強度特徵，邊特徵從 4 維降至 3 維
+  - 保留核心的網路規模、物理距離、網路重要性特徵
+- ✅ **低顯存優化**
+  - Cell embedding 維度從 32 降至 8 維
+  - 隱藏維度從 128 降至 64 維
+  - 適配 10GB GPU 環境
+- ✅ **DGI 訓練框架更新**
+  - 使用平均池化 (Mean Pooling) 進行全域表示
+  - 支援梯度累積和記憶體優化
+  - 改進的洩漏功率計算（考慮所有輸入條件）
+
 ### v2.1 (2025-09-02)
 - ✅ 實現 GRACE 節點級對比學習訓練
 - ✅ 支援投影層和多種損失函數
@@ -204,8 +221,53 @@ export DUMMY_GNN_NUM_NODES=50
 
 ## 🎯 下一步
 
-1. **RL 整合**: 將新 GRACE 模型整合到強化學習訓練
-2. **效能評估**: 比較 DGI vs GRACE 架構的效果
-3. **超參調優**: 基於驗證結果調整溫度參數和擾動強度
-4. **擴展支援**: 支援更多 technology libraries
-5. **模型壓縮**: 研究知識蒸餾等壓縮技術
+### 🔍 **拓撲特徵改進詳解**
+
+#### **舊版拓撲特徵 (3 維)**
+- `degree`: 節點連接的網路總數
+- `fanin`: 只計算邏輯門之間的輸入連接
+- `fanout`: 只計算邏輯門之間的輸出連接
+
+#### **舊版物理特徵 (9 維)**
+- 輸入電容統計: sum, max, min, avg, std (5 維)
+- 其他物理特徵: area, leakage, output_load_cap, num_pins (4 維)
+
+#### **舊版邊特徵 (4 維)**
+- 網路大小, 物理距離, 網路重要性, 連接強度
+
+#### **新版拓撲特徵 (2 維)**
+- `fanin`: **包含 I/O terminals** 的所有輸入連接
+- `fanout`: **包含 I/O terminals** 的所有輸出連接
+
+#### **新版物理特徵 (8 維)**  
+- 輸入電容統計: max, avg, std (3 維) - **移除冗餘的 sum, min**
+- 其他物理特徵: area, leakage, output_load_cap, num_pins, drive_strength (5 維)
+
+#### **新版邊特徵 (3 維)**
+- 網路大小, 物理距離, 網路重要性 - **移除冗餘的連接強度**
+
+#### **改進效果**
+```python
+# 範例電路: INPUT_A → NAND1 → OUTPUT_Z
+# 舊版計算結果:
+INPUT_A:  fanin=0, fanout=0    # terminals 被忽略
+NAND1:    fanin=1, fanout=0    # 只計算邏輯門間連接
+OUTPUT_Z: fanin=1, fanout=0    # terminals 被忽略
+
+# 新版計算結果:
+INPUT_A:  fanin=0, fanout=1    # ✅ 正確反映驅動1個邏輯門
+NAND1:    fanin=1, fanout=1    # ✅ 正確反映驅動1個輸出端口  
+OUTPUT_Z: fanin=1, fanout=0    # ✅ 正確反映被1個邏輯門驅動
+```
+
+**優勢**:
+- 🎯 **更準確**: 完整反映 IC 設計中的信號流向
+- 💾 **更簡潔**: 移除冗餘特徵，降維度 (node: 23→20維, edge: 4→3維)
+- ⚡ **更高效**: 減少記憶體使用和計算複雜度
+- 🔧 **更聚焦**: 保留核心特徵，移除統計冗餘 (如 sum 可由 avg×count 推導)
+
+1. **RL 整合**: 將新 DGI 模型整合到強化學習訓練
+2. **效能評估**: 比較新舊拓撲特徵對模型效果的影響
+3. **超參調優**: 基於低顯存環境調整最佳參數組合
+4. **擴展支援**: 支援更多 technology libraries  
+5. **模型壓縮**: 研究進一步的記憶體優化技術

@@ -50,32 +50,32 @@ def parse_args():
     # 模型架構（針對低顯存優化）
     p.add_argument('--hidden-dim', type=int, default=64, help='GAT 隱藏維度') 
     p.add_argument('--num-layers', type=int, default=2, help='GAT 層數')  # 保持 2 層
-    p.add_argument('--dropout', type=float, default=0.3, help='GAT Dropout')  # 增加 dropout 防止過擬合
-    p.add_argument('--cell-embed-dim', type=int, default=16, help='cell embedding 維度')
-    p.add_argument('--heads-schedule', type=str, default='1,1', help='每層 head 數，如 "1,1"；空字串用預設')  # 更保守的單頭配置
+    p.add_argument('--dropout', type=float, default=0.1, help='GAT Dropout')  # 降低 dropout 避免過度正則化
+    p.add_argument('--cell-embed-dim', type=int, default=8, help='cell embedding 維度')  # 調整為8維以配合低顯存優化
+    p.add_argument('--heads-schedule', type=str, default='1,1', help='每層 head 數，如 "1,1"；空字串用預設')  # 恢復多頭注意力
 
     # DGI 超參（低顯存優化）
     p.add_argument('--corruption', type=str, default='feature_shuffle', 
                    choices=['feature_shuffle', 'node_shuffle'], help='負樣本生成方式')
     p.add_argument('--use-proj', action='store_true', help='啟用 projection head（2-layer MLP）')
-    p.add_argument('--proj-dim', type=int, default=32, help='projection head 輸出維度')
+    p.add_argument('--proj-dim', type=int, default=64, help='projection head 輸出維度')
 
     # 訓練（低顯存優化）
     p.add_argument('--epochs', type=int, default=250)  
-    p.add_argument('--lr', type=float, default=1e-3)  # 從 5e-4 提升至 1e-3，加快收斂
-    p.add_argument('--weight-decay', type=float, default=5e-4)  # 從 1e-4 增至 5e-4，增強正則化
+    p.add_argument('--lr', type=float, default=3e-4)  # 降低學習率，避免過度擬合
+    p.add_argument('--weight-decay', type=float, default=1e-4)  # 降低正則化，避免過度約束
     p.add_argument('--batch-size', type=int, default=1)  # 強制設為 1
     p.add_argument('--gradient-accumulation', type=int, default=8)  # 從 4 增至 8
-    p.add_argument('--grad-clip', type=float, default=0.5)  # 從 1.0 降至 0.5，更保守的梯度裁剪
-    p.add_argument('--warmup-epochs', type=int, default=5, help='學習率預熱 epochs')  # 從 10 降至 5
+    p.add_argument('--grad-clip', type=float, default=0.5)  # 放寬梯度裁剪
+    p.add_argument('--warmup-epochs', type=int, default=10, help='學習率預熱 epochs')
 
     # 對比損失計算參數（省顯存）
     p.add_argument('--discriminator-chunk', type=int, default=128, help='判別器分塊大小')  # DGI用判別器而非NCE
 
     # 早停/調度
-    p.add_argument('--patience', type=int, default=50)  # 進一步增加耐心，避免過早停止
+    p.add_argument('--patience', type=int, default=30)  # 適度調整耐心，避免過早停止
     p.add_argument('--scheduler-factor', type=float, default=0.8)  # 更溫和的LR衰減
-    p.add_argument('--scheduler-patience', type=int, default=25)  # 大幅延後LR調度時機
+    p.add_argument('--scheduler-patience', type=int, default=15)  # 適當的LR調度時機
     p.add_argument('--scheduler-type', type=str, default='cosine', choices=['cosine', 'plateau', 'step'],
                    help='學習率調度器類型: cosine=余弦退火, plateau=基於loss, step=固定步長')
 
@@ -94,7 +94,7 @@ def parse_args():
     # Probe（驗證）
     p.add_argument('--probe-every', type=int, default=10)
     p.add_argument('--probe-samples', type=int, default=30000)
-    p.add_argument('--earlystop-by-probe', action='store_true')
+    p.add_argument('--earlystop-by-probe', action='store_true', help='用 probe(AUC) 作為早停標準，而非訓練 loss')
     p.add_argument('--probe-graph', type=str, default='', help='指定哪個基準圖作為 probe')
     p.add_argument('--fix-probe-samples', action='store_true', help='固定 probe 抽樣（更穩定）')
     p.add_argument('--disable-probe', action='store_true', help='完全關閉 probe 驗證（純訓練模式）')
@@ -104,7 +104,6 @@ def parse_args():
     p.add_argument('--device', type=str, default='auto', choices=['auto','cuda','cpu'])
     p.add_argument('--disable-auto-tune', action='store_true', help='關閉自動調參（batch/nce-chunk）')
     return p.parse_args()
-
 
 # ---------------------------
 # GAT Encoder + Projection
@@ -370,7 +369,7 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
     # Probe 紀錄
     probe_history = []
     probe_epoch_index = []
-    best_probe = -1.0
+    best_probe = 0.0 if config.earlystop_by_probe else -1.0  # 修復初始化
     best_state = None
 
     use_amp = (device.type == 'cuda')
@@ -458,8 +457,8 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
         if epoch % config.print_every == 0 or epoch == config.epochs - 1:
             if torch.cuda.is_available():
                 mem_used = torch.cuda.memory_allocated() / 1024**3
-                mem_reserved = torch.cuda.memory_reserved() / 1024**3
-                print(f"Epoch {epoch:03d}/{config.epochs}  Loss: {avg_loss:.6f}  LR: {optimizer.param_groups[0]['lr']:.2e}  GPU: {mem_used:.2f}/{mem_reserved:.2f}GB")
+                mem_total = torch.cuda.get_device_properties(0).total_memory / 1024**3
+                print(f"Epoch {epoch:03d}/{config.epochs}  Loss: {avg_loss:.6f}  LR: {optimizer.param_groups[0]['lr']:.2e}  GPU: {mem_used:.2f}/{mem_total:.1f}GB")
             else:
                 print(f"Epoch {epoch:03d}/{config.epochs}  Loss: {avg_loss:.6f}  LR: {optimizer.param_groups[0]['lr']:.2e}")
 
@@ -492,18 +491,23 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
             
             print(f"   [Probe] epoch {epoch:03d} AUC={auc:.4f}  Recall@10={r10:.4f}")
 
-            if config.earlystop_by_probe and (auc > best_probe + 1e-3):  # 也放寬probe的tolerance
+            # Probe 早停邏輯
+            if config.earlystop_by_probe and (auc > best_probe + 1e-4):  # 使用更小的 tolerance
                 best_probe = auc
                 best_state = {
                     'encoder': {k: v.detach().cpu().clone() for k, v in encoder.state_dict().items()},
                     'proj': ({k: v.detach().cpu().clone() for k, v in proj.state_dict().items()} if proj else None)
                 }
-                patience_counter = 0
+                patience_counter = 0  # 重置 patience 計數器
+                print(f"   📈 新最佳 probe AUC: {auc:.4f}")
+            elif config.earlystop_by_probe:
+                # 如果啟用了 probe 早停但沒有改善，不重置 patience
+                pass
 
         loss_history.append(avg_loss)
 
         if patience_counter >= config.patience:
-            print(f"🛑 早停於 epoch {epoch}")
+            print(f"   早停於 epoch {epoch}")
             print(f"   當前loss: {avg_loss:.6f}, 最佳loss: {best_loss:.6f}, diff: {avg_loss - best_loss:.6f}")
             print(f"   當前學習率: {optimizer.param_groups[0]['lr']:.2e}")
             print(f"   最佳probe: {best_probe:.4f}")
@@ -515,7 +519,7 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    print(f"✅ 訓練完成！最終 loss: {avg_loss:.6f}")
+    print(f"訓練完成！最終 loss: {avg_loss:.6f}")
 
     # 覆蓋至最佳 probe 權重
     if config.earlystop_by_probe and best_state is not None:
@@ -546,7 +550,7 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
     plt.title(f"DGI: Loss + Probe(AUC) {tag}")
     out_png = f"loss_probe_{tag if tag else 'all'}.png"
     plt.tight_layout(); plt.savefig(out_png); plt.close()
-    print(f"📈 曲線已儲存: {out_png}")
+    print(f"曲線已儲存: {out_png}")
 
     gc.collect();
     if torch.cuda.is_available():
@@ -603,7 +607,7 @@ def set_seed(seed: int):
 # ---------------------------
 
 def train_separately(benchmarks, config, device, root_dir, global_cell_types, heads_schedule):
-    print("🧩 啟用逐圖訓練模式...")
+    print("啟用逐圖訓練模式...")
     encoder = None; proj = None; input_dim = None
     
     # 預先載入 probe 資料（如果指定）
@@ -644,7 +648,10 @@ def train_separately(benchmarks, config, device, root_dir, global_cell_types, he
                 heads_schedule=heads_schedule
             ).to(device)
             proj = (ProjectionHead(config.hidden_dim, config.proj_dim).to(device)) if config.use_proj else None
-            discriminator = Discriminator(config.hidden_dim).to(device)
+            
+            # 判別器應該根據實際的嵌入維度初始化
+            actual_embed_dim = config.proj_dim if config.use_proj else config.hidden_dim
+            discriminator = Discriminator(actual_embed_dim).to(device)
 
             params = list(encoder.parameters()) + (list(proj.parameters()) if proj else []) + list(discriminator.parameters())
             optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
@@ -657,7 +664,7 @@ def train_separately(benchmarks, config, device, root_dir, global_cell_types, he
     torch.save(encoder.state_dict(), config.output_name)
     if proj is not None:
         torch.save(proj.state_dict(), config.output_name.replace('.pt','_proj.pt'))
-    print(f"✅ 已保存最終模型至: {config.output_name}")
+    print(f"已保存最終模型至: {config.output_name}")
     return encoder, proj, input_dim
 
 
@@ -666,7 +673,7 @@ def train_separately(benchmarks, config, device, root_dir, global_cell_types, he
 # ---------------------------
 
 def train_all_together(benchmarks, config, device, root_dir, global_cell_types, heads_schedule):
-    print("🧩 一次讀入所有圖訓練...")
+    print("一次讀入所有圖訓練...")
     graphs = []
     probe_data = None
 
@@ -708,7 +715,10 @@ def train_all_together(benchmarks, config, device, root_dir, global_cell_types, 
         heads_schedule=heads_schedule
     ).to(device)
     proj = (ProjectionHead(config.hidden_dim, config.proj_dim).to(device)) if config.use_proj else None
-    discriminator = Discriminator(config.hidden_dim).to(device)
+    
+    # 判別器應該根據實際的嵌入維度初始化
+    actual_embed_dim = config.proj_dim if config.use_proj else config.hidden_dim
+    discriminator = Discriminator(actual_embed_dim).to(device)
 
     params = list(encoder.parameters()) + (list(proj.parameters()) if proj else []) + list(discriminator.parameters())
     optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
@@ -719,7 +729,7 @@ def train_all_together(benchmarks, config, device, root_dir, global_cell_types, 
     torch.save(encoder.state_dict(), config.output_name)
     if proj is not None:
         torch.save(proj.state_dict(), config.output_name.replace('.pt','_proj.pt'))
-    print(f"✅ 模型已保存至: {config.output_name}")
+    print(f"模型已保存至: {config.output_name}")
 
     return encoder, proj, input_dim
 
@@ -740,13 +750,13 @@ def main():
         device = torch.device('cpu')
     else:
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('🖥️ 使用裝置：', device)
+    print('使用裝置：', device)
     
     # 輸出 probe 狀態
     if config.disable_probe:
-        print('🚫 Probe 驗證已禁用（純訓練模式）')
+        print('Probe 驗證已禁用（純訓練模式）')
     else:
-        print(f'🔍 Probe 驗證已啟用（每 {config.probe_every} epochs，樣本數：{config.probe_samples}）')
+        print(f'Probe 驗證已啟用（每 {config.probe_every} epochs，樣本數：{config.probe_samples}）')
 
     # heads 解析
     heads_schedule = []
@@ -760,19 +770,19 @@ def main():
     gpu_mem = 16  # 預設值，避免未定義錯誤
     if device.type == 'cuda' and not config.disable_auto_tune:
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)
-        print(f'🔍 GPU 總記憶體: {gpu_mem:.1f} GB')
+        print(f'GPU 總記憶體: {gpu_mem:.1f} GB')
         if gpu_mem < 12:
             # 針對低顯存環境，更激進的參數調整
-            orig_b, orig_chunk, orig_hidden = config.batch_size, config.nce_chunk, config.hidden_dim
+            orig_b, orig_chunk, orig_hidden = config.batch_size, config.discriminator_chunk, config.hidden_dim
             config.batch_size = 1  # 強制設為 1
-            config.nce_chunk = 512  # 極端小 chunk (改為 512)
+            config.discriminator_chunk = 512  # 極端小 chunk (改為 512)
             # config.gradient_accumulation = max(config.gradient_accumulation, 64)  # 大幅增加梯度累積 (從 16 改為 64)
             config.cell_embed_dim = min(config.cell_embed_dim, 8)  # 極小的 embedding (改為 8)
             config.hidden_dim = min(config.hidden_dim, 64)  # 大幅降低隱藏維度 (改為 64)
             config.proj_dim = min(config.proj_dim, config.hidden_dim)  # 投影維度跟隨隱藏維度
-            print('⚠️ 低顯存激進調整:')
+            print('低顯存激進調整:')
             print(f'   batch_size: {orig_b} → {config.batch_size}')
-            print(f'   nce_chunk:  {orig_chunk} → {config.nce_chunk}')
+            print(f'   discriminator_chunk:  {orig_chunk} → {config.discriminator_chunk}')
             print(f'   hidden_dim: {orig_hidden} → {config.hidden_dim}')
             print(f'   proj_dim: → {config.proj_dim}')
             print(f'   gradient_accumulation: {config.gradient_accumulation}')
@@ -780,31 +790,31 @@ def main():
     elif device.type == 'cuda':
         # 即使禁用自動調整，也要取得 GPU 記憶體資訊
         gpu_mem = torch.cuda.get_device_properties(0).total_memory / (1024**3)
-        print(f'🔍 GPU 總記憶體: {gpu_mem:.1f} GB (自動調整已禁用)')
+        print(f'GPU 總記憶體: {gpu_mem:.1f} GB (自動調整已禁用)')
     
     # 啟用投影頭提升性能（但在低顯存時使用較小維度）
     if not hasattr(config, 'use_proj') or not config.use_proj:
         config.use_proj = True
         if gpu_mem < 12:
             config.proj_dim = min(config.proj_dim, config.hidden_dim)  # 投影維度不超過隱藏維度
-        print(f'🚀 自動啟用 projection head (dim={config.proj_dim}) 以提升對比學習效果')
+        print(f'自動啟用 projection head (dim={config.proj_dim}) 以提升對比學習效果')
 
     if config.test_only:
         config.benchmarks = 's27'
         config.epochs = min(config.epochs, 10)
-        print('🧪 測試模式：s27，縮短 epochs')
+        print('測試模式：s27，縮短 epochs')
     else:
-        # full = (
-        #     'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
-        #     's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
-        # )
         full = (
-            # 'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
-            # 's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
-            # 'des, aes, ac97_top, aes_cipher_top, pci_bridge32, ariane'
-            'des, aes, ac97_top, aes_cipher_top'
-            # 'des'
+            'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
+            's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
         )
+        # full = (
+        #     # 'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
+        #     # 's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
+        #     # 'des, aes, ac97_top, aes_cipher_top, pci_bridge32, ariane'
+        #     'des, aes, ac97_top, aes_cipher_top'
+        #     # 'des'
+        # )
         config.benchmarks = full
 
     benchmarks = [b.strip() for b in config.benchmarks.split(',') if b.strip()]
@@ -835,7 +845,7 @@ def main():
         mean = sum(vals) / len(vals)
         var = sum((v - mean) ** 2 for v in vals) / max(1, len(vals) - 1)
         std = math.sqrt(var)
-        print(f"📊 Final Probe AUC over {config.final_probe_average} runs: mean={mean:.4f}, std={std:.4f}, vals={[round(v,4) for v in vals]}")
+        print(f"Final Probe AUC over {config.final_probe_average} runs: mean={mean:.4f}, std={std:.4f}, vals={[round(v,4) for v in vals]}")
 
     # 輸出 meta
     if config.save_meta:
@@ -872,11 +882,11 @@ def main():
         }
         with open('encoder_meta.json', 'w') as f:
             json.dump(meta, f, indent=2, ensure_ascii=False)
-        print('📝 已輸出模型中繼資料: encoder_meta.json')
+        print('已輸出模型中繼資料: encoder_meta.json')
 
     elapsed = time.time() - start_time
-    print(f"⏱️ 訓練完成！總耗時: {elapsed:.2f} 秒")
-    print(f"📊 最終節點 embedding 維度: {config.proj_dim if config.use_proj else config.hidden_dim}")
+    print(f"訓練完成！總耗時: {elapsed:.2f} 秒")
+    print(f"最終節點 embedding 維度: {config.proj_dim if config.use_proj else config.hidden_dim}")
 
 
 if __name__ == '__main__':
