@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-GRACE 訓練（Node-level 對比學習，含 Validation Probe）
-- 兩個增廣 view（edge drop + feature mask），以 InfoNCE 進行 node-level 對比
+DGI 訓練（Deep Graph Infomax，含 Validation Probe）
+- 正樣本 vs 負樣本（corrupted），最大化全域與局部的互信息
 - 曲線：Loss + Probe(AUC)，可用 Probe 作為早停與選模
-- 適配 10GB GPU：支援梯度累積、AMP、對比損失分塊計算（避免 O(N^2) 記憶體）
+- 適配 10GB GPU：支援梯度累積、AMP、分塊計算避免記憶體問題
 """
 
 import argparse
@@ -45,21 +45,20 @@ def ensure_cpu_data(data):
 # ---------------------------
 
 def parse_args():
-    p = argparse.ArgumentParser(description='GRACE（node-level 對比學習）訓練框架')
+    p = argparse.ArgumentParser(description='DGI（Deep Graph Infomax）訓練框架')
 
     # 模型架構（針對低顯存優化）
     p.add_argument('--hidden-dim', type=int, default=64, help='GAT 隱藏維度') 
     p.add_argument('--num-layers', type=int, default=2, help='GAT 層數')  # 保持 2 層
     p.add_argument('--dropout', type=float, default=0.3, help='GAT Dropout')  # 增加 dropout 防止過擬合
-    p.add_argument('--cell-embed-dim', type=int, default=8, help='cell embedding 維度')  # 從 16 降至 8
+    p.add_argument('--cell-embed-dim', type=int, default=16, help='cell embedding 維度')
     p.add_argument('--heads-schedule', type=str, default='1,1', help='每層 head 數，如 "1,1"；空字串用預設')  # 更保守的單頭配置
 
-    # GRACE 超參（低顯存優化）
-    p.add_argument('--tau', type=float, default=0.3, help='InfoNCE 溫度參數')  # 從 0.2 調整到 0.3  
-    p.add_argument('--feat-mask', type=float, default=0.1, help='特徵隨機遮蔽比例（不遮最後一維 cell_id）')  # 從 0.15 降至 0.1
-    p.add_argument('--edge-drop', type=float, default=0.1, help='邊隨機丟棄比例')  # 從 0.15 降至 0.1
+    # DGI 超參（低顯存優化）
+    p.add_argument('--corruption', type=str, default='feature_shuffle', 
+                   choices=['feature_shuffle', 'node_shuffle'], help='負樣本生成方式')
     p.add_argument('--use-proj', action='store_true', help='啟用 projection head（2-layer MLP）')
-    p.add_argument('--proj-dim', type=int, default=32, help='projection head 輸出維度')  # 從 64 降至 32
+    p.add_argument('--proj-dim', type=int, default=32, help='projection head 輸出維度')
 
     # 訓練（低顯存優化）
     p.add_argument('--epochs', type=int, default=250)  
@@ -71,7 +70,7 @@ def parse_args():
     p.add_argument('--warmup-epochs', type=int, default=5, help='學習率預熱 epochs')  # 從 10 降至 5
 
     # 對比損失計算參數（省顯存）
-    p.add_argument('--nce-chunk', type=int, default=128, help='InfoNCE 分塊大小（行數）')  # 從 4096 大幅降至 128
+    p.add_argument('--discriminator-chunk', type=int, default=128, help='判別器分塊大小')  # DGI用判別器而非NCE
 
     # 早停/調度
     p.add_argument('--patience', type=int, default=50)  # 進一步增加耐心，避免過早停止
@@ -83,7 +82,7 @@ def parse_args():
     # 輸出
     p.add_argument('--print-every', type=int, default=10)
     p.add_argument('--save-best', action='store_true')
-    p.add_argument('--output-name', type=str, default='encoder_grace.pt')
+    p.add_argument('--output-name', type=str, default='encoder_dgi.pt')
 
     # 資料
     p.add_argument('--benchmarks', type=str, default='c17,c432,c499,c880,c1355')
@@ -174,76 +173,96 @@ class ProjectionHead(nn.Module):
 
 
 # ---------------------------
-# Augmentation（不丟 node）
+# DGI Corruption（負樣本生成）
 # ---------------------------
 
-def augment_view(x, edge_index, feat_mask_p=0.15, edge_drop_p=0.15):
-    """建立單一 view：遮蔽部分特徵、隨機移除邊
-    - 不改變節點數與順序（避免正對應破壞）
-    - 最後一維（cell_id）不做遮蔽
-    - 簡化版，節省記憶體
+def corrupt_graph(x, corruption_type='feature_shuffle'):
+    """DGI 負樣本生成：打亂特徵或節點順序
+    - feature_shuffle: 打亂每個特徵維度的節點順序
+    - node_shuffle: 直接打亂節點順序
     """
-    device = x.device
-    x1 = x.clone()
+    if corruption_type == 'feature_shuffle':
+        # 打亂特徵：每個特徵維度獨立打亂節點順序（除了 cell_id）
+        x_corrupted = x.clone()
+        for i in range(x.size(1) - 1):  # 不打亂最後一維 cell_id
+            perm = torch.randperm(x.size(0), device=x.device)
+            x_corrupted[:, i] = x[perm, i]
+        return x_corrupted
     
-    # 特徵增廣：只做基本遮蔽
-    if feat_mask_p > 0:
-        if x1.size(1) > 1:
-            mask = (torch.rand_like(x1[:, :-1]) < feat_mask_p)
-            x1[:, :-1][mask] = 0
+    elif corruption_type == 'node_shuffle':
+        # 打亂節點順序
+        perm = torch.randperm(x.size(0), device=x.device)
+        return x[perm]
     
-    # 邊增廣：只做隨機丟棄
-    e1 = edge_index
-    if edge_drop_p > 0 and edge_index.numel() > 0:
-        E = edge_index.size(1)
-        keep = torch.rand(E, device=device) > edge_drop_p
-        e1 = edge_index[:, keep]
-    
-    return x1, e1
+    else:
+        raise ValueError(f"Unknown corruption type: {corruption_type}")
 
 
 # ---------------------------
-# InfoNCE（分塊版，節省記憶體）
+# DGI 判別器
 # ---------------------------
 
-def nt_xent_loss_chunked(z1, z2, tau=0.5, chunk=256):
-    # L2 normalize
-    z1 = F.normalize(z1, p=2, dim=-1)
-    z2 = F.normalize(z2, p=2, dim=-1)
-
-    N, D = z1.size()
-    assert z2.size(0) == N and z2.size(1) == D
-    device = z1.device
+class Discriminator(nn.Module):
+    """DGI 判別器：區分真實和corrupted的節點-全域pairs"""
+    def __init__(self, hidden_dim):
+        super().__init__()
+        self.discriminator = nn.Sequential(
+            nn.Linear(hidden_dim * 2, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)
+        )
     
-    # 進一步減小 chunk 大小以節省記憶體
+    def forward(self, node_emb, graph_emb):
+        """
+        node_emb: [N, D] 節點嵌入
+        graph_emb: [D] 全域嵌入 (已經是單一向量)
+        """
+        # 將全域嵌入擴展到每個節點
+        N = node_emb.size(0)
+        graph_emb_expanded = graph_emb.unsqueeze(0).expand(N, -1)  # [N, D]
+        
+        # 連接節點和全域嵌入
+        combined = torch.cat([node_emb, graph_emb_expanded], dim=1)  # [N, 2D]
+        
+        return self.discriminator(combined).squeeze(-1)  # [N]
+
+
+def readout(node_emb):
+    """全域池化：從節點嵌入生成全域嵌入"""
+    return torch.mean(node_emb, dim=0)  # 簡單平均池化
+
+
+# ---------------------------
+# DGI Loss（分塊版，節省記憶體）
+# ---------------------------
+
+def dgi_loss_chunked(pos_scores, neg_scores, chunk=256):
+    """
+    DGI 損失：最大化正樣本分數，最小化負樣本分數
+    pos_scores: [N] 正樣本判別器分數
+    neg_scores: [N] 負樣本判別器分數
+    """
+    device = pos_scores.device
+    N = pos_scores.size(0)
     chunk = min(chunk, N)
-
-    def _dir_loss(a, b):
-        # 計算 -log( exp(sim_pos)/sum_j exp(sim_all) )，行方向分塊平均
-        total = torch.zeros((), device=device)
-        count = 0
-        bt = b.t()  # [D, N]
-        for i0 in range(0, N, chunk):
-            i1 = min(i0 + chunk, N)
-            z = a[i0:i1]                            # [B, D]
-            logits = (z @ bt).float() / tau                 # [B, N]
-            idx = torch.arange(i0, i1, device=device).view(-1, 1)
-            pos = logits.gather(1, idx).squeeze(1)  # [B]
-            lse = torch.logsumexp(logits, dim=1)    # [B]
-            # 累加總和（保持為 Tensor）
-            total = total + (-pos + lse).sum()
-            count += (i1 - i0)
-            
-            # 立即清理中間變數
-            del z, logits, idx, pos, lse
-            
-        return total / max(1, count)
-
-    loss1 = _dir_loss(z1, z2)
-    loss2 = _dir_loss(z2, z1)
-    return 0.5 * (loss1 + loss2)  # torch.Tensor
-
-
+    
+    total_loss = torch.zeros((), device=device)
+    count = 0
+    
+    # 分塊計算以節省記憶體
+    for i in range(0, N, chunk):
+        j = min(i + chunk, N)
+        pos_chunk = pos_scores[i:j]
+        neg_chunk = neg_scores[i:j]
+        
+        # Binary cross entropy: -[log(σ(pos)) + log(1-σ(neg))]
+        pos_loss = -F.logsigmoid(pos_chunk).sum()
+        neg_loss = -F.logsigmoid(-neg_chunk).sum() 
+        
+        total_loss = total_loss + pos_loss + neg_loss
+        count += (j - i)
+    
+    return total_loss / max(count, 1)  # 平均損失
 
 # ---------------------------
 # Validation：Link Prediction AUC（與你原版一致）
@@ -336,10 +355,10 @@ def recall_at_k(encoder, data, device, K=10, proj=None):
 
 
 # ---------------------------
-# 訓練主程式（GRACE）
+# 訓練主程式（DGI）
 # ---------------------------
 
-def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag="", probe_data=None):
+def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag="", probe_data=None):
     encoder.train()
     if proj is not None:
         proj.train()
@@ -378,38 +397,39 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
                 
             data = data.to(device, non_blocking=True)
 
-            # 建立兩個 view（不丟節點），使用更保守的增廣參數
-            x1, e1 = augment_view(data.x, data.edge_index, 
-                                feat_mask_p=config.feat_mask * 0.8,  # 降低增廣強度
-                                edge_drop_p=config.edge_drop * 0.8)
-            x2, e2 = augment_view(data.x, data.edge_index, 
-                                feat_mask_p=config.feat_mask * 1.2, 
-                                edge_drop_p=config.edge_drop * 1.2)
+            # DGI：建立正樣本和負樣本
+            x_pos = data.x
+            x_neg = corrupt_graph(data.x, config.corruption)
 
             with torch.cuda.amp.autocast(enabled=use_amp, dtype=torch.bfloat16):
-                # 分別計算兩個 view，避免同時存在記憶體中
-                z1 = encoder(x1, e1)
+                # 正樣本前向傳播
+                h_pos = encoder(x_pos, data.edge_index)
                 if proj is not None:
-                    z1 = proj(z1)
+                    h_pos = proj(h_pos)
+                s_pos = readout(h_pos)  # 全域嵌入
                 
-                # 清理第一個 view 的中間變數
-                del x1, e1
-                
-                z2 = encoder(x2, e2)
+                # 負樣本前向傳播
+                h_neg = encoder(x_neg, data.edge_index)
                 if proj is not None:
-                    z2 = proj(z2)
+                    h_neg = proj(h_neg)
+                s_neg = readout(h_neg)  # 全域嵌入
                 
-                # 清理第二個 view 的中間變數  
-                del x2, e2
+                # 判別器分數
+                pos_scores = discriminator(h_pos, s_pos)  # [N]
+                neg_scores = discriminator(h_neg, s_neg)  # [N]
                 
-                # 使用配置的 chunk 計算損失，讓函式內自己處理 clamp
-                loss = nt_xent_loss_chunked(z1.float(), z2.float(), tau=config.tau,
-                                            chunk=config.nce_chunk) / accum_steps
+                # 計算 DGI 損失
+                loss = dgi_loss_chunked(pos_scores, neg_scores, 
+                                       chunk=config.discriminator_chunk) / accum_steps
 
             scaler.scale(loss).backward()
 
             if step % accum_steps == 0:
-                torch.nn.utils.clip_grad_norm_(list(encoder.parameters()) + (list(proj.parameters()) if proj else []),
+                discriminator_params = list(discriminator.parameters())
+                all_params = (list(encoder.parameters()) + 
+                             (list(proj.parameters()) if proj else []) +
+                             discriminator_params)
+                torch.nn.utils.clip_grad_norm_(all_params,
                                                max_norm=config.grad_clip)
                 scaler.step(optimizer)
                 scaler.update()
@@ -421,7 +441,7 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
             num_batches += 1
 
             # 立即清理所有中間變數
-            del data, z1, z2, loss
+            del data, h_pos, h_neg, s_pos, s_neg, pos_scores, neg_scores, loss
             
             # 更頻繁的記憶體清理
             if torch.cuda.is_available():
@@ -523,7 +543,7 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
-    plt.title(f"GRACE: Loss + Probe(AUC) {tag}")
+    plt.title(f"DGI: Loss + Probe(AUC) {tag}")
     out_png = f"loss_probe_{tag if tag else 'all'}.png"
     plt.tight_layout(); plt.savefig(out_png); plt.close()
     print(f"📈 曲線已儲存: {out_png}")
@@ -532,7 +552,7 @@ def train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-    return encoder, proj
+    return encoder, proj, discriminator
 
 
 # ---------------------------
@@ -624,14 +644,15 @@ def train_separately(benchmarks, config, device, root_dir, global_cell_types, he
                 heads_schedule=heads_schedule
             ).to(device)
             proj = (ProjectionHead(config.hidden_dim, config.proj_dim).to(device)) if config.use_proj else None
+            discriminator = Discriminator(config.hidden_dim).to(device)
 
-            params = list(encoder.parameters()) + (list(proj.parameters()) if proj else [])
+            params = list(encoder.parameters()) + (list(proj.parameters()) if proj else []) + list(discriminator.parameters())
             optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
             scheduler = create_scheduler(optimizer, config)
 
         # 使用全域 probe 資料（每個案例都用相同的 probe）
         probe_data = probe_data_global
-        encoder, proj = train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag=name, probe_data=probe_data)
+        encoder, proj, discriminator = train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag=name, probe_data=probe_data)
 
     torch.save(encoder.state_dict(), config.output_name)
     if proj is not None:
@@ -687,12 +708,13 @@ def train_all_together(benchmarks, config, device, root_dir, global_cell_types, 
         heads_schedule=heads_schedule
     ).to(device)
     proj = (ProjectionHead(config.hidden_dim, config.proj_dim).to(device)) if config.use_proj else None
+    discriminator = Discriminator(config.hidden_dim).to(device)
 
-    params = list(encoder.parameters()) + (list(proj.parameters()) if proj else [])
+    params = list(encoder.parameters()) + (list(proj.parameters()) if proj else []) + list(discriminator.parameters())
     optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
     scheduler = create_scheduler(optimizer, config)
 
-    encoder, proj = train_grace(encoder, proj, loader, optimizer, scheduler, config, device, tag='all', probe_data=probe_data)
+    encoder, proj, discriminator = train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag='all', probe_data=probe_data)
 
     torch.save(encoder.state_dict(), config.output_name)
     if proj is not None:
@@ -818,7 +840,7 @@ def main():
     # 輸出 meta
     if config.save_meta:
         meta = {
-            'method': 'GRACE',
+            'method': 'DGI',
             'hidden_dim': config.hidden_dim,
             'num_layers': config.num_layers,
             'dropout': config.dropout,
@@ -837,15 +859,13 @@ def main():
             'fix_probe_samples': bool(config.fix_probe_samples),
             'final_probe_average': int(config.final_probe_average),
             'heads_schedule': heads_schedule if heads_schedule else 'default',
-            'tau': config.tau,
-            'feat_mask': config.feat_mask,
-            'edge_drop': config.edge_drop,
+            'corruption': config.corruption,
             'use_proj': bool(config.use_proj),
             'proj_dim': config.proj_dim,
             'cell_embed_dim': config.cell_embed_dim,  # 新增：cell embedding 維度
             'batch_size': config.batch_size,           # 新增：批次大小
             'gradient_accumulation': config.gradient_accumulation,  # 新增：梯度累積
-            'nce_chunk': config.nce_chunk,            # 新增：NCE 分塊大小
+            'discriminator_chunk': config.discriminator_chunk,            # 新增：判別器分塊大小
             'scheduler_type': config.scheduler_type,  # 新增：調度器類型
             'scheduler_patience': config.scheduler_patience,  # 新增：調度器耐心
             'scheduler_factor': config.scheduler_factor,      # 新增：調度器因子

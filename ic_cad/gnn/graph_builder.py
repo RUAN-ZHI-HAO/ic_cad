@@ -460,7 +460,7 @@ def build_graph_from_case(case_dir: str, verilog_root: str, global_cell_types=No
             degree, fanin, fanout,
             # 功能類型特徵 (3)
             is_logic_gate, is_memory, is_complex,
-            # Cell ID (1) - 將在 GNN 中轉換為 32 維 embedding
+            # Cell ID (1) - 將在 GNN 中轉換為 16 維 embedding
             cell_id
         ]
 
