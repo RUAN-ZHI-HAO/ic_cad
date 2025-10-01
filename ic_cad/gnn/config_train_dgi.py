@@ -51,7 +51,7 @@ def parse_args():
     p.add_argument('--hidden-dim', type=int, default=64, help='GAT 隱藏維度') 
     p.add_argument('--num-layers', type=int, default=2, help='GAT 層數')  # 保持 2 層
     p.add_argument('--dropout', type=float, default=0.1, help='GAT Dropout')  # 降低 dropout 避免過度正則化
-    p.add_argument('--cell-embed-dim', type=int, default=8, help='cell embedding 維度')  # 調整為8維以配合低顯存優化
+    p.add_argument('--cell-embed-dim', type=int, default=16, help='cell embedding 維度')  # 調整為16維以配合低顯存優化
     p.add_argument('--heads-schedule', type=str, default='1,1', help='每層 head 數，如 "1,1"；空字串用預設')  # 恢復多頭注意力
 
     # DGI 超參（低顯存優化）
@@ -73,7 +73,7 @@ def parse_args():
     p.add_argument('--discriminator-chunk', type=int, default=128, help='判別器分塊大小')  # DGI用判別器而非NCE
 
     # 早停/調度
-    p.add_argument('--patience', type=int, default=30)  # 適度調整耐心，避免過早停止
+    p.add_argument('--patience', type=int, default=20)  # 適度調整耐心，避免過早停止
     p.add_argument('--scheduler-factor', type=float, default=0.8)  # 更溫和的LR衰減
     p.add_argument('--scheduler-patience', type=int, default=15)  # 適當的LR調度時機
     p.add_argument('--scheduler-type', type=str, default='cosine', choices=['cosine', 'plateau', 'step'],
@@ -90,6 +90,7 @@ def parse_args():
     p.add_argument('--separate-training', action='store_true', help='逐圖訓練')
     p.add_argument('--seed', type=int, default=42)
     p.add_argument('--save-meta', action='store_true')
+    p.add_argument('--use-hard-neg', action='store_true', help='在 probe 驗證時使用更難的負樣本 (2-hop+同type+近度數)')
 
     # Probe（驗證）
     p.add_argument('--probe-every', type=int, default=10)
@@ -99,6 +100,7 @@ def parse_args():
     p.add_argument('--fix-probe-samples', action='store_true', help='固定 probe 抽樣（更穩定）')
     p.add_argument('--disable-probe', action='store_true', help='完全關閉 probe 驗證（純訓練模式）')
     p.add_argument('--final-probe-average', type=int, default=0, help='訓練後重複抽樣回報平均 AUC 次數 (0=關閉)')
+    p.add_argument('--probe-neutralize-cellid', action='store_true', help='Probe 時將最後一維 cell_id 全部設為同一 id（隱藏 cell 類別訊息）')
 
     # 裝置
     p.add_argument('--device', type=str, default='auto', choices=['auto','cuda','cpu'])
@@ -267,9 +269,22 @@ def dgi_loss_chunked(pos_scores, neg_scores, chunk=256):
 # Validation：Link Prediction AUC（與你原版一致）
 # ---------------------------
 @torch.no_grad()
-def link_pred_probe_auc(encoder, data, device, num_samples=2000, cache_key=None, fix_probe_samples=False, proj=None):
+def link_pred_probe_auc(encoder, data, device, num_samples=2000,
+                        cache_key=None, fix_probe_samples=False,
+                        proj=None, use_hard_neg=False, neutralize_cellid=False):
+    """
+    驗證用 AUC (Link Prediction Probe)
+    - pos: 從真實邊抽樣
+    - neg: 從非邊生成 (支援 harder negatives: 2-hop + 同 cell type + 近度數)
+    """
     encoder.eval()
     x, edge_index = data.x.to(device), data.edge_index.to(device)
+
+    if neutralize_cellid:
+        x = x.clone()
+        # 保證是 long index；forward 時會用到 long()
+        x[:, -1] = 0 
+
     use_amp = (device.type == 'cuda')
     with torch.cuda.amp.autocast(enabled=use_amp, dtype=torch.bfloat16):
         z = encoder(x, edge_index)
@@ -287,16 +302,66 @@ def link_pred_probe_auc(encoder, data, device, num_samples=2000, cache_key=None,
         take = min(num_samples, E)
         idx = torch.randperm(E, device=device)[:take]
         pos = edge_index[:, idx]
-        
-        # 生成更難的負樣本：優先選擇 cell_id 相同的負樣本
-        cand = negative_sampling(edge_index=edge_index, num_nodes=x.size(0), num_neg_samples=take*4)
-        cell_ids = x[:, -1].long()
-        mask = (cell_ids[cand[0]] == cell_ids[cand[1]])
-        if mask.sum() >= take:
-            neg = cand[:, mask][:, :take]
+
+        if use_hard_neg:
+            # ---- 全部在 CPU 上做 hard negative 候選與篩選，最後再搬回 GPU ----
+            x_cpu = x.detach().cpu()
+            ei_cpu = edge_index.detach().cpu()
+            N = x_cpu.size(0)
+
+            if N <= 10000:  # 安全上限，避免 dense A 佔太多記憶體
+                # 鄰接與度數
+                A = torch.zeros((N, N), dtype=torch.bool)
+                A[ei_cpu[0], ei_cpu[1]] = True
+                A[ei_cpu[1], ei_cpu[0]] = True
+                deg = A.sum(dim=1)  # CPU tensor
+
+                # 2-hop 候選： (A^2) 並排除 A 與 I
+                A2 = (A.to(torch.int8) @ A.to(torch.int8)) > 0
+                A2.fill_diagonal_(False)
+                A2 = A2 & (~A)
+
+                a_idx, b_idx = torch.where(A2)
+                cand = torch.stack([a_idx, b_idx], dim=0)  # CPU indices
+
+                # 同 cell type + 近度數（全部用 CPU 張量計算 mask）
+                cid_cpu = x_cpu[:, -1].long()
+                deg_diff = (deg[cand[0]] - deg[cand[1]]).abs()
+                mask = (cid_cpu[cand[0]] == cid_cpu[cand[1]]) & (deg_diff <= 1)
+
+                hard = cand[:, mask]  # 仍是 CPU
+                if hard.size(1) >= take:
+                    ridx = torch.randperm(hard.size(1))[:take]  # CPU
+                    neg = hard[:, ridx].to(device)              # 搬回 GPU
+                else:
+                    rest = take - hard.size(1)
+                    # 用 random negatives（GPU 生成）補齊，再拼起來搬到 GPU
+                    extra = negative_sampling(edge_index=edge_index,
+                                              num_nodes=N,
+                                              num_neg_samples=rest)       # GPU
+                    if hard.numel() > 0:
+                        neg = torch.cat([hard, extra.detach().cpu()], dim=1).to(device)
+                    else:
+                        neg = extra  # 已在 GPU
+            else:
+                # 節點太大時 fallback：同 type 優先策略（全在 GPU）
+                cell_ids = x[:, -1].long()
+                cand = negative_sampling(edge_index=edge_index, num_nodes=x.size(0), num_neg_samples=take*4)
+                mask = (cell_ids[cand[0]] == cell_ids[cand[1]])
+                if mask.sum() >= take:
+                    neg = cand[:, mask][:, :take]
+                else:
+                    neg = negative_sampling(edge_index=edge_index, num_nodes=x.size(0), num_neg_samples=take)
         else:
-            neg = negative_sampling(edge_index=edge_index, num_nodes=x.size(0), num_neg_samples=take)
-            
+            # 原本策略（同 cell type 優先，全在 GPU）
+            cell_ids = x[:, -1].long()
+            cand = negative_sampling(edge_index=edge_index, num_nodes=x.size(0), num_neg_samples=take*4)
+            mask = (cell_ids[cand[0]] == cell_ids[cand[1]])
+            if mask.sum() >= take:
+                neg = cand[:, mask][:, :take]
+            else:
+                neg = negative_sampling(edge_index=edge_index, num_nodes=x.size(0), num_neg_samples=take)
+
         if fix_probe_samples and (cache_key is not None):
             PROBE_CACHE[cache_key] = (pos, neg)
 
@@ -327,11 +392,16 @@ def link_pred_probe_auc(encoder, data, device, num_samples=2000, cache_key=None,
     return auc
 
 
+
 @torch.no_grad()
-def recall_at_k(encoder, data, device, K=10, proj=None):
+def recall_at_k(encoder, data, device, K=10, proj=None, neutralize_cellid=False):
     """計算 Recall@K 指標"""
     encoder.eval()
     x, edge_index = data.x.to(device), data.edge_index.to(device)
+
+    if neutralize_cellid:
+        x = x.clone()
+        x[:, -1] = 0  # 中和 cell_id
     
     use_amp = (device.type == 'cuda')
     with torch.cuda.amp.autocast(enabled=use_amp, dtype=torch.bfloat16):
@@ -343,7 +413,7 @@ def recall_at_k(encoder, data, device, K=10, proj=None):
     N = z.size(0)
     A = torch.zeros((N, N), dtype=torch.bool, device=device)
     A[edge_index[0], edge_index[1]] = True
-    A[edge_index[1], edge_index[0]] = True     # 無向圖可留著
+    # A[edge_index[1], edge_index[0]] = True     # 無向圖可留著
 
     S = z @ z.t()
     S.fill_diagonal_(-float('inf'))
@@ -449,10 +519,8 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
         avg_loss = total_loss / max(1, num_batches)
         
         if did_optim_step:
-            if is_plateau_scheduler:
-                scheduler.step(avg_loss)
-            else:
-                scheduler.step()
+            if not is_plateau_scheduler:
+                scheduler.step()  # 非 plateau 照常在每個 epoch step
 
         if epoch % config.print_every == 0 or epoch == config.epochs - 1:
             if torch.cuda.is_available():
@@ -484,12 +552,23 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
             ckey = f"probe:{config.probe_graph or tag or 'default'}"
             auc = link_pred_probe_auc(encoder, probe_batch, device, 
                                     num_samples=min(config.probe_samples, 1000),  # 限制 probe 樣本數
-                                    cache_key=ckey, fix_probe_samples=bool(config.fix_probe_samples), proj=proj)
-            r10 = recall_at_k(encoder, probe_batch, device, K=10, proj=proj)
+                                    cache_key=ckey, fix_probe_samples=bool(config.fix_probe_samples), proj=proj,
+                                    use_hard_neg=bool(getattr(config, 'use_hard_neg', False)),
+                                    neutralize_cellid=bool(config.probe_neutralize_cellid))
+            r10 = recall_at_k(encoder, probe_batch, device, K=10, proj=proj, neutralize_cellid=bool(config.probe_neutralize_cellid))
             probe_history.append(auc)
             probe_epoch_index.append(epoch)
             
             print(f"   [Probe] epoch {epoch:03d} AUC={auc:.4f}  Recall@10={r10:.4f}")
+
+            # ---- 用 (1 - AUC) 當 Plateau 監控指標 ----
+            if is_plateau_scheduler:
+                plateau_metric = 1.0 - auc   # AUC 越高 → metric 越小（更好）
+                scheduler.step(plateau_metric)
+                # （可選）顯示目前 LR
+                curr_lr = optimizer.param_groups[0]['lr']
+                print(f"   [LR-Plateau] step with metric={plateau_metric:.6f}, LR={curr_lr:.2e}")
+            # --------------------------------------------
 
             # Probe 早停邏輯
             if config.earlystop_by_probe and (auc > best_probe + 1e-4):  # 使用更小的 tolerance
@@ -566,15 +645,17 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
 def create_scheduler(optimizer, config):
     """根據配置建立學習率調度器"""
     if config.scheduler_type == 'plateau':
-        # 基於loss的自適應調度器
+        # 這裡仍回傳 ReduceLROnPlateau，但實際 step 時機改到 probe 後，
+        # 並用 (1 - AUC) 當監控指標（越小越好）
         return ReduceLROnPlateau(
-            optimizer, 
-            mode='min', 
-            factor=config.scheduler_factor, 
-            patience=config.scheduler_patience,
-            verbose=True,
+            optimizer,
+            mode='min',
+            factor=config.scheduler_factor,       # 例: 0.5
+            patience=config.scheduler_patience,   # 例: 5~6
             threshold=1e-4,
-            cooldown=2
+            cooldown=2,
+            min_lr=max(1e-6, config.lr * 1e-2),  # 最低 LR，可自行調
+            verbose=True
         )
     elif config.scheduler_type == 'step':
         # 固定步長調度器 
@@ -806,7 +887,11 @@ def main():
     else:
         full = (
             'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
-            's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
+            's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s35932, s38584'
+        )
+        full = (
+            'c1908, c2670, c3540, c5315, c6288, '
+            's1238, s1423, s1488, s5378, s9234, s13207, s15850, s35932, s38584'
         )
         # full = (
         #     # 'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
@@ -840,7 +925,9 @@ def main():
         vals = []
         for _ in range(config.final_probe_average):
             auc = link_pred_probe_auc(encoder, probe_data, device_eval, num_samples=config.probe_samples,
-                                      cache_key=None, fix_probe_samples=False, proj=proj)
+                                      cache_key=None, fix_probe_samples=False, proj=proj,
+                                      use_hard_neg=bool(getattr(config, 'use_hard_neg', False)),
+                                      neutralize_cellid=bool(config.probe_neutralize_cellid))
             vals.append(auc)
         mean = sum(vals) / len(vals)
         var = sum((v - mean) ** 2 for v in vals) / max(1, len(vals) - 1)

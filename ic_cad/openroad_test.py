@@ -3,8 +3,11 @@ import openroad
 import os
 import json
 import re
+import logging
 from typing import Set
-import rcx
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # === 建立技術與設計物件 ===
 def load_case(pdk_path, design_path, benchmark):
@@ -87,17 +90,17 @@ def replace_cells():
     # try_swap("_2_", "AO22x2_ASAP7_75t_L")
     # try_swap("_3_", "OA21x4_ASAP7_75t_L")
 
-def insert_buffers():
+def insert_buffers(design):
     design.evalTclString("buffer_ports -inputs -outputs")
 
-def optimize_and_report():
+def optimize_and_report(design):
     design.evalTclString("repair_design")
     design.evalTclString("repair_timing")
     design.evalTclString("report_worst_slack -max -digits 3")
     design.evalTclString("report_tns -digits 3")
     design.evalTclString("report_power")
 
-def write_output():
+def write_output(design):
     design.evalTclString("write_def c17_optimized.def")
     design.evalTclString("write_changelog changelist.log")
 
@@ -115,13 +118,13 @@ def replace_instance_cell(inst_name: str, new_master: str):
     inst.swapMaster(master)
     print(f"[INFO] Replaced instance {inst_name} with master {new_master}.")
 
-def insert_buffer(load_pins: list, lib_buf: str, new_buf_inst: str, new_net: str):
+def insert_buffer(design, load_pins: list, lib_buf: str, new_buf_inst: str, new_net: str):
     pins_str = " ".join(load_pins)
     cmd = f"insert_buffer {{{pins_str}}} {lib_buf} {new_buf_inst} {new_net}"
     print(f"[INFO] Executing: {cmd}")
     design.evalTclString(cmd)
 
-def analyze_sta_summary():
+def analyze_sta_summary(design, logger):
     """
     執行 STA 分析並回傳 power、tns、wns(float)
     """
@@ -170,8 +173,7 @@ def find_equivalent_cells(tech, design, cell_name):
         tech: Tech 物件  
         design: Design 物件    
         cell_name: 要查詢的 cell 名稱  
-    """  
-    from openroad import Timing  
+    """
 
     # 建立 Timing 物件  
     timing = Timing(design)  
@@ -269,7 +271,7 @@ def save_groups_to_json(groups, path: str):
         f.write("]\n")
 
 
-def analyze_critical_paths():  
+def analyze_critical_paths(design):  
     """  
     分析 TNS 貢獻最多的前五條路徑中的所有 cells  
     """  
@@ -285,7 +287,7 @@ def analyze_critical_paths():
       
     # return result
 
-def update_cell_information():
+def update_cell_information(design, tech, logger):
     sta = tech.getSta()
     design.evalTclString("update_timing")
 
@@ -483,7 +485,7 @@ def update_cell_information():
 
     return cell_info_list
 
-def test():
+def test(design):
     timing = Timing(design)
     print(dir(timing))
 
@@ -541,44 +543,19 @@ def main():
     # print(dir(design.getDb()))
     pdk_path = os.path.expanduser("~/solution/testcases/ASAP7")
     design_path = os.path.expanduser("~/solution/testcases")
-    design, tech = load_case(pdk_path, design_path, "c17")
-    
-    # analyze_sta_summary()
+    design, tech = load_case(pdk_path, design_path, "s13207")
+
+    analyze_sta_summary(design, logger)
     # design.evalTclString('global_placement -timing_driven -density 1')
     # design.evalTclString('detailed_placement')
-    # design.evalTclString('repair_timing -setup')
+    design.evalTclString('repair_timing -setup -skip_pin_swap -skip_gate_cloning -skip_buffer_removal -skip_buffering -verbose')
+    analyze_sta_summary(design, logger)
     # test()
     # analyze_critical_paths()
     # find_equivalent_cells(tech, design, "O2A1O1Ixp33_ASAP7_75t_L")
 
-    groups = create_cell_groups(tech, design, include_singletons=True)
-    save_groups_to_json(groups, "equiv_groups_new.json")
-
-    # design.evalTclString("report_cell_usage")
-
-    # print(design.evalTclString('report_equiv_cells -all "O2A1O1Ixp33_ASAP7_75t_L"'))
-
-    # total_cells = 0  
-    # for lib in tech.getDB().getLibs():  
-    #     lib_cell_count = 0  
-    #     for master in lib.getMasters():  
-    #         lib_cell_count += 1  
-    #     print(f"Library {lib.getName()}: {lib_cell_count} cells")  
-    #     total_cells += lib_cell_count  
-    # print(f"Total library cells loaded: {total_cells}")
-
-    # lef_masters = Set()  
-    # for lib in tech.getDB().getLibs():  
-    #     for master in lib.getMasters():  
-    #         lef_masters.add(master.getName())  
-    
-    # # 獲取所有 Liberty cells (需要通過 STA 接口)  
-    # liberty_cells = Set()  
-    # # 這需要通過 dbNetwork 來訪問 Liberty 信息  
-    
-    # # 找出差異  
-    # missing_in_liberty = lef_masters - liberty_cells  
-    # print(f"LEF 中有但 Liberty 中沒有的 cells: {missing_in_liberty}")
+    # groups = create_cell_groups(tech, design, include_singletons=True)
+    # save_groups_to_json(groups, "equiv_groups_new.json")
 
     # replace_instance_cell("_551_", "OAI21xp5_ASAP7_75t_SRAM")
     # print("✅ Replacing cells...")
