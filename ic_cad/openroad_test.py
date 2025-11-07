@@ -543,7 +543,7 @@ def main():
     # print(dir(design.getDb()))
     pdk_path = os.path.expanduser("~/solution/testcases/ASAP7")
     design_path = os.path.expanduser("~/solution/testcases")
-    design, tech = load_case(pdk_path, design_path, "s13207")
+    design, tech = load_case(pdk_path, design_path, "s1488")
 
     analyze_sta_summary(design, logger)
     # design.evalTclString('global_placement -timing_driven -density 1')

@@ -4,7 +4,7 @@
   "num_layers": 2,
   "dropout": 0.1,
   "epochs": 250,
-  "learning_rate": 0.0002,
+  "learning_rate": 0.0003,
   "weight_decay": 0.0001,
   "separate_training": false,
   "feature_dim": 20,
@@ -27,11 +27,11 @@
     "s38584"
   ],
   "probe_every": 10,
-  "probe_samples": 15000,
-  "earlystop_by_probe": true,
-  "probe_graph": "s13207",
-  "fix_probe_samples": false,
-  "final_probe_average": 5,
+  "probe_samples": 30000,
+  "earlystop_by_probe": false,
+  "probe_graph": "s1488",
+  "fix_probe_samples": true,
+  "final_probe_average": 0,
   "heads_schedule": [
     1,
     1
@@ -44,6 +44,6 @@
   "gradient_accumulation": 8,
   "discriminator_chunk": 128,
   "scheduler_type": "cosine",
-  "scheduler_patience": 6,
-  "scheduler_factor": 0.5
+  "scheduler_patience": 15,
+  "scheduler_factor": 0.8
 }

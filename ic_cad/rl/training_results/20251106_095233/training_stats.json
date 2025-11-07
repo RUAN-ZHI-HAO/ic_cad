@@ -1,0 +1,58 @@
+{
+  "config": {
+    "max_episodes": 2,
+    "max_steps_per_episode": 20,
+    "max_candidates": 20,
+    "max_replacements": 36,
+    "lr_actor": 0.0001,
+    "lr_critic": 0.0002,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "eps_clip": 0.1,
+    "entropy_coef": 0.05,
+    "batch_size": 64
+  },
+  "training_stats": {
+    "episode_rewards": [
+      208.61453250108022,
+      253.7453566225769
+    ],
+    "episode_lengths": [
+      20,
+      20
+    ],
+    "tns_improvements": [
+      6171.7351476228,
+      7130.569940798225
+    ],
+    "wns_improvements": [
+      134.27375931492304,
+      129.74882331537754
+    ],
+    "power_improvements": [
+      1.5839950005768193e-05,
+      1.114511282235232e-05
+    ],
+    "success_rates": [
+      1.0,
+      1.0
+    ],
+    "agent_stats": {
+      "episode_rewards": [],
+      "episode_lengths": [],
+      "policy_losses": [],
+      "value_losses": [],
+      "total_steps": 0
+    }
+  },
+  "summary": {
+    "total_episodes": 2,
+    "average_reward": 231.17994456182856,
+    "best_reward": 253.7453566225769,
+    "average_length": 20.0,
+    "average_tns_improvement": 6651.152544210512,
+    "average_wns_improvement": 132.0112913151503,
+    "average_power_improvement": 1.3492531414060257e-05,
+    "average_success_rate": 1.0
+  }
+}

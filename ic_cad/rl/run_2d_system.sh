@@ -15,10 +15,12 @@ if [ $# -eq 0 ]; then
     echo ""
     echo "範例:"
     echo "  $0 test                                          # 運行系統測試"
-    echo "  $0 train c17 c432                               # 訓練模式"
+    echo "  $0 train c17 c432                               # 訓練模式（從頭開始）"
+    echo "  $0 train c17 --episodes 100                     # 訓練模式（指定回合數）"
+    echo "  $0 train c17 --model-path models/best.pth       # 繼續訓練（載入模型）"
     echo "  $0 train c17 --tns-weight 2.0 --power-weight 1.0  # 訓練模式（指定權重）"
-    echo "  $0 optimize c17                                 # 優化模式 (使用預設模型)"
-    echo "  $0 optimize c17 /path/to/model.pth             # 優化模式 (指定模型)"
+    echo "  $0 optimize c17                                 # 優化模式（使用預設模型）"
+    echo "  $0 optimize c17 --model-path /path/to/model.pth # 優化模式（指定模型）"
     echo "  $0 optimize c17 --tns-weight 1.5 --power-weight 0.5  # 優化模式（指定權重）"
     echo "  $0 full c17 c432                               # 完整流程"
     echo "  $0 full c17 --tns-weight 3.0 --power-weight 1.0     # 完整流程（指定權重）"
@@ -45,34 +47,10 @@ exec(open('main.py').read())
         ;;
     "optimize")
         echo "啟動優化模式..."
-        
-        # 檢查是否提供了模型路徑
-        MODEL_ARGS=""
-        CASES=""
-        
-        # 解析參數：第一個是案例，第二個（如果存在）是模型路徑
-        for arg in "$@"; do
-            if [[ -f "$arg" && "$arg" == *.pth ]]; then
-                # 這是一個存在的 .pth 檔案，當作模型路徑
-                MODEL_ARGS="--model-path $arg"
-                echo "使用指定模型: $arg"
-            else
-                # 這是案例名稱
-                CASES="$CASES $arg"
-            fi
-        done
-        
-        if [ -z "$CASES" ]; then
-            echo "錯誤：沒有指定電路案例"
-            exit 1
-        fi
-        
-        echo "案例: $CASES"
+        echo "參數: $@"
         openroad -python -exit -c "
 import sys
-sys.argv = ['main.py', '--mode', 'optimize', '--cases'] + '$CASES'.split()
-if '$MODEL_ARGS':
-    sys.argv.extend('$MODEL_ARGS'.split())
+sys.argv = ['main.py', '--mode', 'optimize'] + \"$*\".split()
 exec(open('main.py').read())
 "
         ;;

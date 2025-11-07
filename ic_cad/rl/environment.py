@@ -321,25 +321,30 @@ class OptimizationEnvironment:
                 if node_emb_full is not None and cell_idx < len(node_emb_full):
                     gnn_feat = node_emb_full[cell_idx]
                 else:
-                    gnn_feat = np.random.randn(self.gnn_embed_dim)  # 使用配置的維度
+                    gnn_feat = np.zeros(self.gnn_embed_dim, dtype=np.float32)  # 使用 zeros 而非 randn，避免噪音
                 candidate_gnn_features.append(gnn_feat)
                 
                 # 動態特徵
                 if node_dyn is not None and cell_idx < len(node_dyn):
                     dyn_feat = node_dyn[cell_idx]
                 else:
-                    dyn_feat = np.random.randn(12)  # 預設動態特徵維度
+                    dyn_feat = np.zeros(9, dtype=np.float32)  # 使用 zeros 而非 randn，避免噪音
                 candidate_dynamic_features.append(dyn_feat)
             else:
-                # 找不到 cell，使用預設特徵
-                candidate_gnn_features.append(np.random.randn(self.gnn_embed_dim))  # 使用配置的維度
-                candidate_dynamic_features.append(np.random.randn(12))
+                # 找不到 cell，使用零向量而非隨機噪音
+                candidate_gnn_features.append(np.zeros(self.gnn_embed_dim, dtype=np.float32))
+                candidate_dynamic_features.append(np.zeros(9, dtype=np.float32))
         
-        # 全域特徵
+        # 全域特徵 (正規化，避免數值尺度問題) - 7 維
         global_features = np.array([
-            initial_report.tns, initial_report.wns, initial_report.total_power,
-            0, 0, 0, 0, 0, 0  # 額外的全域特徵，總共 9 維以匹配 config.global_feature_dim
-        ])
+            initial_report.tns / max(1.0, abs(initial_report.tns)) if abs(initial_report.tns) > 1e-6 else 0.0,
+            initial_report.wns / max(1.0, abs(initial_report.wns)) if abs(initial_report.wns) > 1e-6 else 0.0,
+            initial_report.total_power / max(1e-9, initial_report.total_power) if initial_report.total_power > 1e-9 else 0.0,
+            0.0,  # step_count / max_steps (初始為 0)
+            float(len(candidate_cells)) / max(1, len(cell_names)),  # 候選比例
+            0.0,  # done (初始為 False)
+            0.0,  # remaining_steps_ratio (剩餘步數比例)
+        ], dtype=np.float32)
         
         # 動作遮罩格式轉換 - 修正二維動作空間遮罩
         max_candidates = getattr(self.config, 'max_candidates', 20)
@@ -487,11 +492,17 @@ class OptimizationEnvironment:
         self.current_state.current_power = new_report.total_power
         self.current_state.step_count += 1
         
-        # 更新全域特徵
+        # 更新全域特徵 (正規化，避免數值尺度問題) - 7 維
+        remaining_steps_ratio = float(self.current_state.max_steps - self.current_state.step_count) / max(1, self.current_state.max_steps)
         self.current_state.global_features = np.array([
-            new_report.tns, new_report.wns, new_report.total_power,
-            self.current_state.step_count, 0, 0, 0, 0, 0  # 額外的全域特徵，總共 9 維
-        ])
+            new_report.tns / max(1.0, abs(self.current_state.initial_tns)) if abs(self.current_state.initial_tns) > 1e-6 else 0.0,
+            new_report.wns / max(1.0, abs(self.current_state.initial_wns)) if abs(self.current_state.initial_wns) > 1e-6 else 0.0,
+            new_report.total_power / max(1e-9, self.current_state.initial_power) if self.current_state.initial_power > 1e-9 else 0.0,
+            float(self.current_state.step_count) / max(1, self.current_state.max_steps),  # 進度比例
+            float(len(self.current_state.candidate_cells)) / max(1, self.current_state.total_cells),  # 候選比例
+            float(self.current_state.done),  # 是否終止
+            remaining_steps_ratio,  # 剩餘步數比例
+        ], dtype=np.float32)
 
         # 7) 終止條件
         done = False
@@ -590,16 +601,16 @@ class OptimizationEnvironment:
                     np.mean(candidate_dynamics[:, 8]),  # avg is_endpoint ratio
                 ], dtype=np.float32)
 
-        # 3) 全域特徵
+        # 3) 全域特徵 (與 reset/step 中的格式一致，使用 7 維)
+        remaining_steps_ratio = float(self.current_state.max_steps - self.current_state.step_count) / max(1, self.current_state.max_steps)
         global_features = np.array([
-            self.current_state.current_tns / max(1.0, abs(self.current_state.initial_tns)),
-            self.current_state.current_wns / max(1.0, abs(self.current_state.initial_wns)),
-            self.current_state.current_power / max(1e-12, self.current_state.initial_power),
-            self.current_state.step_count / max(1, self.current_state.max_steps),
-            len(self.current_state.candidate_cells) / max(1, self.current_state.total_cells),
+            self.current_state.current_tns / max(1.0, abs(self.current_state.initial_tns)) if abs(self.current_state.initial_tns) > 1e-6 else 0.0,
+            self.current_state.current_wns / max(1.0, abs(self.current_state.initial_wns)) if abs(self.current_state.initial_wns) > 1e-6 else 0.0,
+            self.current_state.current_power / max(1e-9, self.current_state.initial_power) if self.current_state.initial_power > 1e-9 else 0.0,
+            float(self.current_state.step_count) / max(1, self.current_state.max_steps),
+            float(len(self.current_state.candidate_cells)) / max(1, self.current_state.total_cells),
             float(self.current_state.done),
-            1.0 if self.current_state.current_tns >= -self.tns_goal_eps else 0.0,
-            0.0, 0.0  # 額外兩個特徵以達到 9 維
+            remaining_steps_ratio,  # 剩餘步數比例
         ], dtype=np.float32)
 
         # 合併所有特徵
@@ -730,8 +741,10 @@ class OptimizationEnvironment:
         success: bool,
     ) -> float:
         """
-        改良的獎勵機制：解決持續負獎勵問題
-        重點：提供基線獎勵 + 不對稱懲罰 + 更好的學習信號
+        改良的獎勵機制：分段 + 對數尾部設計
+        - 解決獎勵飽和問題：無上限，持續激勵優化
+        - 保持不對稱懲罰：改善高獎勵，惡化低懲罰
+        - 數值穩定：後期增速放緩，避免梯度爆炸
         """
         if not success:
             return -0.5  # 減輕失敗懲罰
@@ -752,100 +765,120 @@ class OptimizationEnvironment:
         wns_improvement = abs(old_wns) - abs(new_wns)  # 正值表示WNS改善(絕對值減小)
         power_improvement = old_power - new_power      # 正值表示功耗減少
 
-        # 🎁 提供更大的基線獎勵：鼓勵智能體探索
-        base_reward = 0.0  # 增加基線獎勵
-
-        # 📈 更寬容的不對稱獎勵機制
-        step_reward = 0.0
-        
         # 獲取當前權重
         tns_weight, power_weight = self.get_current_weights()
         
-        # TNS獎勵：更寬容的設計
-        if abs(global_initial_tns) > 1e-6:  # 有意義的初始TNS值
+        # ========================================
+        # 📊 步驟獎勵 (Step Reward) - 相對於上一步
+        # ========================================
+        step_reward = 0.0
+        
+        # TNS 步驟獎勵：不對稱設計 (8:1)
+        if abs(global_initial_tns) > 1e-6:
             tns_ratio = tns_improvement / abs(global_initial_tns)
-            if tns_improvement > 0:  # TNS真正改善了
-                step_reward += tns_weight * 8.0 * tns_ratio  # 更高獎勵
-            else:  # TNS惡化了 - 更寬容的懲罰
-                step_reward += tns_weight * 1.0 * tns_ratio  # 大幅減少懲罰
-        else:  # 初始TNS接近0（組合邏輯電路）
+            if tns_improvement > 0:  # 改善
+                step_reward += tns_weight * 8.0 * tns_ratio
+            else:  # 惡化 - 輕懲罰
+                step_reward += tns_weight * 1.0 * tns_ratio
+        else:  # 組合邏輯電路
             if abs(tns_improvement) > 1e-6:
-                step_reward += tns_weight * (3.0 if tns_improvement > 0 else -0.2)  # 更寬容
+                step_reward += tns_weight * (3.0 if tns_improvement > 0 else -0.2)
             
-        # WNS獎勵：更寬容的設計
-        if abs(global_initial_wns) > 1e-6:  # 有意義的初始WNS值
+        # WNS 步驟獎勵：不對稱設計 (4:1)
+        if abs(global_initial_wns) > 1e-6:
             wns_ratio = wns_improvement / abs(global_initial_wns)
-            if wns_improvement > 0:  # WNS真正改善了
-                step_reward += 4.0 * wns_ratio  # 更高獎勵
-            else:  # WNS惡化了 - 更寬容的懲罰
-                step_reward += 1.0 * wns_ratio  # 大幅減少懲罰
-        else:  # 初始WNS接近0
+            if wns_improvement > 0:  # 改善
+                step_reward += 4.0 * wns_ratio
+            else:  # 惡化 - 輕懲罰
+                step_reward += 1.0 * wns_ratio
+        else:
             if abs(wns_improvement) > 1e-6:
-                step_reward += 1.5 if wns_improvement > 0 else -0.1  # 更寬容
+                step_reward += 1.5 if wns_improvement > 0 else -0.1
             
-        # Power獎勵：更寬容的設計
-        if abs(global_initial_power) > 1e-9:  # 有意義的初始功耗值
+        # Power 步驟獎勵：不對稱設計 (20:1)
+        if abs(global_initial_power) > 1e-9:
             power_ratio = power_improvement / global_initial_power
-            if power_improvement > 0:  # 功耗減少了
-                step_reward += power_weight * 2.0 * power_ratio  # 更高獎勵
-            else:  # 功耗增加了 - 更寬容的懲罰
-                step_reward += power_weight * 0.1 * power_ratio  # 大幅減少懲罰
-        else:  # 初始功耗接近0
+            if power_improvement > 0:  # 改善
+                step_reward += power_weight * 4.0 * power_ratio
+            else:  # 惡化 - 輕懲罰
+                step_reward += power_weight * 0.2 * power_ratio
+        else:
             if abs(power_improvement) > 1e-9:
-                step_reward += power_weight * (0.3 if power_improvement > 0 else -0.02)  # 更寬容
+                step_reward += power_weight * (0.3 if power_improvement > 0 else -0.02)
 
-        # 🎖️ 更寬容的里程碑獎勵設計
+        # ========================================
+        # 🎖️ 里程碑獎勵 (Milestone Reward) - 分段 + 對數尾部
+        # ========================================
         milestone_reward = 0.0
-        global_tns_improvement = abs(global_initial_tns) - abs(new_tns)  # 相對初始的改善
-        global_wns_improvement = abs(global_initial_wns) - abs(new_wns)  # 相對初始的改善
-        global_power_improvement = abs(global_initial_power) - abs(new_power)
+        
+        # 計算相對於全域初始的改善
+        global_tns_improvement = abs(global_initial_tns) - abs(new_tns)
+        global_power_improvement = global_initial_power - new_power
 
-        # TNS 里程碑獎勵：大幅減少懲罰
-        if global_tns_improvement > 0 and abs(global_initial_tns) > 1e-6:  # 相對初始狀態有改善
+        # --- TNS 里程碑獎勵：分段 + 對數尾部設計 ---
+        if abs(global_initial_tns) > 1e-6:
             improvement_ratio = global_tns_improvement / abs(global_initial_tns)
-            if improvement_ratio > 0.20:  # 20%以上改善 - 大獎勵
-                milestone_reward += tns_weight * 30.0
-            elif improvement_ratio > 0.10:  # 10%以上改善 - 中獎勵
-                milestone_reward += tns_weight * 20.0
-            elif improvement_ratio > 0.05:  # 5%以上改善 - 小獎勵
-                milestone_reward += tns_weight * 10.0
-            elif improvement_ratio > 0.01:  # 1%以上改善 - 微獎勵
-                milestone_reward += tns_weight * 5.0
-        elif global_tns_improvement > 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路改善
-            if abs(global_tns_improvement) > 1e-6:
+            
+            if improvement_ratio > 0:  # 有改善
+                # 分段獎勵：前期線性，後期對數
+                if improvement_ratio < 0.2:  # 0-20%
+                    milestone_reward += tns_weight * improvement_ratio * 100  # 最高 20
+                elif improvement_ratio < 0.5:  # 20-50%
+                    base = tns_weight * 20.0
+                    milestone_reward += base + tns_weight * (improvement_ratio - 0.2) * 66.7  # 20 → 40
+                elif improvement_ratio < 0.8:  # 50-80%
+                    base = tns_weight * 40.0
+                    milestone_reward += base + tns_weight * (improvement_ratio - 0.5) * 66.7  # 40 → 60
+                else:  # 80%+ → 對數增長，無上限
+                    base = tns_weight * 60.0
+                    excess = improvement_ratio - 0.8
+                    # 對數增長：90% → 66, 95% → 71, 99% → 78, 99.9% → 85
+                    milestone_reward += base + tns_weight * 20.0 * np.log1p(excess * 10)
+            else:  # 惡化 - 大幅減輕懲罰
+                degradation_ratio = abs(improvement_ratio)
+                if degradation_ratio > 0.75:  # 惡化超過 75%
+                    milestone_reward -= tns_weight * 5.0
+                elif degradation_ratio > 0.50:  # 惡化超過 50%
+                    milestone_reward -= tns_weight * 3.0
+        else:  # 組合邏輯電路
+            if global_tns_improvement > 0:
                 milestone_reward += tns_weight * 8.0
-        elif global_tns_improvement < 0 and abs(global_initial_tns) > 1e-6:  # 惡化 - 大幅減少懲罰
-            degradation_ratio = abs(global_tns_improvement) / abs(global_initial_tns)
-            if degradation_ratio > 0.75:  # 惡化超過75% - 才給懲罰
-                milestone_reward -= tns_weight * 5.0
-            elif degradation_ratio > 0.50:  # 惡化超過50%
-                milestone_reward -= tns_weight * 3.0
-        elif global_tns_improvement < 0 and abs(global_initial_tns) <= 1e-6:  # 組合邏輯電路惡化 - 輕懲罰
-            if abs(global_tns_improvement) > 1e-6:
+            elif global_tns_improvement < 0:
                 milestone_reward -= tns_weight * 1.0
 
-        # Power 里程碑獎勵：大幅減少懲罰
-        if global_power_improvement > 0 and abs(global_initial_power) > 1e-9:  # 相對初始狀態有改善
+        # --- Power 里程碑獎勵：分段 + 對數尾部設計 ---
+        if abs(global_initial_power) > 1e-9:
             improvement_ratio = global_power_improvement / abs(global_initial_power)
-            if improvement_ratio > 0.15:  # 15%以上改善 - 大獎勵
-                milestone_reward += power_weight * 20.0
-            elif improvement_ratio > 0.10:  # 10%以上改善 - 中獎勵
-                milestone_reward += power_weight * 15.0
-            elif improvement_ratio > 0.05:  # 5%以上改善 - 小獎勵
-                milestone_reward += power_weight * 8.0
-        elif global_power_improvement < 0 and abs(global_initial_power) > 1e-9:  # 惡化 - 大幅減少懲罰
-            degradation_ratio = abs(global_power_improvement) / abs(global_initial_power)
-            if degradation_ratio > 0.20:  # 惡化超過20% - 才給懲罰
-                milestone_reward -= power_weight * 2.0
+            
+            if improvement_ratio > 0:  # 有改善
+                # 分段獎勵：前期線性，後期對數
+                if improvement_ratio < 0.1:  # 0-10%
+                    milestone_reward += power_weight * improvement_ratio * 80  # 最高 8
+                elif improvement_ratio < 0.3:  # 10-30%
+                    base = power_weight * 8.0
+                    milestone_reward += base + power_weight * (improvement_ratio - 0.1) * 60  # 8 → 20
+                elif improvement_ratio < 0.6:  # 30-60%
+                    base = power_weight * 20.0
+                    milestone_reward += base + power_weight * (improvement_ratio - 0.3) * 40  # 20 → 32
+                else:  # 60%+ → 對數增長，無上限
+                    base = power_weight * 32.0
+                    excess = improvement_ratio - 0.6
+                    # 對數增長：70% → 36, 80% → 40, 90% → 44
+                    milestone_reward += base + power_weight * 15.0 * np.log1p(excess * 10)
+            else:  # 惡化 - 大幅減輕懲罰
+                degradation_ratio = abs(improvement_ratio)
+                if degradation_ratio > 0.10:  # 惡化超過 10%
+                    milestone_reward -= power_weight * 2.0
 
-        # 🚫 移除額外懲罰機制
-        penalty = 0.0
-
+        # ========================================
         # 🏆 最終獎勵組合
-        total_reward = base_reward + step_reward + milestone_reward - penalty
+        # ========================================
+        total_reward = step_reward + milestone_reward
 
-        # 🔧 更寬容的獎勵範圍：大幅提高最低獎勵
-        reward = np.clip(total_reward, -10.0, 20.0)  # 進一步縮小負獎勵範圍
+        # 🔧 獎勵範圍：保持負獎勵限制，但移除正獎勵上限
+        # 負獎勵維持 -10.0，避免過度懲罰
+        # 正獎勵不設上限，持續激勵優化
+        reward = max(total_reward, -10.0)
 
         return float(reward)
 

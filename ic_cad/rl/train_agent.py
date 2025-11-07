@@ -101,6 +101,14 @@ class TwoDimensionalTrainingManager:
         """
         logger.info(f"🚀 開始 2D 動作空間訓練 - 真正的 PPO 實現")
         logger.info(f"📋 訓練案例: {case_names}")
+        
+        # 多 case 訓練警告
+        if len(case_names) > 1:
+            logger.warning("⚠️  多案例訓練模式已啟用")
+            logger.warning("⚠️  注意：OpenROAD 在切換案例時可能出現狀態管理問題")
+            logger.warning("⚠️  建議：如果遇到 Segmentation Fault，請分別訓練每個案例")
+            logger.warning("⚠️  或使用獨立的環境實例來避免狀態衝突")
+        
         logger.info(f"🔢 總回合數: {self.config.max_episodes}")
         logger.info(f"💾 保存間隔: 每 {self.config.save_interval} 回合")
         logger.info(f"📁 輸出目錄: {output_dir}")
@@ -121,10 +129,17 @@ class TwoDimensionalTrainingManager:
         # Training loop
         for episode in range(self.config.max_episodes):
             # Select case for this episode
-            case_name = np.random.choice(case_names)
+            # 🔒 安全策略：如果只有一個 case，直接使用；多個 case 時輪流訓練
+            # 注意：多 case 訓練可能因 OpenROAD 狀態管理問題導致崩潰
+            if len(case_names) == 1:
+                case_name = case_names[0]
+                cycle_info = ""
+            else:
+                case_name = case_names[episode % len(case_names)]
+                cycle_info = f" ({(episode % len(case_names)) + 1}/{len(case_names)} in cycle {episode // len(case_names) + 1})"
             
             # 顯示回合進度
-            logger.info(f"🔄 開始回合 {episode + 1}/{self.config.max_episodes} - 案例: {case_name}")
+            logger.info(f"🔄 開始回合 {episode + 1}/{self.config.max_episodes} - 案例: {case_name}{cycle_info}")
             
             # Run episode
             episode_stats = self._run_episode(case_name, episode)
@@ -132,9 +147,22 @@ class TwoDimensionalTrainingManager:
             # Store statistics
             self.episode_rewards.append(episode_stats['total_reward'])
             self.episode_lengths.append(episode_stats['episode_length'])
-            self.episode_tns_improvements.append(episode_stats['tns_improvement'])
-            self.episode_wns_improvements.append(episode_stats['wns_improvement'])
-            self.episode_power_improvements.append(episode_stats['power_improvement'])
+            
+            # 記錄相對於全域初始狀態的改善（用於繪圖）
+            if self.global_initial_tns is not None:
+                global_tns_improvement = episode_stats['final_tns'] - self.global_initial_tns
+                global_wns_improvement = episode_stats['final_wns'] - self.global_initial_wns
+                # Power 改善 = 初始值 - 最終值（降低是好的，所以反過來）
+                global_power_improvement = self.global_initial_power - episode_stats['final_power']
+            else:
+                # 第一個 episode，使用 episode 內部改善
+                global_tns_improvement = episode_stats['tns_improvement']
+                global_wns_improvement = episode_stats['wns_improvement']
+                global_power_improvement = episode_stats['power_improvement']
+            
+            self.episode_tns_improvements.append(global_tns_improvement)
+            self.episode_wns_improvements.append(global_wns_improvement)
+            self.episode_power_improvements.append(global_power_improvement)
             self.episode_success_rates.append(episode_stats['success_rate'])
             
             # Update agent - 改用更合適的更新策略
@@ -322,7 +350,8 @@ class TwoDimensionalTrainingManager:
         
         tns_improvement = final_tns - initial_tns
         wns_improvement = final_wns - initial_wns
-        power_improvement = final_power - initial_power
+        # Power 改善 = 初始值 - 最終值（降低是正改善）
+        power_improvement = initial_power - final_power
         success_rate = successful_actions / step_count if step_count > 0 else 0.0
         
         # Log episode information
@@ -333,7 +362,7 @@ class TwoDimensionalTrainingManager:
                       f"成功率: {success_rate:.2%}, "
                       f"TNS: {initial_tns:.4f}→{final_tns:.4f} ({tns_improvement:+.4f}), "
                       f"WNS: {initial_wns:.4f}→{final_wns:.4f} ({wns_improvement:+.4f}), "
-                      f"Power: {initial_power:.6f}→{final_power:.6f} ({power_improvement:+.6f})")
+                      f"Power: {initial_power:.6f}→{final_power:.6f} (改善: {power_improvement:+.6f})")
         
         return {
             'total_reward': total_reward,
@@ -353,7 +382,7 @@ class TwoDimensionalTrainingManager:
     def _plot_training_curves(self, output_dir: str):
         """Plot 2D action space training curves"""
         try:
-            fig, axes = plt.subplots(2, 3, figsize=(18, 12))
+            fig, axes = plt.subplots(2, 2, figsize=(14, 10))
             
             # Episode rewards
             axes[0, 0].plot(self.episode_rewards)
@@ -362,40 +391,29 @@ class TwoDimensionalTrainingManager:
             axes[0, 0].set_ylabel('Reward')
             axes[0, 0].grid(True)
             
-            # Episode lengths
-            axes[0, 1].plot(self.episode_lengths)
-            axes[0, 1].set_title('Episode Lengths')
+            # TNS improvements
+            axes[0, 1].plot(self.episode_tns_improvements)
+            axes[0, 1].set_title('TNS Improvements (vs Initial)')
             axes[0, 1].set_xlabel('Episode')
-            axes[0, 1].set_ylabel('Steps')
+            axes[0, 1].set_ylabel('TNS Improvement (ns)')
+            axes[0, 1].axhline(y=0, color='r', linestyle='--', alpha=0.3)
             axes[0, 1].grid(True)
             
-            # Success rates
-            axes[0, 2].plot(self.episode_success_rates)
-            axes[0, 2].set_title('Action Success Rate')
-            axes[0, 2].set_xlabel('Episode')
-            axes[0, 2].set_ylabel('Success Rate')
-            axes[0, 2].grid(True)
-            
-            # TNS improvements
-            axes[1, 0].plot(self.episode_tns_improvements)
-            axes[1, 0].set_title('TNS Improvements')
+            # WNS improvements
+            axes[1, 0].plot(self.episode_wns_improvements)
+            axes[1, 0].set_title('WNS Improvements (vs Initial)')
             axes[1, 0].set_xlabel('Episode')
-            axes[1, 0].set_ylabel('TNS Improvement')
+            axes[1, 0].set_ylabel('WNS Improvement (ns)')
+            axes[1, 0].axhline(y=0, color='r', linestyle='--', alpha=0.3)
             axes[1, 0].grid(True)
             
-            # WNS improvements
-            axes[1, 1].plot(self.episode_wns_improvements)
-            axes[1, 1].set_title('WNS Improvements')
-            axes[1, 1].set_xlabel('Episode')
-            axes[1, 1].set_ylabel('WNS Improvement')
-            axes[1, 1].grid(True)
-            
             # Power improvements
-            axes[1, 2].plot(self.episode_power_improvements)
-            axes[1, 2].set_title('Power Improvements')
-            axes[1, 2].set_xlabel('Episode')
-            axes[1, 2].set_ylabel('Power Improvement')
-            axes[1, 2].grid(True)
+            axes[1, 1].plot(self.episode_power_improvements)
+            axes[1, 1].set_title('Power Improvements (vs Initial)')
+            axes[1, 1].set_xlabel('Episode')
+            axes[1, 1].set_ylabel('Power Improvement (W)')
+            axes[1, 1].axhline(y=0, color='r', linestyle='--', alpha=0.3)
+            axes[1, 1].grid(True)
             
             plt.tight_layout()
             

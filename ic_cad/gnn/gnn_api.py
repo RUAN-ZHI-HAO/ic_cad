@@ -128,7 +128,7 @@ def load_encoder(model_path: Optional[str] = None, meta_path: Optional[str] = 'e
     num_layers = meta.get('num_layers', 2)
     dropout = meta.get('dropout', 0.2)
     heads_schedule = meta.get('heads_schedule')  # 允許為 None 時採預設
-    feature_dim = meta.get('feature_dim', 23)  # 預設使用訓練時的特徵維度（23 = 22 基礎 + 1 cell_id）
+    feature_dim = meta.get('feature_dim', 20)  # 預設使用訓練時的特徵維度（20 = 19 基礎 + 1 cell_id）
     cell_embedding_dim = meta.get('cell_embed_dim', 16)  # 從 meta 檔案讀取 cell_embed_dim
     
     # 獲取 cell 數量用於 embedding
@@ -206,7 +206,7 @@ def get_embeddings(circuit_name: str, encoder: torch.nn.Module) -> torch.Tensor:
         print(circuit_name)
         
         # 檢查特徵維度是否匹配模型期望
-        model_input_dim = 23  # 預設使用訓練時的維度（23 = 22 基礎 + 1 cell_id）
+        model_input_dim = 20  # 預設使用訓練時的維度（20 = 19 基礎 + 1 cell_id）
         try:
             # 嘗試從模型獲取輸入維度
             first_conv = encoder.convs[0]
@@ -257,7 +257,7 @@ def get_embeddings(circuit_name: str, encoder: torch.nn.Module) -> torch.Tensor:
         except:
             pass
         
-        num_nodes = 32
+        num_nodes = data.x.shape[0]
         return torch.randn((num_nodes, hidden))
 
 # 批次

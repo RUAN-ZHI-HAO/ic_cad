@@ -14,7 +14,7 @@ import json
 import logging
 import argparse
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Optional
 
 # 加入路徑
@@ -93,7 +93,8 @@ class TwoDimensionalICCADOptimizer:
     def train_rl_agent(self, case_names: List[str], 
                       train_episodes: int = 1000,
                       tns_weight: float = 1.0,
-                      power_weight: float = 1.0) -> Dict[str, any]:
+                      power_weight: float = 1.0,
+                      load_model: Optional[str] = None) -> Dict[str, any]:
         """
         訓練 2D 動作空間 RL 代理
         
@@ -102,12 +103,16 @@ class TwoDimensionalICCADOptimizer:
             train_episodes: 訓練回合數
             tns_weight: TNS 獎勵權重
             power_weight: Power 獎勵權重
+            load_model: 預訓練模型路徑（可選，用於繼續訓練）
             
         Returns:
             訓練結果字典
         """
         logger.info(f"開始訓練 2D 動作空間 RL 代理 - 案例: {case_names}")
         logger.info(f"使用權重 - TNS: {tns_weight}, Power: {power_weight}")
+        
+        if load_model:
+            logger.info(f"📥 載入預訓練模型: {load_model}")
         
         # 檢查必要檔案
         if not self._check_required_files():
@@ -119,13 +124,21 @@ class TwoDimensionalICCADOptimizer:
         self.rl_config.dynamic_power_weight = power_weight
         self.rl_config.use_dynamic_weights = True
         
-        # 建立訓練目錄
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        # 建立訓練目錄（使用台灣時區 UTC+8）
+        tw_tz = timezone(timedelta(hours=8))
+        timestamp = datetime.now(tw_tz).strftime("%Y%m%d_%H%M%S")
         train_dir = f'/root/ruan_workspace/ic_cad/rl/training_results/{timestamp}'
         os.makedirs(train_dir, exist_ok=True)
         
         # 建立訓練管理器
         trainer = TwoDimensionalTrainingManager(self.rl_config)
+        
+        # 如果提供了預訓練模型，載入它
+        if load_model and os.path.exists(load_model):
+            logger.info(f"✅ 載入預訓練模型權重: {load_model}")
+            trainer.agent.load_model(load_model)
+        elif load_model:
+            logger.warning(f"⚠️  預訓練模型不存在: {load_model}，將從頭開始訓練")
         
         # 執行訓練
         training_results = trainer.train(case_names, train_dir)
@@ -204,9 +217,10 @@ class TwoDimensionalICCADOptimizer:
         # 執行優化
         results = engine.optimize_multiple_cases(case_names)
         
-        # 保存結果
+        # 保存結果（使用台灣時區 UTC+8）
         if save_detailed:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            tw_tz = timezone(timedelta(hours=8))
+            timestamp = datetime.now(tw_tz).strftime("%Y%m%d_%H%M%S")
             results_file = f'/root/ruan_workspace/ic_cad/rl/inference_results/optimization_results_{timestamp}.json'
             os.makedirs(os.path.dirname(results_file), exist_ok=True)
             
@@ -289,9 +303,10 @@ class TwoDimensionalICCADOptimizer:
         logger.info("開始執行完整 2D 動作空間 RL 優化流程")
         logger.info(f"使用權重 - TNS: {tns_weight}, Power: {power_weight}")
         
-        # 準備輸出目錄
+        # 準備輸出目錄（使用台灣時區 UTC+8）
         if output_dir is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            tw_tz = timezone(timedelta(hours=8))
+            timestamp = datetime.now(tw_tz).strftime("%Y%m%d_%H%M%S")
             output_dir = f'/root/ruan_workspace/ic_cad/rl/full_pipeline_results/{timestamp}'
         
         os.makedirs(output_dir, exist_ok=True)
@@ -380,12 +395,12 @@ def main():
                        default='full', help='執行模式')
     parser.add_argument('--cases', nargs='+', required=True,
                        help='電路案例名稱列表')
-    parser.add_argument('--episodes', type=int, default=1000,
+    parser.add_argument('--episodes', type=int, default=100,
                        help='訓練回合數')
-    parser.add_argument('--max-actions', type=int, default=1000,
+    parser.add_argument('--max-actions', type=int, default=100,
                        help='最大優化動作數')
     parser.add_argument('--model-path', type=str,
-                       help='模型路徑（僅限 optimize 模式）')
+                       help='模型路徑（train 模式：載入模型繼續訓練；optimize 模式：使用模型進行優化）')
     parser.add_argument('--output-dir', type=str,
                        help='輸出目錄')
     parser.add_argument('--tns-weight', type=float, default=1.0,
@@ -400,10 +415,15 @@ def main():
     
     try:
         if args.mode == 'train':
-            result = optimizer.train_rl_agent(args.cases, args.episodes, 
-                                            args.tns_weight, args.power_weight)
+            result = optimizer.train_rl_agent(
+                args.cases, args.episodes, 
+                args.tns_weight, args.power_weight,
+                load_model=args.model_path  # 統一使用 model_path
+            )
             print(f"2D 動作空間訓練完成，模型保存至: {result['model_path']}")
             print(f"使用權重 - TNS: {args.tns_weight}, Power: {args.power_weight}")
+            if args.model_path:
+                print(f"從預訓練模型繼續訓練: {args.model_path}")
             
         elif args.mode == 'optimize':
             result = optimizer.optimize_circuit(

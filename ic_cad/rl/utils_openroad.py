@@ -306,7 +306,6 @@ class OpenRoadInterface:
         print(f"Power: {total_power} W")  
         print(f"TNS  : {tns} ns")  
         print(f"WNS  : {wns} ns")
-        print()
 
         metrics.tns = tns
         metrics.wns = wns

@@ -119,7 +119,7 @@ class TwoDimensionalPolicyNetwork(nn.Module):
     """
     def __init__(self, feature_dim: int, hidden_dim: int,
                  max_candidates: int = 20, max_replacements: int = 20,
-                 global_feature_dim: int = 9, num_cells: int = 854,
+                 global_feature_dim: int = 7, num_cells: int = 854,
                  use_full_circuit: bool = True):
         super().__init__()
         self.feature_dim = feature_dim
@@ -412,7 +412,7 @@ class TwoDimensionalPolicyNetwork(nn.Module):
 class TwoDimensionalValueNetwork(nn.Module):
     """Value network for state value estimation - 支持全電路輸入"""
     def __init__(self, feature_dim: int, hidden_dim: int,
-                 global_feature_dim: int = 9, num_cells: int = 854,
+                 global_feature_dim: int = 7, num_cells: int = 854,
                  use_full_circuit: bool = True):
         super().__init__()
         self.feature_dim = feature_dim
@@ -527,10 +527,10 @@ class TwoDimensionalPPOAgent:
         use_full_circuit = True  # 啟用全電路處理
         self.policy_network = TwoDimensionalPolicyNetwork(
             feature_dim, hidden_dim, max_candidates, max_replacements, 
-            global_feature_dim=9, num_cells=num_cells, use_full_circuit=use_full_circuit
+            global_feature_dim=7, num_cells=num_cells, use_full_circuit=use_full_circuit
         ).to(self.device)  # 移動到指定設備
         self.value_network = TwoDimensionalValueNetwork(
-            feature_dim, hidden_dim, global_feature_dim=9, num_cells=num_cells,
+            feature_dim, hidden_dim, global_feature_dim=7, num_cells=num_cells,
             use_full_circuit=use_full_circuit
         ).to(self.device)  # 移動到指定設備
         

@@ -1,0 +1,6501 @@
+[
+  {
+    "case_name": "s1488",
+    "initial_metrics": {
+      "tns": -3561.25907965113,
+      "wns": -212.12273689058622,
+      "power": 0.000926157626440896
+    },
+    "final_metrics": {
+      "tns": -1507.3690134150504,
+      "wns": -116.16854746832287,
+      "power": 0.0009289675075584806
+    },
+    "improvements": {
+      "tns": 2053.8900662360793,
+      "wns": 95.95418942226335,
+      "power": -2.809881117584595e-06,
+      "tns_percentage": 57.67314369156438,
+      "wns_percentage": 45.23522128217539,
+      "power_percentage": -0.303391241119787
+    },
+    "optimization_info": {
+      "steps_taken": 200,
+      "successful_actions": 0,
+      "success_rate": 0.0,
+      "optimization_time": 45.36644,
+      "convergence": false,
+      "tns_goal_achieved": false,
+      "wns_goal_achieved": false
+    },
+    "weights_used": {
+      "tns_weight": 1.0,
+      "power_weight": 1.0
+    },
+    "best_performances": [
+      {
+        "step": 63,
+        "score": 2360.869276481318,
+        "tns_improvement": 2360.8692872845204,
+        "power_improvement": -1.0803202409410614e-05,
+        "tns": -1200.3897923666095,
+        "wns": -117.6423130282504,
+        "power": 0.0009369608288503067
+      },
+      {
+        "step": 64,
+        "score": 2360.8692758975035,
+        "tns_improvement": 2360.8692872845204,
+        "power_improvement": -1.1387016831064176e-05,
+        "tns": -1200.3897923666095,
+        "wns": -117.6423130282504,
+        "power": 0.0009375446432719602
+      },
+      {
+        "step": 62,
+        "score": 2329.1335513856397,
+        "tns_improvement": 2329.1335619988004,
+        "power_improvement": -1.0613160487683501e-05,
+        "tns": -1232.1255176523293,
+        "wns": -117.6423130282504,
+        "power": 0.0009367707869285796
+      }
+    ],
+    "optimization_steps": [
+      {
+        "step": 1,
+        "action": {
+          "candidate_idx": 2,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -3561.185582886606,
+          "wns": -210.8131178055054,
+          "power": 0.0009216852156794936
+        },
+        "metrics_after": {
+          "tns": -3561.185582886606,
+          "wns": -210.8131178055054,
+          "power": 0.0009216852156794936
+        },
+        "improvements": {
+          "tns": 0.07349676452395215,
+          "power": 4.472410761402479e-06
+        },
+        "score": 0.07350123693471355,
+        "reward": 0.4325599849045021,
+        "success": false,
+        "log_prob": -4.506094932556152,
+        "value": 18.32876205444336
+      },
+      {
+        "step": 2,
+        "action": {
+          "candidate_idx": 15,
+          "replacement_idx": 5,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -3546.6074663366066,
+          "wns": -207.73743919252092,
+          "power": 0.0009188028008704358
+        },
+        "metrics_after": {
+          "tns": -3546.6074663366066,
+          "wns": -207.73743919252092,
+          "power": 0.0009188028008704358
+        },
+        "improvements": {
+          "tns": 14.651613314523274,
+          "power": 7.354825570460299e-06
+        },
+        "score": 14.651620669348844,
+        "reward": 1.1499098600293451,
+        "success": false,
+        "log_prob": -6.835080146789551,
+        "value": 21.356063842773438
+      },
+      {
+        "step": 3,
+        "action": {
+          "candidate_idx": 57,
+          "replacement_idx": 10,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -3495.8502898939782,
+          "wns": -207.73743919252092,
+          "power": 0.000916746207639596
+        },
+        "metrics_after": {
+          "tns": -3495.8502898939782,
+          "wns": -207.73743919252092,
+          "power": 0.000916746207639596
+        },
+        "improvements": {
+          "tns": 65.40878975715168,
+          "power": 9.411418801300031e-06
+        },
+        "score": 65.40879916857048,
+        "reward": 2.7725221312357338,
+        "success": false,
+        "log_prob": -7.128555774688721,
+        "value": 21.234031677246094
+      },
+      {
+        "step": 4,
+        "action": {
+          "candidate_idx": 56,
+          "replacement_idx": 8,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -3546.7167122826663,
+          "wns": -207.73743919252092,
+          "power": 0.0009222588402773013
+        },
+        "metrics_after": {
+          "tns": -3546.7167122826663,
+          "wns": -207.73743919252092,
+          "power": 0.0009222588402773013
+        },
+        "improvements": {
+          "tns": 14.542367368463601,
+          "power": 3.898786163594736e-06
+        },
+        "score": 14.542371267249765,
+        "reward": 0.7296461950646485,
+        "success": false,
+        "log_prob": -7.067835330963135,
+        "value": 21.14202117919922
+      },
+      {
+        "step": 5,
+        "action": {
+          "candidate_idx": 1,
+          "replacement_idx": 6,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -3002.5313466701764,
+          "wns": -181.84381850802504,
+          "power": 0.0009129555772443843
+        },
+        "metrics_after": {
+          "tns": -3002.5313466701764,
+          "wns": -181.84381850802504,
+          "power": 0.0009129555772443843
+        },
+        "improvements": {
+          "tns": 558.7277329809535,
+          "power": 1.32020491965118e-05
+        },
+        "score": 558.7277461830028,
+        "reward": 18.580334466112514,
+        "success": false,
+        "log_prob": -6.0863800048828125,
+        "value": 21.221220016479492
+      },
+      {
+        "step": 6,
+        "action": {
+          "candidate_idx": 4,
+          "replacement_idx": 15,
+          "candidate_cell": "INVx1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2630.175199265518,
+          "wns": -174.0376183460886,
+          "power": 0.0009094880200939542
+        },
+        "metrics_after": {
+          "tns": -2630.175199265518,
+          "wns": -174.0376183460886,
+          "power": 0.0009094880200939542
+        },
+        "improvements": {
+          "tns": 931.0838803856118,
+          "power": 1.6669606346941812e-05
+        },
+        "score": 931.0838970552181,
+        "reward": 26.537109064265866,
+        "success": false,
+        "log_prob": -7.5765700340271,
+        "value": 19.841337203979492
+      },
+      {
+        "step": 7,
+        "action": {
+          "candidate_idx": 4,
+          "replacement_idx": 20,
+          "candidate_cell": "INVx4_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2654.0501014162714,
+          "wns": -174.0376183460886,
+          "power": 0.000916496126571742
+        },
+        "metrics_after": {
+          "tns": -2654.0501014162714,
+          "wns": -174.0376183460886,
+          "power": 0.000916496126571742
+        },
+        "improvements": {
+          "tns": 907.2089782348585,
+          "power": 9.6614998691541e-06
+        },
+        "score": 907.2089878963584,
+        "reward": 24.477744539925535,
+        "success": false,
+        "log_prob": -7.690873146057129,
+        "value": 19.170495986938477
+      },
+      {
+        "step": 8,
+        "action": {
+          "candidate_idx": 69,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI32xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2574.7422075136947,
+          "wns": -173.8869888366207,
+          "power": 0.0009048549959340402
+        },
+        "metrics_after": {
+          "tns": -2574.7422075136947,
+          "wns": -173.8869888366207,
+          "power": 0.0009048549959340402
+        },
+        "improvements": {
+          "tns": 986.5168721374353,
+          "power": 2.130263050685588e-05
+        },
+        "score": 986.5168934400658,
+        "reward": 27.20816233385991,
+        "success": false,
+        "log_prob": -4.869846820831299,
+        "value": 19.220569610595703
+      },
+      {
+        "step": 9,
+        "action": {
+          "candidate_idx": 46,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2576.6349157336385,
+          "wns": -173.8858508580159,
+          "power": 0.0009033686833089909
+        },
+        "metrics_after": {
+          "tns": -2576.6349157336385,
+          "wns": -173.8858508580159,
+          "power": 0.0009033686833089909
+        },
+        "improvements": {
+          "tns": 984.6241639174914,
+          "power": 2.2788943131905187e-05
+        },
+        "score": 984.6241867064346,
+        "reward": 27.07573320896575,
+        "success": false,
+        "log_prob": -4.88637113571167,
+        "value": 19.05271339416504
+      },
+      {
+        "step": 10,
+        "action": {
+          "candidate_idx": 45,
+          "replacement_idx": 0,
+          "candidate_cell": "AND2x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2469.9273836076436,
+          "wns": -170.44926649385928,
+          "power": 0.000896664190261149
+        },
+        "metrics_after": {
+          "tns": -2469.9273836076436,
+          "wns": -170.44926649385928,
+          "power": 0.000896664190261149
+        },
+        "improvements": {
+          "tns": 1091.3316960434863,
+          "power": 2.9493436179747062e-05
+        },
+        "score": 1091.3317255369225,
+        "reward": 29.98097521532432,
+        "success": false,
+        "log_prob": -6.212828636169434,
+        "value": 19.03389549255371
+      },
+      {
+        "step": 11,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2481.205029136849,
+          "wns": -170.44835055986033,
+          "power": 0.0008961699136414494
+        },
+        "metrics_after": {
+          "tns": -2481.205029136849,
+          "wns": -170.44835055986033,
+          "power": 0.0008961699136414494
+        },
+        "improvements": {
+          "tns": 1080.0540505142808,
+          "power": 2.998771279944662e-05
+        },
+        "score": 1080.0540805019937,
+        "reward": 29.47796524104593,
+        "success": false,
+        "log_prob": -4.887063503265381,
+        "value": 18.775236129760742
+      },
+      {
+        "step": 12,
+        "action": {
+          "candidate_idx": 48,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2407.2102185621484,
+          "wns": -170.44835055986033,
+          "power": 0.0008927354572971467
+        },
+        "metrics_after": {
+          "tns": -2407.2102185621484,
+          "wns": -170.44835055986033,
+          "power": 0.0008927354572971467
+        },
+        "improvements": {
+          "tns": 1154.0488610889815,
+          "power": 3.342216914374932e-05
+        },
+        "score": 1154.0488945111506,
+        "reward": 31.342570901094998,
+        "success": false,
+        "log_prob": -5.817053318023682,
+        "value": 18.772777557373047
+      },
+      {
+        "step": 13,
+        "action": {
+          "candidate_idx": 67,
+          "replacement_idx": 2,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2384.74174694461,
+          "wns": -170.44835055986033,
+          "power": 0.0008908884854447151
+        },
+        "metrics_after": {
+          "tns": -2384.74174694461,
+          "wns": -170.44835055986033,
+          "power": 0.0008908884854447151
+        },
+        "improvements": {
+          "tns": 1176.51733270652,
+          "power": 3.5269140996180975e-05
+        },
+        "score": 1176.517367975661,
+        "reward": 31.80032398247905,
+        "success": false,
+        "log_prob": -6.538216590881348,
+        "value": 18.651823043823242
+      },
+      {
+        "step": 14,
+        "action": {
+          "candidate_idx": 53,
+          "replacement_idx": 1,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2348.947712398459,
+          "wns": -170.44835055986033,
+          "power": 0.0008880841409101801
+        },
+        "metrics_after": {
+          "tns": -2348.947712398459,
+          "wns": -170.44835055986033,
+          "power": 0.0008880841409101801
+        },
+        "improvements": {
+          "tns": 1212.311367252671,
+          "power": 3.8073485530715906e-05
+        },
+        "score": 1212.3114053261565,
+        "reward": 32.747026367795726,
+        "success": false,
+        "log_prob": -6.454042434692383,
+        "value": 18.601547241210938
+      },
+      {
+        "step": 15,
+        "action": {
+          "candidate_idx": 27,
+          "replacement_idx": 4,
+          "candidate_cell": "NAND3xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2345.2353486338834,
+          "wns": -170.44835055986033,
+          "power": 0.0008985739403967984
+        },
+        "metrics_after": {
+          "tns": -2345.2353486338834,
+          "wns": -170.44835055986033,
+          "power": 0.0008985739403967984
+        },
+        "improvements": {
+          "tns": 1216.0237310172465,
+          "power": 2.7583686044097694e-05
+        },
+        "score": 1216.0237586009325,
+        "reward": 31.824019398129504,
+        "success": false,
+        "log_prob": -6.52254581451416,
+        "value": 18.530284881591797
+      },
+      {
+        "step": 16,
+        "action": {
+          "candidate_idx": 24,
+          "replacement_idx": 8,
+          "candidate_cell": "NOR2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2299.597632622863,
+          "wns": -170.44835055986033,
+          "power": 0.0008971972589431158
+        },
+        "metrics_after": {
+          "tns": -2299.597632622863,
+          "wns": -170.44835055986033,
+          "power": 0.0008971972589431158
+        },
+        "improvements": {
+          "tns": 1261.661447028267,
+          "power": 2.896036749778022e-05
+        },
+        "score": 1261.6614759886345,
+        "reward": 32.90009077817438,
+        "success": false,
+        "log_prob": -6.87235164642334,
+        "value": 18.563968658447266
+      },
+      {
+        "step": 17,
+        "action": {
+          "candidate_idx": 58,
+          "replacement_idx": 0,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2315.042833358559,
+          "wns": -170.44835055986033,
+          "power": 0.0008970446164182216
+        },
+        "metrics_after": {
+          "tns": -2315.042833358559,
+          "wns": -170.44835055986033,
+          "power": 0.0008970446164182216
+        },
+        "improvements": {
+          "tns": 1246.2162462925708,
+          "power": 2.9113010022674413e-05
+        },
+        "score": 1246.2162754055807,
+        "reward": 32.51185357903561,
+        "success": false,
+        "log_prob": -4.871707916259766,
+        "value": 18.483978271484375
+      },
+      {
+        "step": 18,
+        "action": {
+          "candidate_idx": 43,
+          "replacement_idx": 6,
+          "candidate_cell": "AND2x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2315.6339160992316,
+          "wns": -170.44835055986033,
+          "power": 0.0009030880210159561
+        },
+        "metrics_after": {
+          "tns": -2315.6339160992316,
+          "wns": -170.44835055986033,
+          "power": 0.0009030880210159561
+        },
+        "improvements": {
+          "tns": 1245.6251635518984,
+          "power": 2.306960542493991e-05
+        },
+        "score": 1245.6251866215039,
+        "reward": 31.980970196183886,
+        "success": false,
+        "log_prob": -6.080750465393066,
+        "value": 18.488313674926758
+      },
+      {
+        "step": 19,
+        "action": {
+          "candidate_idx": 62,
+          "replacement_idx": 0,
+          "candidate_cell": "NAND3xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -2315.6339160992316,
+          "wns": -170.44835055986033,
+          "power": 0.0009085417804732474
+        },
+        "metrics_after": {
+          "tns": -2315.6339160992316,
+          "wns": -170.44835055986033,
+          "power": 0.0009085417804732474
+        },
+        "improvements": {
+          "tns": 1245.6251635518984,
+          "power": 1.7615845967648702e-05
+        },
+        "score": 1245.6251811677444,
+        "reward": 31.510176569509667,
+        "success": false,
+        "log_prob": -6.210026741027832,
+        "value": 18.505224227905273
+      },
+      {
+        "step": 20,
+        "action": {
+          "candidate_idx": 9,
+          "replacement_idx": 5,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1955.1984554022108,
+          "wns": -141.53633877067952,
+          "power": 0.0009057087032160946
+        },
+        "metrics_after": {
+          "tns": -1955.1984554022108,
+          "wns": -141.53633877067952,
+          "power": 0.0009057087032160946
+        },
+        "improvements": {
+          "tns": 1606.060624248919,
+          "power": 2.0448923224801463e-05
+        },
+        "score": 1606.0606446978422,
+        "reward": 39.87389677808268,
+        "success": false,
+        "log_prob": -6.8130388259887695,
+        "value": 18.51849365234375
+      },
+      {
+        "step": 21,
+        "action": {
+          "candidate_idx": 28,
+          "replacement_idx": 0,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1948.1250024394549,
+          "wns": -141.53633877067952,
+          "power": 0.0009053945750743184
+        },
+        "metrics_after": {
+          "tns": -1948.1250024394549,
+          "wns": -141.53633877067952,
+          "power": 0.0009053945750743184
+        },
+        "improvements": {
+          "tns": 1613.134077211675,
+          "power": 2.076305136657769e-05
+        },
+        "score": 1613.1340979747265,
+        "reward": 38.68364736174147,
+        "success": false,
+        "log_prob": -6.9736175537109375,
+        "value": 17.391799926757812
+      },
+      {
+        "step": 22,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI311xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1931.1403664516622,
+          "wns": -131.54685726651815,
+          "power": 0.0009057942129661808
+        },
+        "metrics_after": {
+          "tns": -1931.1403664516622,
+          "wns": -131.54685726651815,
+          "power": 0.0009057942129661808
+        },
+        "improvements": {
+          "tns": 1630.1187131994677,
+          "power": 2.036341347471521e-05
+        },
+        "score": 1630.1187335628813,
+        "reward": 39.17643133353935,
+        "success": false,
+        "log_prob": -5.101618766784668,
+        "value": 17.366497039794922
+      },
+      {
+        "step": 23,
+        "action": {
+          "candidate_idx": 45,
+          "replacement_idx": 1,
+          "candidate_cell": "AND2x6_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1930.1833542006111,
+          "wns": -131.45209973098775,
+          "power": 0.0008997418047377165
+        },
+        "metrics_after": {
+          "tns": -1930.1833542006111,
+          "wns": -131.45209973098775,
+          "power": 0.0008997418047377165
+        },
+        "improvements": {
+          "tns": 1631.0757254505188,
+          "power": 2.6415821703179576e-05
+        },
+        "score": 1631.0757518663404,
+        "reward": 39.52078966291206,
+        "success": false,
+        "log_prob": -6.436878681182861,
+        "value": 17.106929779052734
+      },
+      {
+        "step": 24,
+        "action": {
+          "candidate_idx": 54,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1833.4069891141764,
+          "wns": -131.45209973098775,
+          "power": 0.0008963700008280812
+        },
+        "metrics_after": {
+          "tns": -1833.4069891141764,
+          "wns": -131.45209973098775,
+          "power": 0.0008963700008280812
+        },
+        "improvements": {
+          "tns": 1727.8520905369535,
+          "power": 2.9787625612814894e-05
+        },
+        "score": 1727.8521203245791,
+        "reward": 41.826481315120105,
+        "success": false,
+        "log_prob": -4.878253936767578,
+        "value": 17.056293487548828
+      },
+      {
+        "step": 25,
+        "action": {
+          "candidate_idx": 39,
+          "replacement_idx": 1,
+          "candidate_cell": "OA21x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1826.1903173806716,
+          "wns": -131.45209973098775,
+          "power": 0.0008961465422916287
+        },
+        "metrics_after": {
+          "tns": -1826.1903173806716,
+          "wns": -131.45209973098775,
+          "power": 0.0008961465422916287
+        },
+        "improvements": {
+          "tns": 1735.0687622704584,
+          "power": 3.0011084149267342e-05
+        },
+        "score": 1735.0687922815425,
+        "reward": 41.766162703231345,
+        "success": false,
+        "log_prob": -5.109230995178223,
+        "value": 16.90977668762207
+      },
+      {
+        "step": 26,
+        "action": {
+          "candidate_idx": 53,
+          "replacement_idx": 0,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1839.3125984726628,
+          "wns": -131.45209973098775,
+          "power": 0.0008959107813940655
+        },
+        "metrics_after": {
+          "tns": -1839.3125984726628,
+          "wns": -131.45209973098775,
+          "power": 0.0008959107813940655
+        },
+        "improvements": {
+          "tns": 1721.9464811784671,
+          "power": 3.024684504683052e-05
+        },
+        "score": 1721.946511425312,
+        "reward": 41.52091269887012,
+        "success": false,
+        "log_prob": -4.8679609298706055,
+        "value": 16.88482666015625
+      },
+      {
+        "step": 27,
+        "action": {
+          "candidate_idx": 25,
+          "replacement_idx": 10,
+          "candidate_cell": "NOR2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1808.4727121490926,
+          "wns": -131.45209973098775,
+          "power": 0.0008952830528597185
+        },
+        "metrics_after": {
+          "tns": -1808.4727121490926,
+          "wns": -131.45209973098775,
+          "power": 0.0008952830528597185
+        },
+        "improvements": {
+          "tns": 1752.7863675020374,
+          "power": 3.0874573581177525e-05
+        },
+        "score": 1752.786398376611,
+        "reward": 42.22740153481226,
+        "success": false,
+        "log_prob": -6.903449058532715,
+        "value": 16.883621215820312
+      },
+      {
+        "step": 28,
+        "action": {
+          "candidate_idx": 6,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1802.484835264153,
+          "wns": -131.45209973098775,
+          "power": 0.000892620636256147
+        },
+        "metrics_after": {
+          "tns": -1802.484835264153,
+          "wns": -131.45209973098775,
+          "power": 0.000892620636256147
+        },
+        "improvements": {
+          "tns": 1758.774244386977,
+          "power": 3.353699018474911e-05
+        },
+        "score": 1758.7742779239672,
+        "reward": 42.52248589515106,
+        "success": false,
+        "log_prob": -5.10187292098999,
+        "value": 16.828838348388672
+      },
+      {
+        "step": 29,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1864.548078945531,
+          "wns": -131.45209973098775,
+          "power": 0.0008966973488516768
+        },
+        "metrics_after": {
+          "tns": -1864.548078945531,
+          "wns": -131.45209973098775,
+          "power": 0.0008966973488516768
+        },
+        "improvements": {
+          "tns": 1696.711000705599,
+          "power": 2.9460277589219222e-05
+        },
+        "score": 1696.7110301658765,
+        "reward": 40.96468542315108,
+        "success": false,
+        "log_prob": -6.2067365646362305,
+        "value": 16.792373657226562
+      },
+      {
+        "step": 30,
+        "action": {
+          "candidate_idx": 64,
+          "replacement_idx": 0,
+          "candidate_cell": "AND2x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1864.4565965679362,
+          "wns": -131.45209973098775,
+          "power": 0.0008926937339076273
+        },
+        "metrics_after": {
+          "tns": -1864.4565965679362,
+          "wns": -131.45209973098775,
+          "power": 0.0008926937339076273
+        },
+        "improvements": {
+          "tns": 1696.8024830831937,
+          "power": 3.3463892533268716e-05
+        },
+        "score": 1696.8025165470863,
+        "reward": 41.34802909657612,
+        "success": false,
+        "log_prob": -6.20410680770874,
+        "value": 16.87125587463379
+      },
+      {
+        "step": 31,
+        "action": {
+          "candidate_idx": 32,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1864.4552643003015,
+          "wns": -131.45209973098775,
+          "power": 0.0008941066677651873
+        },
+        "metrics_after": {
+          "tns": -1864.4552643003015,
+          "wns": -131.45209973098775,
+          "power": 0.0008941066677651873
+        },
+        "improvements": {
+          "tns": 1696.8038153508285,
+          "power": 3.205095867570874e-05
+        },
+        "score": 1696.8038474017872,
+        "reward": 41.208208184471104,
+        "success": false,
+        "log_prob": -5.803535461425781,
+        "value": 16.834590911865234
+      },
+      {
+        "step": 32,
+        "action": {
+          "candidate_idx": 28,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1871.6956948066281,
+          "wns": -131.39184237608544,
+          "power": 0.0008938947853749709
+        },
+        "metrics_after": {
+          "tns": -1871.6956948066281,
+          "wns": -131.39184237608544,
+          "power": 0.0008938947853749709
+        },
+        "improvements": {
+          "tns": 1689.5633848445018,
+          "power": 3.2262841065925155e-05
+        },
+        "score": 1689.563417107343,
+        "reward": 41.091222214907845,
+        "success": false,
+        "log_prob": -4.875478744506836,
+        "value": 16.82671356201172
+      },
+      {
+        "step": 33,
+        "action": {
+          "candidate_idx": 49,
+          "replacement_idx": 2,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1877.0829410328456,
+          "wns": -131.39184237608544,
+          "power": 0.0008946695083272057
+        },
+        "metrics_after": {
+          "tns": -1877.0829410328456,
+          "wns": -131.39184237608544,
+          "power": 0.0008946695083272057
+        },
+        "improvements": {
+          "tns": 1684.1761386182843,
+          "power": 3.148811811369036e-05
+        },
+        "score": 1684.1761701064024,
+        "reward": 40.921705078595906,
+        "success": false,
+        "log_prob": -6.034672260284424,
+        "value": 16.81734275817871
+      },
+      {
+        "step": 34,
+        "action": {
+          "candidate_idx": 12,
+          "replacement_idx": 5,
+          "candidate_cell": "NAND3xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1913.4911509586732,
+          "wns": -131.39184237608544,
+          "power": 0.0009173424046383157
+        },
+        "metrics_after": {
+          "tns": -1913.4911509586732,
+          "wns": -131.39184237608544,
+          "power": 0.0009173424046383157
+        },
+        "improvements": {
+          "tns": 1647.7679286924567,
+          "power": 8.815221802580334e-06
+        },
+        "score": 1647.7679375076784,
+        "reward": 38.267916003404906,
+        "success": false,
+        "log_prob": -6.792015552520752,
+        "value": 16.812395095825195
+      },
+      {
+        "step": 35,
+        "action": {
+          "candidate_idx": 65,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1918.2651099836373,
+          "wns": -131.33513773487613,
+          "power": 0.0009170885080337209
+        },
+        "metrics_after": {
+          "tns": -1918.2651099836373,
+          "wns": -131.33513773487613,
+          "power": 0.0009170885080337209
+        },
+        "improvements": {
+          "tns": 1642.9939696674926,
+          "power": 9.069118407175128e-06
+        },
+        "score": 1642.993978736611,
+        "reward": 38.216378966476626,
+        "success": false,
+        "log_prob": -6.2858567237854,
+        "value": 16.959716796875
+      },
+      {
+        "step": 36,
+        "action": {
+          "candidate_idx": 13,
+          "replacement_idx": 1,
+          "candidate_cell": "NOR5xp2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1917.9882203601894,
+          "wns": -131.33513773487613,
+          "power": 0.0009173590275929743
+        },
+        "metrics_after": {
+          "tns": -1917.9882203601894,
+          "wns": -131.33513773487613,
+          "power": 0.0009173590275929743
+        },
+        "improvements": {
+          "tns": 1643.2708592909405,
+          "power": 8.798598847921738e-06
+        },
+        "score": 1643.2708680895394,
+        "reward": 38.19793615437745,
+        "success": false,
+        "log_prob": -5.1098785400390625,
+        "value": 16.947317123413086
+      },
+      {
+        "step": 37,
+        "action": {
+          "candidate_idx": 18,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1937.3605019942815,
+          "wns": -131.33513773487613,
+          "power": 0.0009230951010947685
+        },
+        "metrics_after": {
+          "tns": -1937.3605019942815,
+          "wns": -131.33513773487613,
+          "power": 0.0009230951010947685
+        },
+        "improvements": {
+          "tns": 1623.8985776568484,
+          "power": 3.0625253461275675e-06
+        },
+        "score": 1623.8985807193737,
+        "reward": 37.33239151825718,
+        "success": false,
+        "log_prob": -6.211264610290527,
+        "value": 16.933069229125977
+      },
+      {
+        "step": 38,
+        "action": {
+          "candidate_idx": 9,
+          "replacement_idx": 4,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1937.5812143324588,
+          "wns": -131.33513773487613,
+          "power": 0.0009295042136451114
+        },
+        "metrics_after": {
+          "tns": -1937.5812143324588,
+          "wns": -131.33513773487613,
+          "power": 0.0009295042136451114
+        },
+        "improvements": {
+          "tns": 1623.6778653186711,
+          "power": -3.346587204215365e-06
+        },
+        "score": 1623.677861972084,
+        "reward": 37.06895414275516,
+        "success": false,
+        "log_prob": -6.02786111831665,
+        "value": 16.970958709716797
+      },
+      {
+        "step": 39,
+        "action": {
+          "candidate_idx": 53,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1916.790289711832,
+          "wns": -131.33513773487613,
+          "power": 0.0009304362257274001
+        },
+        "metrics_after": {
+          "tns": -1916.790289711832,
+          "wns": -131.33513773487613,
+          "power": 0.0009304362257274001
+        },
+        "improvements": {
+          "tns": 1644.468789939298,
+          "power": -4.278599286504023e-06
+        },
+        "score": 1644.4687856606986,
+        "reward": 37.50630364566278,
+        "success": false,
+        "log_prob": -5.100831508636475,
+        "value": 16.990070343017578
+      },
+      {
+        "step": 40,
+        "action": {
+          "candidate_idx": 13,
+          "replacement_idx": 0,
+          "candidate_cell": "NOR5xp2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1916.982136251254,
+          "wns": -131.33513773487613,
+          "power": 0.0009296548347802868
+        },
+        "metrics_after": {
+          "tns": -1916.982136251254,
+          "wns": -131.33513773487613,
+          "power": 0.0009296548347802868
+        },
+        "improvements": {
+          "tns": 1644.276943399876,
+          "power": -3.4972083393907533e-06
+        },
+        "score": 1644.2769399026677,
+        "reward": 37.459527985856624,
+        "success": false,
+        "log_prob": -4.870362758636475,
+        "value": 16.955549240112305
+      },
+      {
+        "step": 41,
+        "action": {
+          "candidate_idx": 43,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1912.2390414264978,
+          "wns": -131.33513773487613,
+          "power": 0.0009291103625486529
+        },
+        "metrics_after": {
+          "tns": -1912.2390414264978,
+          "wns": -131.33513773487613,
+          "power": 0.0009291103625486529
+        },
+        "improvements": {
+          "tns": 1649.0200382246321,
+          "power": -2.9527361077568565e-06
+        },
+        "score": 1649.020035271896,
+        "reward": 37.55804848801601,
+        "success": false,
+        "log_prob": -5.951605796813965,
+        "value": 16.937423706054688
+      },
+      {
+        "step": 42,
+        "action": {
+          "candidate_idx": 31,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1889.64911140958,
+          "wns": -131.33513773487613,
+          "power": 0.0009300412728949995
+        },
+        "metrics_after": {
+          "tns": -1889.64911140958,
+          "wns": -131.33513773487613,
+          "power": 0.0009300412728949995
+        },
+        "improvements": {
+          "tns": 1671.60996824155,
+          "power": -3.883646454103454e-06
+        },
+        "score": 1671.6099643579034,
+        "reward": 38.0186812745849,
+        "success": false,
+        "log_prob": -5.103919982910156,
+        "value": 16.914581298828125
+      },
+      {
+        "step": 43,
+        "action": {
+          "candidate_idx": 0,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1882.2337097538732,
+          "wns": -131.39958618171315,
+          "power": 0.0009300233661716176
+        },
+        "metrics_after": {
+          "tns": -1882.2337097538732,
+          "wns": -131.39958618171315,
+          "power": 0.0009300233661716176
+        },
+        "improvements": {
+          "tns": 1679.0253698972567,
+          "power": -3.865739730721587e-06
+        },
+        "score": 1679.025366031517,
+        "reward": 38.12345331665266,
+        "success": false,
+        "log_prob": -5.115897178649902,
+        "value": 16.881450653076172
+      },
+      {
+        "step": 44,
+        "action": {
+          "candidate_idx": 3,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1877.5987506521476,
+          "wns": -131.39958618171315,
+          "power": 0.0009307601026923521
+        },
+        "metrics_after": {
+          "tns": -1877.5987506521476,
+          "wns": -131.39958618171315,
+          "power": 0.0009307601026923521
+        },
+        "improvements": {
+          "tns": 1683.6603289989823,
+          "power": -4.6024762514560585e-06
+        },
+        "score": 1683.660324396506,
+        "reward": 38.204084416501054,
+        "success": false,
+        "log_prob": -5.816134452819824,
+        "value": 16.859603881835938
+      },
+      {
+        "step": 45,
+        "action": {
+          "candidate_idx": 72,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1846.913185329617,
+          "wns": -131.39958618171315,
+          "power": 0.0009302147713138396
+        },
+        "metrics_after": {
+          "tns": -1846.913185329617,
+          "wns": -131.39958618171315,
+          "power": 0.0009302147713138396
+        },
+        "improvements": {
+          "tns": 1714.345894321513,
+          "power": -4.057144872943522e-06
+        },
+        "score": 1714.345890264368,
+        "reward": 38.839838854261814,
+        "success": false,
+        "log_prob": -5.815605640411377,
+        "value": 16.844324111938477
+      },
+      {
+        "step": 46,
+        "action": {
+          "candidate_idx": 9,
+          "replacement_idx": 4,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1847.2179415510943,
+          "wns": -131.39958618171315,
+          "power": 0.000926618413266975
+        },
+        "metrics_after": {
+          "tns": -1847.2179415510943,
+          "wns": -131.39958618171315,
+          "power": 0.000926618413266975
+        },
+        "improvements": {
+          "tns": 1714.0411381000356,
+          "power": -4.607868260789877e-07
+        },
+        "score": 1714.0411376392487,
+        "reward": 38.77829058938764,
+        "success": false,
+        "log_prob": -6.041431427001953,
+        "value": 16.790725708007812
+      },
+      {
+        "step": 47,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1806.9881219146316,
+          "wns": -131.39958618171315,
+          "power": 0.0009255757054602663
+        },
+        "metrics_after": {
+          "tns": -1806.9881219146316,
+          "wns": -131.39958618171315,
+          "power": 0.0009255757054602663
+        },
+        "improvements": {
+          "tns": 1754.2709577364983,
+          "power": 5.819209806297992e-07
+        },
+        "score": 1754.2709583184194,
+        "reward": 39.661462284049875,
+        "success": false,
+        "log_prob": -4.885593414306641,
+        "value": 16.759342193603516
+      },
+      {
+        "step": 48,
+        "action": {
+          "candidate_idx": 3,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1807.5869762165073,
+          "wns": -131.39958618171315,
+          "power": 0.0009217826593235796
+        },
+        "metrics_after": {
+          "tns": -1807.5869762165073,
+          "wns": -131.39958618171315,
+          "power": 0.0009217826593235796
+        },
+        "improvements": {
+          "tns": 1753.6721034346226,
+          "power": 4.374967117316483e-06
+        },
+        "score": 1753.6721078095898,
+        "reward": 39.89922154736004,
+        "success": false,
+        "log_prob": -5.965118408203125,
+        "value": 16.69161605834961
+      },
+      {
+        "step": 49,
+        "action": {
+          "candidate_idx": 2,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1780.0054834609296,
+          "wns": -131.39958618171315,
+          "power": 0.0009158450397628286
+        },
+        "metrics_after": {
+          "tns": -1780.0054834609296,
+          "wns": -131.39958618171315,
+          "power": 0.0009158450397628286
+        },
+        "improvements": {
+          "tns": 1781.2535961902004,
+          "power": 1.0312586678067406e-05
+        },
+        "score": 1781.253606502787,
+        "reward": 40.99007580904882,
+        "success": false,
+        "log_prob": -4.891761779785156,
+        "value": 16.66033363342285
+      },
+      {
+        "step": 50,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 6,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1784.115196047606,
+          "wns": -131.39958618171315,
+          "power": 0.0009158239690355025
+        },
+        "metrics_after": {
+          "tns": -1784.115196047606,
+          "wns": -131.39958618171315,
+          "power": 0.0009158239690355025
+        },
+        "improvements": {
+          "tns": 1777.1438836035238,
+          "power": 1.0333657405393534e-05
+        },
+        "score": 1777.1438939371812,
+        "reward": 40.836257625722226,
+        "success": false,
+        "log_prob": -6.110410690307617,
+        "value": 16.58274269104004
+      },
+      {
+        "step": 51,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 7,
+          "candidate_cell": "AOI21xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1786.385047030522,
+          "wns": -131.39958618171315,
+          "power": 0.0009159423670908311
+        },
+        "metrics_after": {
+          "tns": -1786.385047030522,
+          "wns": -131.39958618171315,
+          "power": 0.0009159423670908311
+        },
+        "improvements": {
+          "tns": 1774.874032620608,
+          "power": 1.0215259350064912e-05
+        },
+        "score": 1774.8740428358674,
+        "reward": 40.78391786457623,
+        "success": false,
+        "log_prob": -6.300675392150879,
+        "value": 16.57556915283203
+      },
+      {
+        "step": 52,
+        "action": {
+          "candidate_idx": 68,
+          "replacement_idx": 2,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1764.4807907563525,
+          "wns": -131.5443037535513,
+          "power": 0.0009215438442480833
+        },
+        "metrics_after": {
+          "tns": -1764.4807907563525,
+          "wns": -131.5443037535513,
+          "power": 0.0009215438442480833
+        },
+        "improvements": {
+          "tns": 1796.7782888947775,
+          "power": 4.61378219281279e-06
+        },
+        "score": 1796.7782935085597,
+        "reward": 40.748300114206664,
+        "success": false,
+        "log_prob": -7.313987731933594,
+        "value": 16.56717300415039
+      },
+      {
+        "step": 53,
+        "action": {
+          "candidate_idx": 0,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1785.865906742133,
+          "wns": -131.40677487582633,
+          "power": 0.0009210529490211779
+        },
+        "metrics_after": {
+          "tns": -1785.865906742133,
+          "wns": -131.40677487582633,
+          "power": 0.0009210529490211779
+        },
+        "improvements": {
+          "tns": 1775.393172908997,
+          "power": 5.104677419718109e-06
+        },
+        "score": 1775.3931780136745,
+        "reward": 40.35156873084252,
+        "success": false,
+        "log_prob": -5.101735591888428,
+        "value": 16.55782127380371
+      },
+      {
+        "step": 54,
+        "action": {
+          "candidate_idx": 59,
+          "replacement_idx": 2,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1784.3547821772775,
+          "wns": -138.02006814861204,
+          "power": 0.0009218617595341313
+        },
+        "metrics_after": {
+          "tns": -1784.3547821772775,
+          "wns": -138.02006814861204,
+          "power": 0.0009218617595341313
+        },
+        "improvements": {
+          "tns": 1776.9042974738525,
+          "power": 4.29586690676477e-06
+        },
+        "score": 1776.9043017697193,
+        "reward": 40.28334194417893,
+        "success": false,
+        "log_prob": -6.038543701171875,
+        "value": 16.567420959472656
+      },
+      {
+        "step": 55,
+        "action": {
+          "candidate_idx": 63,
+          "replacement_idx": 6,
+          "candidate_cell": "AND2x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1784.4046311912823,
+          "wns": -138.02006814861204,
+          "power": 0.000927672412754375
+        },
+        "metrics_after": {
+          "tns": -1784.4046311912823,
+          "wns": -138.02006814861204,
+          "power": 0.000927672412754375
+        },
+        "improvements": {
+          "tns": 1776.8544484598476,
+          "power": -1.5147863134789413e-06
+        },
+        "score": 1776.8544469450612,
+        "reward": 39.938026279657144,
+        "success": false,
+        "log_prob": -6.084564208984375,
+        "value": 16.704208374023438
+      },
+      {
+        "step": 56,
+        "action": {
+          "candidate_idx": 61,
+          "replacement_idx": 11,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1503.5046601177964,
+          "wns": -119.53232895734878,
+          "power": 0.0009276904499024279
+        },
+        "metrics_after": {
+          "tns": -1503.5046601177964,
+          "wns": -119.53232895734878,
+          "power": 0.0009276904499024279
+        },
+        "improvements": {
+          "tns": 2057.7544195333335,
+          "power": -1.5328234615318709e-06
+        },
+        "score": 2057.75441800051,
+        "reward": 46.169995849427465,
+        "success": false,
+        "log_prob": -7.235075950622559,
+        "value": 16.722841262817383
+      },
+      {
+        "step": 57,
+        "action": {
+          "candidate_idx": 32,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1500.729102545143,
+          "wns": -120.33879496565898,
+          "power": 0.0009280117965771145
+        },
+        "metrics_after": {
+          "tns": -1500.729102545143,
+          "wns": -120.33879496565898,
+          "power": 0.0009280117965771145
+        },
+        "improvements": {
+          "tns": 2060.529977105987,
+          "power": -1.8541701362183999e-06
+        },
+        "score": 2060.529975251817,
+        "reward": 45.24471165611752,
+        "success": false,
+        "log_prob": -5.120855331420898,
+        "value": 15.971482276916504
+      },
+      {
+        "step": 58,
+        "action": {
+          "candidate_idx": 15,
+          "replacement_idx": 0,
+          "candidate_cell": "NOR5xp2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1510.142017474737,
+          "wns": -120.33879496565898,
+          "power": 0.0009275357644191306
+        },
+        "metrics_after": {
+          "tns": -1510.142017474737,
+          "wns": -120.33879496565898,
+          "power": 0.0009275357644191306
+        },
+        "improvements": {
+          "tns": 2051.117062176393,
+          "power": -1.3781379782345365e-06
+        },
+        "score": 2051.1170607982554,
+        "reward": 45.0654631334707,
+        "success": false,
+        "log_prob": -4.888128280639648,
+        "value": 15.976401329040527
+      },
+      {
+        "step": 59,
+        "action": {
+          "candidate_idx": 25,
+          "replacement_idx": 0,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1468.4756802609718,
+          "wns": -120.33879496565898,
+          "power": 0.0009282390341746865
+        },
+        "metrics_after": {
+          "tns": -1468.4756802609718,
+          "wns": -120.33879496565898,
+          "power": 0.0009282390341746865
+        },
+        "improvements": {
+          "tns": 2092.783399390158,
+          "power": -2.0814077337904385e-06
+        },
+        "score": 2092.7833973087504,
+        "reward": 45.93988019835555,
+        "success": false,
+        "log_prob": -7.000217437744141,
+        "value": 15.974713325500488
+      },
+      {
+        "step": 60,
+        "action": {
+          "candidate_idx": 7,
+          "replacement_idx": 25,
+          "candidate_cell": "INVx6_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1472.0129618538642,
+          "wns": -120.33879496565898,
+          "power": 0.0009458690985153211
+        },
+        "metrics_after": {
+          "tns": -1472.0129618538642,
+          "wns": -120.33879496565898,
+          "power": 0.0009458690985153211
+        },
+        "improvements": {
+          "tns": 2089.2461177972655,
+          "power": -1.971147207442507e-05
+        },
+        "score": 2089.2460980857936,
+        "reward": 45.775381625682456,
+        "success": false,
+        "log_prob": -7.6124677658081055,
+        "value": 15.917298316955566
+      },
+      {
+        "step": 61,
+        "action": {
+          "candidate_idx": 31,
+          "replacement_idx": 3,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1250.0728280286212,
+          "wns": -118.30592108829613,
+          "power": 0.0009370535072636115
+        },
+        "metrics_after": {
+          "tns": -1250.0728280286212,
+          "wns": -118.30592108829613,
+          "power": 0.0009370535072636115
+        },
+        "improvements": {
+          "tns": 2311.1862516225087,
+          "power": -1.0895880822715462e-05
+        },
+        "score": 2311.186240726628,
+        "reward": 50.511945546039556,
+        "success": false,
+        "log_prob": -6.272770881652832,
+        "value": 15.992440223693848
+      },
+      {
+        "step": 62,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 4,
+          "candidate_cell": "DFFHQNx2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1232.1255176523293,
+          "wns": -117.6423130282504,
+          "power": 0.0009367707869285796
+        },
+        "metrics_after": {
+          "tns": -1232.1255176523293,
+          "wns": -117.6423130282504,
+          "power": 0.0009367707869285796
+        },
+        "improvements": {
+          "tns": 2329.1335619988004,
+          "power": -1.0613160487683501e-05
+        },
+        "score": 2329.1335513856397,
+        "reward": 50.32716485775439,
+        "success": false,
+        "log_prob": -6.525227069854736,
+        "value": 15.650965690612793
+      },
+      {
+        "step": 63,
+        "action": {
+          "candidate_idx": 44,
+          "replacement_idx": 8,
+          "candidate_cell": "NOR2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1200.3897923666095,
+          "wns": -117.6423130282504,
+          "power": 0.0009369608288503067
+        },
+        "metrics_after": {
+          "tns": -1200.3897923666095,
+          "wns": -117.6423130282504,
+          "power": 0.0009369608288503067
+        },
+        "improvements": {
+          "tns": 2360.8692872845204,
+          "power": -1.0803202409410614e-05
+        },
+        "score": 2360.869276481318,
+        "reward": 50.93875226058143,
+        "success": false,
+        "log_prob": -6.858109474182129,
+        "value": 15.601885795593262
+      },
+      {
+        "step": 64,
+        "action": {
+          "candidate_idx": 20,
+          "replacement_idx": 1,
+          "candidate_cell": "NOR5xp2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1200.3897923666095,
+          "wns": -117.6423130282504,
+          "power": 0.0009375446432719602
+        },
+        "metrics_after": {
+          "tns": -1200.3897923666095,
+          "wns": -117.6423130282504,
+          "power": 0.0009375446432719602
+        },
+        "improvements": {
+          "tns": 2360.8692872845204,
+          "power": -1.1387016831064176e-05
+        },
+        "score": 2360.8692758975035,
+        "reward": 50.86737620418827,
+        "success": false,
+        "log_prob": -5.12003231048584,
+        "value": 15.561593055725098
+      },
+      {
+        "step": 65,
+        "action": {
+          "candidate_idx": 58,
+          "replacement_idx": 11,
+          "candidate_cell": "NAND2xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1412.51555461495,
+          "wns": -123.23403458084528,
+          "power": 0.0009376588840472998
+        },
+        "metrics_after": {
+          "tns": -1412.51555461495,
+          "wns": -123.23403458084528,
+          "power": 0.0009376588840472998
+        },
+        "improvements": {
+          "tns": 2148.74352503618,
+          "power": -1.1501257606403789e-05
+        },
+        "score": 2148.7435135349224,
+        "reward": 46.80857839139581,
+        "success": false,
+        "log_prob": -7.246440887451172,
+        "value": 15.554420471191406
+      },
+      {
+        "step": 66,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1416.026190855145,
+          "wns": -123.23403458084528,
+          "power": 0.0009359457341989851
+        },
+        "metrics_after": {
+          "tns": -1416.026190855145,
+          "wns": -123.23403458084528,
+          "power": 0.0009359457341989851
+        },
+        "improvements": {
+          "tns": 2145.2328887959848,
+          "power": -9.788107758089068e-06
+        },
+        "score": 2145.232879007877,
+        "reward": 46.8351899691588,
+        "success": false,
+        "log_prob": -4.872316837310791,
+        "value": 15.90314769744873
+      },
+      {
+        "step": 67,
+        "action": {
+          "candidate_idx": 39,
+          "replacement_idx": 1,
+          "candidate_cell": "AO221x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1409.3799517139719,
+          "wns": -123.23403458084528,
+          "power": 0.0009334910334144585
+        },
+        "metrics_after": {
+          "tns": -1409.3799517139719,
+          "wns": -123.23403458084528,
+          "power": 0.0009334910334144585
+        },
+        "improvements": {
+          "tns": 2151.879127937158,
+          "power": -7.333406973562481e-06
+        },
+        "score": 2151.8791206037513,
+        "reward": 46.978788154002984,
+        "success": false,
+        "log_prob": -5.94502067565918,
+        "value": 15.889552116394043
+      },
+      {
+        "step": 68,
+        "action": {
+          "candidate_idx": 71,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1413.0909832109126,
+          "wns": -123.23403458084528,
+          "power": 0.0009341187356131913
+        },
+        "metrics_after": {
+          "tns": -1413.0909832109126,
+          "wns": -123.23403458084528,
+          "power": 0.0009341187356131913
+        },
+        "improvements": {
+          "tns": 2148.1680964402176,
+          "power": -7.961109172295242e-06
+        },
+        "score": 2148.1680884791085,
+        "reward": 46.882573668103994,
+        "success": false,
+        "log_prob": -5.719395637512207,
+        "value": 15.860468864440918
+      },
+      {
+        "step": 69,
+        "action": {
+          "candidate_idx": 8,
+          "replacement_idx": 8,
+          "candidate_cell": "INVx8_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1434.0139133496946,
+          "wns": -122.44047491524792,
+          "power": 0.0009090913887771206
+        },
+        "metrics_after": {
+          "tns": -1434.0139133496946,
+          "wns": -122.44047491524792,
+          "power": 0.0009090913887771206
+        },
+        "improvements": {
+          "tns": 2127.2451663014353,
+          "power": 1.706623766377542e-05
+        },
+        "score": 2127.2451833676732,
+        "reward": 48.083212937940615,
+        "success": false,
+        "log_prob": -7.689095497131348,
+        "value": 15.858860969543457
+      },
+      {
+        "step": 70,
+        "action": {
+          "candidate_idx": 60,
+          "replacement_idx": 0,
+          "candidate_cell": "OA211x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1441.6051743332048,
+          "wns": -122.44047491524792,
+          "power": 0.0009088293690260579
+        },
+        "metrics_after": {
+          "tns": -1441.6051743332048,
+          "wns": -122.44047491524792,
+          "power": 0.0009088293690260579
+        },
+        "improvements": {
+          "tns": 2119.653905317925,
+          "power": 1.732825741483819e-05
+        },
+        "score": 2119.6539226461823,
+        "reward": 47.84548646000988,
+        "success": false,
+        "log_prob": -4.88357400894165,
+        "value": 15.733007431030273
+      },
+      {
+        "step": 71,
+        "action": {
+          "candidate_idx": 50,
+          "replacement_idx": 3,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1490.6187455086924,
+          "wns": -122.44047491524792,
+          "power": 0.0009065811038611853
+        },
+        "metrics_after": {
+          "tns": -1490.6187455086924,
+          "wns": -122.44047491524792,
+          "power": 0.0009065811038611853
+        },
+        "improvements": {
+          "tns": 2070.6403341424375,
+          "power": 1.9576522579710723e-05
+        },
+        "score": 2070.64035371896,
+        "reward": 47.11864364386545,
+        "success": false,
+        "log_prob": -6.300205230712891,
+        "value": 15.73139476776123
+      },
+      {
+        "step": 72,
+        "action": {
+          "candidate_idx": 8,
+          "replacement_idx": 2,
+          "candidate_cell": "DFFHQNx3_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1500.9752389906857,
+          "wns": -122.44047491524792,
+          "power": 0.0009070432746177397
+        },
+        "metrics_after": {
+          "tns": -1500.9752389906857,
+          "wns": -122.44047491524792,
+          "power": 0.0009070432746177397
+        },
+        "improvements": {
+          "tns": 2060.283840660444,
+          "power": 1.911435182315631e-05
+        },
+        "score": 2060.283859774796,
+        "reward": 46.88579689713222,
+        "success": false,
+        "log_prob": -6.5355224609375,
+        "value": 15.767558097839355
+      },
+      {
+        "step": 73,
+        "action": {
+          "candidate_idx": 21,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI311xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1345.8891832618265,
+          "wns": -118.44725247989564,
+          "power": 0.0009045790811233172
+        },
+        "metrics_after": {
+          "tns": -1345.8891832618265,
+          "wns": -118.44725247989564,
+          "power": 0.0009045790811233172
+        },
+        "improvements": {
+          "tns": 2215.3698963893034,
+          "power": 2.1578545317578815e-05
+        },
+        "score": 2215.369917967849,
+        "reward": 50.44064357508376,
+        "success": false,
+        "log_prob": -5.127342224121094,
+        "value": 15.772784233093262
+      },
+      {
+        "step": 74,
+        "action": {
+          "candidate_idx": 16,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1325.2572425789613,
+          "wns": -115.76933902264811,
+          "power": 0.0009038081696763605
+        },
+        "metrics_after": {
+          "tns": -1325.2572425789613,
+          "wns": -115.76933902264811,
+          "power": 0.0009038081696763605
+        },
+        "improvements": {
+          "tns": 2236.0018370721687,
+          "power": 2.234945676453555e-05
+        },
+        "score": 2236.0018594216253,
+        "reward": 50.559502911133386,
+        "success": false,
+        "log_prob": -5.976428985595703,
+        "value": 15.485729217529297
+      },
+      {
+        "step": 75,
+        "action": {
+          "candidate_idx": 41,
+          "replacement_idx": 0,
+          "candidate_cell": "AO221x1_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1331.1558575323645,
+          "wns": -115.76933902264811,
+          "power": 0.000902633262984091
+        },
+        "metrics_after": {
+          "tns": -1331.1558575323645,
+          "wns": -115.76933902264811,
+          "power": 0.000902633262984091
+        },
+        "improvements": {
+          "tns": 2230.103222118765,
+          "power": 2.3524363456805045e-05
+        },
+        "score": 2230.1032456431285,
+        "reward": 50.45375588289118,
+        "success": false,
+        "log_prob": -5.7555437088012695,
+        "value": 15.388824462890625
+      },
+      {
+        "step": 76,
+        "action": {
+          "candidate_idx": 18,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI22xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1326.8541873839633,
+          "wns": -115.76933902264811,
+          "power": 0.000900371701715778
+        },
+        "metrics_after": {
+          "tns": -1326.8541873839633,
+          "wns": -115.76933902264811,
+          "power": 0.000900371701715778
+        },
+        "improvements": {
+          "tns": 2234.4048922671664,
+          "power": 2.578592472511805e-05
+        },
+        "score": 2234.404918053091,
+        "reward": 50.745686055450655,
+        "success": false,
+        "log_prob": -6.317896366119385,
+        "value": 15.380656242370605
+      },
+      {
+        "step": 77,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1335.8885162606475,
+          "wns": -115.76933902264811,
+          "power": 0.0008997168735510579
+        },
+        "metrics_after": {
+          "tns": -1335.8885162606475,
+          "wns": -115.76933902264811,
+          "power": 0.0008997168735510579
+        },
+        "improvements": {
+          "tns": 2225.3705633904824,
+          "power": 2.6440752889838118e-05
+        },
+        "score": 2225.370589831235,
+        "reward": 50.613902676066395,
+        "success": false,
+        "log_prob": -4.9051103591918945,
+        "value": 15.35522174835205
+      },
+      {
+        "step": 78,
+        "action": {
+          "candidate_idx": 55,
+          "replacement_idx": 1,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1320.5887547417583,
+          "wns": -115.76933902264811,
+          "power": 0.0009000805716045061
+        },
+        "metrics_after": {
+          "tns": -1320.5887547417583,
+          "wns": -115.76933902264811,
+          "power": 0.0009000805716045061
+        },
+        "improvements": {
+          "tns": 2240.6703249093716,
+          "power": 2.6077054836389987e-05
+        },
+        "score": 2240.6703509864265,
+        "reward": 50.90304080050407,
+        "success": false,
+        "log_prob": -5.117373466491699,
+        "value": 15.35031795501709
+      },
+      {
+        "step": 79,
+        "action": {
+          "candidate_idx": 17,
+          "replacement_idx": 2,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1326.8479701350004,
+          "wns": -115.76933902264811,
+          "power": 0.0009045180543960033
+        },
+        "metrics_after": {
+          "tns": -1326.8479701350004,
+          "wns": -115.76933902264811,
+          "power": 0.0009045180543960033
+        },
+        "improvements": {
+          "tns": 2234.4111095161297,
+          "power": 2.1639572044892738e-05
+        },
+        "score": 2234.4111311557017,
+        "reward": 50.36550065353661,
+        "success": false,
+        "log_prob": -6.048748016357422,
+        "value": 15.325409889221191
+      },
+      {
+        "step": 80,
+        "action": {
+          "candidate_idx": 63,
+          "replacement_idx": 6,
+          "candidate_cell": "OAI21xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1324.2308413885942,
+          "wns": -115.76933902264811,
+          "power": 0.0009050628664490721
+        },
+        "metrics_after": {
+          "tns": -1324.2308413885942,
+          "wns": -115.76933902264811,
+          "power": 0.0009050628664490721
+        },
+        "improvements": {
+          "tns": 2237.0282382625355,
+          "power": 2.109475999182396e-05
+        },
+        "score": 2237.0282593572956,
+        "reward": 50.37593503917651,
+        "success": false,
+        "log_prob": -6.110282897949219,
+        "value": 15.345919609069824
+      },
+      {
+        "step": 81,
+        "action": {
+          "candidate_idx": 18,
+          "replacement_idx": 7,
+          "candidate_cell": "OAI22xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1326.7831331101033,
+          "wns": -115.76933902264811,
+          "power": 0.0009075189205126431
+        },
+        "metrics_after": {
+          "tns": -1326.7831331101033,
+          "wns": -115.76933902264811,
+          "power": 0.0009075189205126431
+        },
+        "improvements": {
+          "tns": 2234.4759465410266,
+          "power": 1.8638705928252994e-05
+        },
+        "score": 2234.4759651797326,
+        "reward": 50.10897382305542,
+        "success": false,
+        "log_prob": -6.3001627922058105,
+        "value": 15.336567878723145
+      },
+      {
+        "step": 82,
+        "action": {
+          "candidate_idx": 11,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1338.1888983768627,
+          "wns": -115.70769388895948,
+          "power": 0.0009070415456570429
+        },
+        "metrics_after": {
+          "tns": -1338.1888983768627,
+          "wns": -115.70769388895948,
+          "power": 0.0009070415456570429
+        },
+        "improvements": {
+          "tns": 2223.0701812742673,
+          "power": 1.9116080783853143e-05
+        },
+        "score": 2223.070200390348,
+        "reward": 49.93785484900143,
+        "success": false,
+        "log_prob": -4.887516021728516,
+        "value": 15.343705177307129
+      },
+      {
+        "step": 83,
+        "action": {
+          "candidate_idx": 28,
+          "replacement_idx": 7,
+          "candidate_cell": "NAND3x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1327.5192109783711,
+          "wns": -115.70769388895948,
+          "power": 0.0008961309577185644
+        },
+        "metrics_after": {
+          "tns": -1327.5192109783711,
+          "wns": -115.70769388895948,
+          "power": 0.0008961309577185644
+        },
+        "improvements": {
+          "tns": 2233.739868672759,
+          "power": 3.0026668722331687e-05
+        },
+        "score": 2233.7398986994276,
+        "reward": 51.151198765546006,
+        "success": false,
+        "log_prob": -6.296642780303955,
+        "value": 15.34455680847168
+      },
+      {
+        "step": 84,
+        "action": {
+          "candidate_idx": 18,
+          "replacement_idx": 7,
+          "candidate_cell": "OAI21x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1304.3483012503452,
+          "wns": -110.6885421080273,
+          "power": 0.000893741360512899
+        },
+        "metrics_after": {
+          "tns": -1304.3483012503452,
+          "wns": -110.6885421080273,
+          "power": 0.000893741360512899
+        },
+        "improvements": {
+          "tns": 2256.9107784007847,
+          "power": 3.2416265927997026e-05
+        },
+        "score": 2256.910810817051,
+        "reward": 51.877511363502826,
+        "success": false,
+        "log_prob": -6.296934127807617,
+        "value": 15.268051147460938
+      },
+      {
+        "step": 85,
+        "action": {
+          "candidate_idx": 62,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1302.2321051346514,
+          "wns": -110.6885421080273,
+          "power": 0.0008944632305301608
+        },
+        "metrics_after": {
+          "tns": -1302.2321051346514,
+          "wns": -110.6885421080273,
+          "power": 0.0008944632305301608
+        },
+        "improvements": {
+          "tns": 2259.0269745164787,
+          "power": 3.1694395910735265e-05
+        },
+        "score": 2259.027006210875,
+        "reward": 51.702372555246555,
+        "success": false,
+        "log_prob": -5.117012977600098,
+        "value": 15.112578392028809
+      },
+      {
+        "step": 86,
+        "action": {
+          "candidate_idx": 67,
+          "replacement_idx": 9,
+          "candidate_cell": "NAND2x1_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1290.3772546526368,
+          "wns": -110.66669846993052,
+          "power": 0.0008922726668196997
+        },
+        "metrics_after": {
+          "tns": -1290.3772546526368,
+          "wns": -110.66669846993052,
+          "power": 0.0008922726668196997
+        },
+        "improvements": {
+          "tns": 2270.8818249984934,
+          "power": 3.388495962119639e-05
+        },
+        "score": 2270.881858883453,
+        "reward": 52.145528866701305,
+        "success": false,
+        "log_prob": -7.048611640930176,
+        "value": 15.105608940124512
+      },
+      {
+        "step": 87,
+        "action": {
+          "candidate_idx": 49,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1290.4046771614546,
+          "wns": -110.66669846993052,
+          "power": 0.00089180295158987
+        },
+        "metrics_after": {
+          "tns": -1290.4046771614546,
+          "wns": -110.66669846993052,
+          "power": 0.00089180295158987
+        },
+        "improvements": {
+          "tns": 2270.8544024896755,
+          "power": 3.4354674851026085e-05
+        },
+        "score": 2270.8544368443504,
+        "reward": 52.151105998050745,
+        "success": false,
+        "log_prob": -4.892320156097412,
+        "value": 15.07214641571045
+      },
+      {
+        "step": 88,
+        "action": {
+          "candidate_idx": 45,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1290.4248832205835,
+          "wns": -110.66669846993052,
+          "power": 0.0008935814481497995
+        },
+        "metrics_after": {
+          "tns": -1290.4248832205835,
+          "wns": -110.66669846993052,
+          "power": 0.0008935814481497995
+        },
+        "improvements": {
+          "tns": 2270.8341964305464,
+          "power": 3.25761782910966e-05
+        },
+        "score": 2270.834229006725,
+        "reward": 51.99469319663661,
+        "success": false,
+        "log_prob": -5.1150007247924805,
+        "value": 15.061476707458496
+      },
+      {
+        "step": 89,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1299.081292178175,
+          "wns": -110.66669846993052,
+          "power": 0.0008937544034536421
+        },
+        "metrics_after": {
+          "tns": -1299.081292178175,
+          "wns": -110.66669846993052,
+          "power": 0.0008937544034536421
+        },
+        "improvements": {
+          "tns": 2262.177787472955,
+          "power": 3.2403222987253955e-05
+        },
+        "score": 2262.177819876178,
+        "reward": 51.8155465165095,
+        "success": false,
+        "log_prob": -5.738990783691406,
+        "value": 15.06236457824707
+      },
+      {
+        "step": 90,
+        "action": {
+          "candidate_idx": 2,
+          "replacement_idx": 4,
+          "candidate_cell": "DFFHQNx3_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1405.0680675137032,
+          "wns": -115.51198932451169,
+          "power": 0.0008956718138739689
+        },
+        "metrics_after": {
+          "tns": -1405.0680675137032,
+          "wns": -115.51198932451169,
+          "power": 0.0008956718138739689
+        },
+        "improvements": {
+          "tns": 2156.1910121374267,
+          "power": 3.0485812566927173e-05
+        },
+        "score": 2156.1910426232394,
+        "reward": 49.61431335272884,
+        "success": false,
+        "log_prob": -6.525421619415283,
+        "value": 15.064778327941895
+      },
+      {
+        "step": 91,
+        "action": {
+          "candidate_idx": 63,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1409.1561307513132,
+          "wns": -115.51198932451169,
+          "power": 0.0008943493687758632
+        },
+        "metrics_after": {
+          "tns": -1409.1561307513132,
+          "wns": -115.51198932451169,
+          "power": 0.0008943493687758632
+        },
+        "improvements": {
+          "tns": 2152.1029488998165,
+          "power": 3.1808257665032896e-05
+        },
+        "score": 2152.102980708074,
+        "reward": 49.709557960992576,
+        "success": false,
+        "log_prob": -5.117534637451172,
+        "value": 15.29477596282959
+      },
+      {
+        "step": 92,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 4,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1405.546129550017,
+          "wns": -115.51198932451169,
+          "power": 0.0008985638375827894
+        },
+        "metrics_after": {
+          "tns": -1405.546129550017,
+          "wns": -115.51198932451169,
+          "power": 0.0008985638375827894
+        },
+        "improvements": {
+          "tns": 2155.712950101113,
+          "power": 2.7593788858106677e-05
+        },
+        "score": 2155.712977694902,
+        "reward": 49.415767648669714,
+        "success": false,
+        "log_prob": -6.040683269500732,
+        "value": 15.285218238830566
+      },
+      {
+        "step": 93,
+        "action": {
+          "candidate_idx": 69,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1409.6148749069212,
+          "wns": -115.51198932451169,
+          "power": 0.0008976091977448593
+        },
+        "metrics_after": {
+          "tns": -1409.6148749069212,
+          "wns": -115.51198932451169,
+          "power": 0.0008976091977448593
+        },
+        "improvements": {
+          "tns": 2151.6442047442088,
+          "power": 2.854842869603677e-05
+        },
+        "score": 2151.6442332926376,
+        "reward": 49.41780413148107,
+        "success": false,
+        "log_prob": -5.816431522369385,
+        "value": 15.29416561126709
+      },
+      {
+        "step": 94,
+        "action": {
+          "candidate_idx": 43,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1409.6062151672945,
+          "wns": -115.51198932451169,
+          "power": 0.0008963079993615404
+        },
+        "metrics_after": {
+          "tns": -1409.6062151672945,
+          "wns": -115.51198932451169,
+          "power": 0.0008963079993615404
+        },
+        "improvements": {
+          "tns": 2151.6528644838354,
+          "power": 2.984962707935565e-05
+        },
+        "score": 2151.6528943334624,
+        "reward": 49.53302045099513,
+        "success": false,
+        "log_prob": -4.891571521759033,
+        "value": 15.28640079498291
+      },
+      {
+        "step": 95,
+        "action": {
+          "candidate_idx": 40,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1422.386214499426,
+          "wns": -115.51198932451169,
+          "power": 0.0008989769765272056
+        },
+        "metrics_after": {
+          "tns": -1422.386214499426,
+          "wns": -115.51198932451169,
+          "power": 0.0008989769765272056
+        },
+        "improvements": {
+          "tns": 2138.872865151704,
+          "power": 2.7180649913690486e-05
+        },
+        "score": 2138.872892332354,
+        "reward": 49.05331347946902,
+        "success": false,
+        "log_prob": -5.8165388107299805,
+        "value": 15.272238731384277
+      },
+      {
+        "step": 96,
+        "action": {
+          "candidate_idx": 45,
+          "replacement_idx": 4,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1422.8017709792036,
+          "wns": -115.51348812560092,
+          "power": 0.0009053609893354582
+        },
+        "metrics_after": {
+          "tns": -1422.8017709792036,
+          "wns": -115.51348812560092,
+          "power": 0.0009053609893354582
+        },
+        "improvements": {
+          "tns": 2138.4573086719265,
+          "power": 2.079663710543786e-05
+        },
+        "score": 2138.457329468564,
+        "reward": 48.496752286111935,
+        "success": false,
+        "log_prob": -6.041100978851318,
+        "value": 15.292394638061523
+      },
+      {
+        "step": 97,
+        "action": {
+          "candidate_idx": 64,
+          "replacement_idx": 7,
+          "candidate_cell": "OAI21xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1415.3953621300323,
+          "wns": -115.51348812560092,
+          "power": 0.000905874457830743
+        },
+        "metrics_after": {
+          "tns": -1415.3953621300323,
+          "wns": -115.51348812560092,
+          "power": 0.000905874457830743
+        },
+        "improvements": {
+          "tns": 2145.863717521098,
+          "power": 2.028316861015303e-05
+        },
+        "score": 2145.8637378042663,
+        "reward": 48.6091459946517,
+        "success": false,
+        "log_prob": -6.29544734954834,
+        "value": 15.316723823547363
+      },
+      {
+        "step": 98,
+        "action": {
+          "candidate_idx": 69,
+          "replacement_idx": 4,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1406.4143239587431,
+          "wns": -115.51348812560092,
+          "power": 0.0009065995958282523
+        },
+        "metrics_after": {
+          "tns": -1406.4143239587431,
+          "wns": -115.51348812560092,
+          "power": 0.0009065995958282523
+        },
+        "improvements": {
+          "tns": 2154.8447556923866,
+          "power": 1.9558030612643745e-05
+        },
+        "score": 2154.844775250417,
+        "reward": 48.71821011463291,
+        "success": false,
+        "log_prob": -6.042028903961182,
+        "value": 15.303022384643555
+      },
+      {
+        "step": 99,
+        "action": {
+          "candidate_idx": 16,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1476.805128536505,
+          "wns": -117.8603053200066,
+          "power": 0.000908410757687713
+        },
+        "metrics_after": {
+          "tns": -1476.805128536505,
+          "wns": -117.8603053200066,
+          "power": 0.000908410757687713
+        },
+        "improvements": {
+          "tns": 2084.453951114625,
+          "power": 1.7746868753183015e-05
+        },
+        "score": 2084.4539688614936,
+        "reward": 47.19215351167379,
+        "success": false,
+        "log_prob": -5.816830635070801,
+        "value": 15.288555145263672
+      },
+      {
+        "step": 100,
+        "action": {
+          "candidate_idx": 0,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1463.6369952334135,
+          "wns": -117.8603053200066,
+          "power": 0.0009085525748310126
+        },
+        "metrics_after": {
+          "tns": -1463.6369952334135,
+          "wns": -117.8603053200066,
+          "power": 0.0009085525748310126
+        },
+        "improvements": {
+          "tns": 2097.6220844177165,
+          "power": 1.7605051609883432e-05
+        },
+        "score": 2097.622102022768,
+        "reward": 47.48730443447625,
+        "success": false,
+        "log_prob": -4.8931050300598145,
+        "value": 15.422808647155762
+      },
+      {
+        "step": 101,
+        "action": {
+          "candidate_idx": 14,
+          "replacement_idx": 4,
+          "candidate_cell": "DFFHQNx3_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1476.2225945131563,
+          "wns": -118.83777343036799,
+          "power": 0.0009098358946310232
+        },
+        "metrics_after": {
+          "tns": -1476.2225945131563,
+          "wns": -118.83777343036799,
+          "power": 0.0009098358946310232
+        },
+        "improvements": {
+          "tns": 2085.0364851379736,
+          "power": 1.6321731809872814e-05
+        },
+        "score": 2085.0365014597055,
+        "reward": 47.10276407495686,
+        "success": false,
+        "log_prob": -6.526402473449707,
+        "value": 15.400647163391113
+      },
+      {
+        "step": 102,
+        "action": {
+          "candidate_idx": 58,
+          "replacement_idx": 0,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1464.6743876317685,
+          "wns": -118.83777343036799,
+          "power": 0.0009094885890889755
+        },
+        "metrics_after": {
+          "tns": -1464.6743876317685,
+          "wns": -118.83777343036799,
+          "power": 0.0009094885890889755
+        },
+        "improvements": {
+          "tns": 2096.5846920193617,
+          "power": 1.6669037351920574e-05
+        },
+        "score": 2096.584708688399,
+        "reward": 47.384914981336955,
+        "success": false,
+        "log_prob": -4.883160591125488,
+        "value": 15.435433387756348
+      },
+      {
+        "step": 103,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 5,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1454.323778331829,
+          "wns": -118.83777343036799,
+          "power": 0.0009096235202202159
+        },
+        "metrics_after": {
+          "tns": -1454.323778331829,
+          "wns": -118.83777343036799,
+          "power": 0.0009096235202202159
+        },
+        "improvements": {
+          "tns": 2106.935301319301,
+          "power": 1.653410622068016e-05
+        },
+        "score": 2106.935317853407,
+        "reward": 47.56290043407536,
+        "success": false,
+        "log_prob": -6.818484306335449,
+        "value": 15.41271686553955
+      },
+      {
+        "step": 104,
+        "action": {
+          "candidate_idx": 36,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI221xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1454.332438071456,
+          "wns": -118.83777343036799,
+          "power": 0.0009096578109773386
+        },
+        "metrics_after": {
+          "tns": -1454.332438071456,
+          "wns": -118.83777343036799,
+          "power": 0.0009096578109773386
+        },
+        "improvements": {
+          "tns": 2106.9266415796737,
+          "power": 1.649981546355747e-05
+        },
+        "score": 2106.9266580794892,
+        "reward": 47.536543991255826,
+        "success": false,
+        "log_prob": -5.1139631271362305,
+        "value": 15.394944190979004
+      },
+      {
+        "step": 105,
+        "action": {
+          "candidate_idx": 44,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1454.242398983799,
+          "wns": -118.8343317389779,
+          "power": 0.000909050897428515
+        },
+        "metrics_after": {
+          "tns": -1454.242398983799,
+          "wns": -118.8343317389779,
+          "power": 0.000909050897428515
+        },
+        "improvements": {
+          "tns": 2107.016680667331,
+          "power": 1.7106729012381083e-05
+        },
+        "score": 2107.01669777406,
+        "reward": 47.593552785996195,
+        "success": false,
+        "log_prob": -4.8912224769592285,
+        "value": 15.389091491699219
+      },
+      {
+        "step": 106,
+        "action": {
+          "candidate_idx": 18,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI21xp5_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1452.8551753089869,
+          "wns": -117.5974322623006,
+          "power": 0.0009058691343176994
+        },
+        "metrics_after": {
+          "tns": -1452.8551753089869,
+          "wns": -117.5974322623006,
+          "power": 0.0009058691343176994
+        },
+        "improvements": {
+          "tns": 2108.403904342143,
+          "power": 2.028849212319661e-05
+        },
+        "score": 2108.403924630635,
+        "reward": 47.93166399696179,
+        "success": false,
+        "log_prob": -6.300692558288574,
+        "value": 15.380764961242676
+      },
+      {
+        "step": 107,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI21xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1451.4018933639454,
+          "wns": -117.5974322623006,
+          "power": 0.00090550481128987
+        },
+        "metrics_after": {
+          "tns": -1451.4018933639454,
+          "wns": -117.5974322623006,
+          "power": 0.00090550481128987
+        },
+        "improvements": {
+          "tns": 2109.8571862871845,
+          "power": 2.0652815151026016e-05
+        },
+        "score": 2109.8572069399997,
+        "reward": 47.95500850465562,
+        "success": false,
+        "log_prob": -6.300034046173096,
+        "value": 15.331009864807129
+      },
+      {
+        "step": 108,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1479.6712803083296,
+          "wns": -121.9591932321498,
+          "power": 0.0009085665498165807
+        },
+        "metrics_after": {
+          "tns": -1479.6712803083296,
+          "wns": -121.9591932321498,
+          "power": 0.0009085665498165807
+        },
+        "improvements": {
+          "tns": 2081.5877993428003,
+          "power": 1.759107662431536e-05
+        },
+        "score": 2081.587816933877,
+        "reward": 47.12707400041075,
+        "success": false,
+        "log_prob": -6.221325397491455,
+        "value": 15.322320938110352
+      },
+      {
+        "step": 109,
+        "action": {
+          "candidate_idx": 55,
+          "replacement_idx": 7,
+          "candidate_cell": "OAI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1476.1942838259154,
+          "wns": -121.9591932321498,
+          "power": 0.0009095070539251182
+        },
+        "metrics_after": {
+          "tns": -1476.1942838259154,
+          "wns": -121.9591932321498,
+          "power": 0.0009095070539251182
+        },
+        "improvements": {
+          "tns": 2085.064795825215,
+          "power": 1.665057251577784e-05
+        },
+        "score": 2085.064812475787,
+        "reward": 47.14772584836327,
+        "success": false,
+        "log_prob": -6.295844078063965,
+        "value": 15.463567733764648
+      },
+      {
+        "step": 110,
+        "action": {
+          "candidate_idx": 41,
+          "replacement_idx": 4,
+          "candidate_cell": "AOI31xp67_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1469.1927733154425,
+          "wns": -121.9591932321498,
+          "power": 0.0009116541979932724
+        },
+        "metrics_after": {
+          "tns": -1469.1927733154425,
+          "wns": -121.9591932321498,
+          "power": 0.0009116541979932724
+        },
+        "improvements": {
+          "tns": 2092.0663063356874,
+          "power": 1.4503428447623645e-05
+        },
+        "score": 2092.0663208391156,
+        "reward": 47.101049506168174,
+        "success": false,
+        "log_prob": -6.041548728942871,
+        "value": 15.459877967834473
+      },
+      {
+        "step": 111,
+        "action": {
+          "candidate_idx": 3,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1475.0436486785961,
+          "wns": -122.02902626067777,
+          "power": 0.0009149370651759317
+        },
+        "metrics_after": {
+          "tns": -1475.0436486785961,
+          "wns": -122.02902626067777,
+          "power": 0.0009149370651759317
+        },
+        "improvements": {
+          "tns": 2086.215430972534,
+          "power": 1.1220561264964346e-05
+        },
+        "score": 2086.215442193095,
+        "reward": 46.6899522022737,
+        "success": false,
+        "log_prob": -5.816378593444824,
+        "value": 15.45783519744873
+      },
+      {
+        "step": 112,
+        "action": {
+          "candidate_idx": 24,
+          "replacement_idx": 10,
+          "candidate_cell": "NOR2xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1505.8960805223946,
+          "wns": -137.90954544606896,
+          "power": 0.0009147961663288819
+        },
+        "metrics_after": {
+          "tns": -1505.8960805223946,
+          "wns": -137.90954544606896,
+          "power": 0.0009147961663288819
+        },
+        "improvements": {
+          "tns": 2055.3629991287353,
+          "power": 1.1361460112014124e-05
+        },
+        "score": 2055.3630104901954,
+        "reward": 46.04403888002647,
+        "success": false,
+        "log_prob": -6.916417121887207,
+        "value": 15.478084564208984
+      },
+      {
+        "step": 113,
+        "action": {
+          "candidate_idx": 18,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1539.1373792578245,
+          "wns": -144.88013624518234,
+          "power": 0.0009184564569164038
+        },
+        "metrics_after": {
+          "tns": -1539.1373792578245,
+          "wns": -144.88013624518234,
+          "power": 0.0009184564569164038
+        },
+        "improvements": {
+          "tns": 2022.1217003933054,
+          "power": 7.701169524492249e-06
+        },
+        "score": 2022.121708094475,
+        "reward": 45.14521550208677,
+        "success": false,
+        "log_prob": -6.442934036254883,
+        "value": 15.864750862121582
+      },
+      {
+        "step": 114,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI221xp5_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1539.1266100944426,
+          "wns": -144.88013624518234,
+          "power": 0.0009181628799345681
+        },
+        "metrics_after": {
+          "tns": -1539.1266100944426,
+          "wns": -144.88013624518234,
+          "power": 0.0009181628799345681
+        },
+        "improvements": {
+          "tns": 2022.1324695566873,
+          "power": 7.99474650632799e-06
+        },
+        "score": 2022.1324775514338,
+        "reward": 45.21505372156333,
+        "success": false,
+        "log_prob": -4.904542922973633,
+        "value": 16.0789737701416
+      },
+      {
+        "step": 115,
+        "action": {
+          "candidate_idx": 31,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1530.8232520600925,
+          "wns": -144.88013624518234,
+          "power": 0.0009188680103176788
+        },
+        "metrics_after": {
+          "tns": -1530.8232520600925,
+          "wns": -144.88013624518234,
+          "power": 0.0009188680103176788
+        },
+        "improvements": {
+          "tns": 2030.4358275910374,
+          "power": 7.289616123217282e-06
+        },
+        "score": 2030.4358348806536,
+        "reward": 45.3268702761648,
+        "success": false,
+        "log_prob": -5.130126953125,
+        "value": 16.072803497314453
+      },
+      {
+        "step": 116,
+        "action": {
+          "candidate_idx": 26,
+          "replacement_idx": 10,
+          "candidate_cell": "NOR2x2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1413.6064597633056,
+          "wns": -140.16568517457605,
+          "power": 0.0009108930582560609
+        },
+        "metrics_after": {
+          "tns": -1413.6064597633056,
+          "wns": -140.16568517457605,
+          "power": 0.0009108930582560609
+        },
+        "improvements": {
+          "tns": 2147.6526198878246,
+          "power": 1.5264568184835195e-05
+        },
+        "score": 2147.6526351523926,
+        "reward": 48.579284496458214,
+        "success": false,
+        "log_prob": -6.930830001831055,
+        "value": 16.062503814697266
+      },
+      {
+        "step": 117,
+        "action": {
+          "candidate_idx": 22,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1412.129974156957,
+          "wns": -140.16568517457605,
+          "power": 0.0009116950700248493
+        },
+        "metrics_after": {
+          "tns": -1412.129974156957,
+          "wns": -140.16568517457605,
+          "power": 0.0009116950700248493
+        },
+        "improvements": {
+          "tns": 2149.129105494173,
+          "power": 1.4462556416046726e-05
+        },
+        "score": 2149.1291199567295,
+        "reward": 48.15414617721802,
+        "success": false,
+        "log_prob": -5.964985370635986,
+        "value": 15.774953842163086
+      },
+      {
+        "step": 118,
+        "action": {
+          "candidate_idx": 72,
+          "replacement_idx": 4,
+          "candidate_cell": "AOI211x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1400.5027193959,
+          "wns": -136.96854816221227,
+          "power": 0.0009112782907351024
+        },
+        "metrics_after": {
+          "tns": -1400.5027193959,
+          "wns": -136.96854816221227,
+          "power": 0.0009112782907351024
+        },
+        "improvements": {
+          "tns": 2160.75636025523,
+          "power": 1.4879335705793653e-05
+        },
+        "score": 2160.7563751345656,
+        "reward": 48.492981917742775,
+        "success": false,
+        "log_prob": -6.042425155639648,
+        "value": 15.773103713989258
+      },
+      {
+        "step": 119,
+        "action": {
+          "candidate_idx": 34,
+          "replacement_idx": 4,
+          "candidate_cell": "AOI21x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1370.4314404753488,
+          "wns": -131.92602618651833,
+          "power": 0.0009086479171091354
+        },
+        "metrics_after": {
+          "tns": -1370.4314404753488,
+          "wns": -131.92602618651833,
+          "power": 0.0009086479171091354
+        },
+        "improvements": {
+          "tns": 2190.827639175781,
+          "power": 1.7509709331760617e-05
+        },
+        "score": 2190.82765668549,
+        "reward": 49.369195643845586,
+        "success": false,
+        "log_prob": -6.524720191955566,
+        "value": 15.681052207946777
+      },
+      {
+        "step": 120,
+        "action": {
+          "candidate_idx": 29,
+          "replacement_idx": 1,
+          "candidate_cell": "AO32x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1363.651197414568,
+          "wns": -131.9351855265081,
+          "power": 0.0009092274492898244
+        },
+        "metrics_after": {
+          "tns": -1363.651197414568,
+          "wns": -131.9351855265081,
+          "power": 0.0009092274492898244
+        },
+        "improvements": {
+          "tns": 2197.6078822365616,
+          "power": 1.693017715107166e-05
+        },
+        "score": 2197.6078991667387,
+        "reward": 49.28718953244656,
+        "success": false,
+        "log_prob": -5.9638543128967285,
+        "value": 15.515180587768555
+      },
+      {
+        "step": 121,
+        "action": {
+          "candidate_idx": 30,
+          "replacement_idx": 1,
+          "candidate_cell": "DFFHQNx2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1626.3682687849953,
+          "wns": -135.96154811927786,
+          "power": 0.0009155813725986017
+        },
+        "metrics_after": {
+          "tns": -1626.3682687849953,
+          "wns": -135.96154811927786,
+          "power": 0.0009155813725986017
+        },
+        "improvements": {
+          "tns": 1934.8908108661346,
+          "power": 1.0576253842294395e-05
+        },
+        "score": 1934.8908214423884,
+        "reward": 43.70864589766616,
+        "success": false,
+        "log_prob": -6.448594093322754,
+        "value": 15.506362915039062
+      },
+      {
+        "step": 122,
+        "action": {
+          "candidate_idx": 60,
+          "replacement_idx": 9,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1703.6884193763408,
+          "wns": -135.9221352017462,
+          "power": 0.0009153042290907919
+        },
+        "metrics_after": {
+          "tns": -1703.6884193763408,
+          "wns": -135.9221352017462,
+          "power": 0.0009153042290907919
+        },
+        "improvements": {
+          "tns": 1857.5706602747891,
+          "power": 1.0853397350104113e-05
+        },
+        "score": 1857.5706711281864,
+        "reward": 42.35878335069185,
+        "success": false,
+        "log_prob": -7.047789573669434,
+        "value": 15.93236255645752
+      },
+      {
+        "step": 123,
+        "action": {
+          "candidate_idx": 25,
+          "replacement_idx": 4,
+          "candidate_cell": "AO32x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1704.3139190309141,
+          "wns": -135.9303230965855,
+          "power": 0.0009160421990987832
+        },
+        "metrics_after": {
+          "tns": -1704.3139190309141,
+          "wns": -135.9303230965855,
+          "power": 0.0009160421990987832
+        },
+        "improvements": {
+          "tns": 1856.9451606202158,
+          "power": 1.0115427342112862e-05
+        },
+        "score": 1856.9451707356432,
+        "reward": 42.30272119625362,
+        "success": false,
+        "log_prob": -6.056789398193359,
+        "value": 16.0251522064209
+      },
+      {
+        "step": 124,
+        "action": {
+          "candidate_idx": 63,
+          "replacement_idx": 0,
+          "candidate_cell": "OA211x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1693.3721159679997,
+          "wns": -135.9303230965855,
+          "power": 0.0009162226355834812
+        },
+        "metrics_after": {
+          "tns": -1693.3721159679997,
+          "wns": -135.9303230965855,
+          "power": 0.0009162226355834812
+        },
+        "improvements": {
+          "tns": 1867.8869636831303,
+          "power": 9.934990857414852e-06
+        },
+        "score": 1867.8869736181211,
+        "reward": 42.51698230042852,
+        "success": false,
+        "log_prob": -4.896250247955322,
+        "value": 16.02642822265625
+      },
+      {
+        "step": 125,
+        "action": {
+          "candidate_idx": 15,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1693.6970782486057,
+          "wns": -135.87878099246132,
+          "power": 0.0009107421121145164
+        },
+        "metrics_after": {
+          "tns": -1693.6970782486057,
+          "wns": -135.87878099246132,
+          "power": 0.0009107421121145164
+        },
+        "improvements": {
+          "tns": 1867.5620014025242,
+          "power": 1.5415514326379623e-05
+        },
+        "score": 1867.5620168180385,
+        "reward": 42.9843046954483,
+        "success": false,
+        "log_prob": -5.975736141204834,
+        "value": 16.010608673095703
+      },
+      {
+        "step": 126,
+        "action": {
+          "candidate_idx": 59,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI31xp67_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1697.7224138850736,
+          "wns": -135.87878099246132,
+          "power": 0.0009103798280104183
+        },
+        "metrics_after": {
+          "tns": -1697.7224138850736,
+          "wns": -135.87878099246132,
+          "power": 0.0009103798280104183
+        },
+        "improvements": {
+          "tns": 1863.5366657660563,
+          "power": 1.5777798430477788e-05
+        },
+        "score": 1863.5366815438547,
+        "reward": 42.91609011225526,
+        "success": false,
+        "log_prob": -5.828585624694824,
+        "value": 15.980050086975098
+      },
+      {
+        "step": 127,
+        "action": {
+          "candidate_idx": 23,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI211x1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1701.7245458602342,
+          "wns": -135.87878099246132,
+          "power": 0.0009095078694701438
+        },
+        "metrics_after": {
+          "tns": -1701.7245458602342,
+          "wns": -135.87878099246132,
+          "power": 0.0009095078694701438
+        },
+        "improvements": {
+          "tns": 1859.5345337908957,
+          "power": 1.664975697075223e-05
+        },
+        "score": 1859.5345504406528,
+        "reward": 42.918658986657135,
+        "success": false,
+        "log_prob": -5.829004287719727,
+        "value": 15.979987144470215
+      },
+      {
+        "step": 128,
+        "action": {
+          "candidate_idx": 66,
+          "replacement_idx": 2,
+          "candidate_cell": "OAI21xp5_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1711.0851692851595,
+          "wns": -135.87878099246132,
+          "power": 0.0009120179780604584
+        },
+        "metrics_after": {
+          "tns": -1711.0851692851595,
+          "wns": -135.87878099246132,
+          "power": 0.0009120179780604584
+        },
+        "improvements": {
+          "tns": 1850.1739103659704,
+          "power": 1.41396483804377e-05
+        },
+        "score": 1850.1739245056187,
+        "reward": 42.52070901783634,
+        "success": false,
+        "log_prob": -6.542624473571777,
+        "value": 15.97742748260498
+      },
+      {
+        "step": 129,
+        "action": {
+          "candidate_idx": 49,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1711.0481988582917,
+          "wns": -135.87517276761687,
+          "power": 0.0009091335784185469
+        },
+        "metrics_after": {
+          "tns": -1711.0481988582917,
+          "wns": -135.87517276761687,
+          "power": 0.0009091335784185469
+        },
+        "improvements": {
+          "tns": 1850.2108807928382,
+          "power": 1.702404802234915e-05
+        },
+        "score": 1850.2108978168862,
+        "reward": 42.78633031836953,
+        "success": false,
+        "log_prob": -5.829432010650635,
+        "value": 15.997838020324707
+      },
+      {
+        "step": 130,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI221xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1711.0368745833953,
+          "wns": -135.87517276761687,
+          "power": 0.0009089894846433574
+        },
+        "metrics_after": {
+          "tns": -1711.0368745833953,
+          "wns": -135.87517276761687,
+          "power": 0.0009089894846433574
+        },
+        "improvements": {
+          "tns": 1850.2222050677346,
+          "power": 1.7168141797538686e-05
+        },
+        "score": 1850.2222222358764,
+        "reward": 42.78702819054391,
+        "success": false,
+        "log_prob": -4.904502868652344,
+        "value": 15.980483055114746
+      },
+      {
+        "step": 131,
+        "action": {
+          "candidate_idx": 42,
+          "replacement_idx": 1,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1704.8464930179548,
+          "wns": -135.87517276761687,
+          "power": 0.0009088583402090452
+        },
+        "metrics_after": {
+          "tns": -1704.8464930179548,
+          "wns": -135.87517276761687,
+          "power": 0.0009088583402090452
+        },
+        "improvements": {
+          "tns": 1856.4125866331751,
+          "power": 1.7299286231850855e-05
+        },
+        "score": 1856.4126039324613,
+        "reward": 42.92812262582581,
+        "success": false,
+        "log_prob": -5.132496356964111,
+        "value": 15.976520538330078
+      },
+      {
+        "step": 132,
+        "action": {
+          "candidate_idx": 46,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1706.2981096284525,
+          "wns": -135.88713542075502,
+          "power": 0.0009095676348929941
+        },
+        "metrics_after": {
+          "tns": -1706.2981096284525,
+          "wns": -135.88713542075502,
+          "power": 0.0009095676348929941
+        },
+        "improvements": {
+          "tns": 1854.9609700226774,
+          "power": 1.6589991547901958e-05
+        },
+        "score": 1854.9609866126689,
+        "reward": 42.824577457190365,
+        "success": false,
+        "log_prob": -4.903372764587402,
+        "value": 15.9650297164917
+      },
+      {
+        "step": 133,
+        "action": {
+          "candidate_idx": 17,
+          "replacement_idx": 0,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1710.611659163265,
+          "wns": -137.52471438862057,
+          "power": 0.0009091250632855628
+        },
+        "metrics_after": {
+          "tns": -1710.611659163265,
+          "wns": -137.52471438862057,
+          "power": 0.0009091250632855628
+        },
+        "improvements": {
+          "tns": 1850.647420487865,
+          "power": 1.703256315533329e-05
+        },
+        "score": 1850.6474375204282,
+        "reward": 42.77561358710327,
+        "success": false,
+        "log_prob": -4.902901649475098,
+        "value": 15.967266082763672
+      },
+      {
+        "step": 134,
+        "action": {
+          "candidate_idx": 45,
+          "replacement_idx": 0,
+          "candidate_cell": "OA211x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1715.5310574050359,
+          "wns": -143.2898250227791,
+          "power": 0.0009086152936890971
+        },
+        "metrics_after": {
+          "tns": -1715.5310574050359,
+          "wns": -143.2898250227791,
+          "power": 0.0009086152936890971
+        },
+        "improvements": {
+          "tns": 1845.728022246094,
+          "power": 1.7542332751798936e-05
+        },
+        "score": 1845.7280397884267,
+        "reward": 42.70817150060683,
+        "success": false,
+        "log_prob": -4.900115013122559,
+        "value": 16.003690719604492
+      },
+      {
+        "step": 135,
+        "action": {
+          "candidate_idx": 70,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1716.349291777454,
+          "wns": -143.2898250227791,
+          "power": 0.0009080607790084797
+        },
+        "metrics_after": {
+          "tns": -1716.349291777454,
+          "wns": -143.2898250227791,
+          "power": 0.0009080607790084797
+        },
+        "improvements": {
+          "tns": 1844.909787873676,
+          "power": 1.8096847432416338e-05
+        },
+        "score": 1844.9098059705234,
+        "reward": 42.769267639559594,
+        "success": false,
+        "log_prob": -5.829102993011475,
+        "value": 16.132884979248047
+      },
+      {
+        "step": 136,
+        "action": {
+          "candidate_idx": 48,
+          "replacement_idx": 9,
+          "candidate_cell": "NOR2x2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1767.1492118067015,
+          "wns": -143.2898250227791,
+          "power": 0.0009078688440696415
+        },
+        "metrics_after": {
+          "tns": -1767.1492118067015,
+          "wns": -143.2898250227791,
+          "power": 0.0009078688440696415
+        },
+        "improvements": {
+          "tns": 1794.1098678444284,
+          "power": 1.8288782371254572e-05
+        },
+        "score": 1794.109886133211,
+        "reward": 41.81879736551873,
+        "success": false,
+        "log_prob": -6.851937770843506,
+        "value": 16.127979278564453
+      },
+      {
+        "step": 137,
+        "action": {
+          "candidate_idx": 57,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1767.1493228290044,
+          "wns": -143.2898250227791,
+          "power": 0.0009075299633658305
+        },
+        "metrics_after": {
+          "tns": -1767.1493228290044,
+          "wns": -143.2898250227791,
+          "power": 0.0009075299633658305
+        },
+        "improvements": {
+          "tns": 1794.1097568221255,
+          "power": 1.8627663075065568e-05
+        },
+        "score": 1794.1097754497887,
+        "reward": 41.8629664651962,
+        "success": false,
+        "log_prob": -4.894852638244629,
+        "value": 16.182863235473633
+      },
+      {
+        "step": 138,
+        "action": {
+          "candidate_idx": 15,
+          "replacement_idx": 1,
+          "candidate_cell": "NOR5xp2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1785.1471483531186,
+          "wns": -143.2898250227791,
+          "power": 0.0009069399489187949
+        },
+        "metrics_after": {
+          "tns": -1785.1471483531186,
+          "wns": -143.2898250227791,
+          "power": 0.0009069399489187949
+        },
+        "improvements": {
+          "tns": 1776.1119312980113,
+          "power": 1.9217677522101115e-05
+        },
+        "score": 1776.111950515689,
+        "reward": 41.58287460507753,
+        "success": false,
+        "log_prob": -5.122182846069336,
+        "value": 16.177993774414062
+      },
+      {
+        "step": 139,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI221xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1785.158472628015,
+          "wns": -143.2898250227791,
+          "power": 0.0009070840631291936
+        },
+        "metrics_after": {
+          "tns": -1785.158472628015,
+          "wns": -143.2898250227791,
+          "power": 0.0009070840631291936
+        },
+        "improvements": {
+          "tns": 1776.100607023115,
+          "power": 1.90735633117025e-05
+        },
+        "score": 1776.1006260966783,
+        "reward": 41.572685412329854,
+        "success": false,
+        "log_prob": -4.890665054321289,
+        "value": 16.196964263916016
+      },
+      {
+        "step": 140,
+        "action": {
+          "candidate_idx": 50,
+          "replacement_idx": 2,
+          "candidate_cell": "DFFHQNx2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1782.9138237078587,
+          "wns": -143.2898250227791,
+          "power": 0.0009087386638484633
+        },
+        "metrics_after": {
+          "tns": -1782.9138237078587,
+          "wns": -143.2898250227791,
+          "power": 0.0009087386638484633
+        },
+        "improvements": {
+          "tns": 1778.3452559432712,
+          "power": 1.7418962592432793e-05
+        },
+        "score": 1778.345273362234,
+        "reward": 41.47652381489203,
+        "success": false,
+        "log_prob": -6.5381550788879395,
+        "value": 16.197114944458008
+      },
+      {
+        "step": 141,
+        "action": {
+          "candidate_idx": 40,
+          "replacement_idx": 2,
+          "candidate_cell": "AO221x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1779.1785893488845,
+          "wns": -143.2898250227791,
+          "power": 0.0009103921987134948
+        },
+        "metrics_after": {
+          "tns": -1779.1785893488845,
+          "wns": -143.2898250227791,
+          "power": 0.0009103921987134948
+        },
+        "improvements": {
+          "tns": 1782.0804903022454,
+          "power": 1.576542772740129e-05
+        },
+        "score": 1782.080506067673,
+        "reward": 41.39700126045475,
+        "success": false,
+        "log_prob": -6.048216819763184,
+        "value": 16.201183319091797
+      },
+      {
+        "step": 142,
+        "action": {
+          "candidate_idx": 10,
+          "replacement_idx": 6,
+          "candidate_cell": "OAI22xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1775.4525698410516,
+          "wns": -143.2898250227791,
+          "power": 0.0009107475257548198
+        },
+        "metrics_after": {
+          "tns": -1775.4525698410516,
+          "wns": -143.2898250227791,
+          "power": 0.0009107475257548198
+        },
+        "improvements": {
+          "tns": 1785.8065098100783,
+          "power": 1.541010068607622e-05
+        },
+        "score": 1785.806525220179,
+        "reward": 41.43635417960861,
+        "success": false,
+        "log_prob": -6.083900451660156,
+        "value": 16.20334243774414
+      },
+      {
+        "step": 143,
+        "action": {
+          "candidate_idx": 28,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1768.0373902299507,
+          "wns": -143.29068544562662,
+          "power": 0.0009109397908208267
+        },
+        "metrics_after": {
+          "tns": -1768.0373902299507,
+          "wns": -143.29068544562662,
+          "power": 0.0009109397908208267
+        },
+        "improvements": {
+          "tns": 1793.2216894211792,
+          "power": 1.5217835620069328e-05
+        },
+        "score": 1793.221704639015,
+        "reward": 41.56694645965529,
+        "success": false,
+        "log_prob": -4.888975143432617,
+        "value": 16.199670791625977
+      },
+      {
+        "step": 144,
+        "action": {
+          "candidate_idx": 28,
+          "replacement_idx": 1,
+          "candidate_cell": "OA21x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1764.27784198664,
+          "wns": -143.29151811289842,
+          "power": 0.0009114802196841538
+        },
+        "metrics_after": {
+          "tns": -1764.27784198664,
+          "wns": -143.29151811289842,
+          "power": 0.0009114802196841538
+        },
+        "improvements": {
+          "tns": 1796.98123766449,
+          "power": 1.467740675674227e-05
+        },
+        "score": 1796.9812523418968,
+        "reward": 41.58239185932608,
+        "success": false,
+        "log_prob": -5.1189398765563965,
+        "value": 16.190570831298828
+      },
+      {
+        "step": 145,
+        "action": {
+          "candidate_idx": 19,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI311xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1782.902943522174,
+          "wns": -143.29151811289842,
+          "power": 0.0009106342647487459
+        },
+        "metrics_after": {
+          "tns": -1782.902943522174,
+          "wns": -143.29151811289842,
+          "power": 0.0009106342647487459
+        },
+        "improvements": {
+          "tns": 1778.356136128956,
+          "power": 1.5523361692150114e-05
+        },
+        "score": 1778.3561516523177,
+        "reward": 41.30672727264679,
+        "success": false,
+        "log_prob": -5.128700256347656,
+        "value": 16.187850952148438
+      },
+      {
+        "step": 146,
+        "action": {
+          "candidate_idx": 60,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1778.9905175677616,
+          "wns": -143.29151811289842,
+          "power": 0.0009107830356516484
+        },
+        "metrics_after": {
+          "tns": -1778.9905175677616,
+          "wns": -143.29151811289842,
+          "power": 0.0009107830356516484
+        },
+        "improvements": {
+          "tns": 1782.2685620833684,
+          "power": 1.5374590789247675e-05
+        },
+        "score": 1782.268577457959,
+        "reward": 41.367486845871696,
+        "success": false,
+        "log_prob": -5.963756561279297,
+        "value": 16.208688735961914
+      },
+      {
+        "step": 147,
+        "action": {
+          "candidate_idx": 8,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1778.4214172430648,
+          "wns": -143.2222679514607,
+          "power": 0.0009069313869909338
+        },
+        "metrics_after": {
+          "tns": -1778.4214172430648,
+          "wns": -143.2222679514607,
+          "power": 0.0009069313869909338
+        },
+        "improvements": {
+          "tns": 1782.8376624080652,
+          "power": 1.9226239449962254e-05
+        },
+        "score": 1782.8376816343045,
+        "reward": 41.721307406757276,
+        "success": false,
+        "log_prob": -5.963086128234863,
+        "value": 16.20429039001465
+      },
+      {
+        "step": 148,
+        "action": {
+          "candidate_idx": 38,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1785.0785365699226,
+          "wns": -143.2222679514607,
+          "power": 0.0009063020075257503
+        },
+        "metrics_after": {
+          "tns": -1785.0785365699226,
+          "wns": -143.2222679514607,
+          "power": 0.0009063020075257503
+        },
+        "improvements": {
+          "tns": 1776.1805430812074,
+          "power": 1.9855618915145742e-05
+        },
+        "score": 1776.1805629368262,
+        "reward": 41.64261848481119,
+        "success": false,
+        "log_prob": -4.884857177734375,
+        "value": 16.185169219970703
+      },
+      {
+        "step": 149,
+        "action": {
+          "candidate_idx": 49,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1784.804977615562,
+          "wns": -143.15026998802608,
+          "power": 0.000901835435337223
+        },
+        "metrics_after": {
+          "tns": -1784.804977615562,
+          "wns": -143.15026998802608,
+          "power": 0.000901835435337223
+        },
+        "improvements": {
+          "tns": 1776.454102035568,
+          "power": 2.432219110367305e-05
+        },
+        "score": 1776.4541263577592,
+        "reward": 42.053971382737146,
+        "success": false,
+        "log_prob": -5.732165336608887,
+        "value": 16.191234588623047
+      },
+      {
+        "step": 150,
+        "action": {
+          "candidate_idx": 12,
+          "replacement_idx": 1,
+          "candidate_cell": "DFFHQNx2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1797.618505683171,
+          "wns": -144.93192814948807,
+          "power": 0.0009072230203852841
+        },
+        "metrics_after": {
+          "tns": -1797.618505683171,
+          "wns": -144.93192814948807,
+          "power": 0.0009072230203852841
+        },
+        "improvements": {
+          "tns": 1763.640573967959,
+          "power": 1.893460605561191e-05
+        },
+        "score": 1763.640592902565,
+        "reward": 41.314188081031844,
+        "success": false,
+        "log_prob": -6.450549602508545,
+        "value": 16.16973876953125
+      },
+      {
+        "step": 151,
+        "action": {
+          "candidate_idx": 8,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1797.3718141261136,
+          "wns": -144.93628577487712,
+          "power": 0.0009077950966579502
+        },
+        "metrics_after": {
+          "tns": -1797.3718141261136,
+          "wns": -144.93628577487712,
+          "power": 0.0009077950966579502
+        },
+        "improvements": {
+          "tns": 1763.8872655250163,
+          "power": 1.8362529782945877e-05
+        },
+        "score": 1763.8872838875461,
+        "reward": 41.28296415647855,
+        "success": false,
+        "log_prob": -5.734149932861328,
+        "value": 16.249797821044922
+      },
+      {
+        "step": 152,
+        "action": {
+          "candidate_idx": 63,
+          "replacement_idx": 4,
+          "candidate_cell": "AND2x6_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1797.3720361707194,
+          "wns": -144.93628577487712,
+          "power": 0.0009055168405288378
+        },
+        "metrics_after": {
+          "tns": -1797.3720361707194,
+          "wns": -144.93628577487712,
+          "power": 0.0009055168405288378
+        },
+        "improvements": {
+          "tns": 1763.8870434804105,
+          "power": 2.0640785912058243e-05
+        },
+        "score": 1763.8870641211963,
+        "reward": 41.489181538062056,
+        "success": false,
+        "log_prob": -6.527530193328857,
+        "value": 16.252172470092773
+      },
+      {
+        "step": 153,
+        "action": {
+          "candidate_idx": 21,
+          "replacement_idx": 11,
+          "candidate_cell": "NOR2xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1764.6322251775164,
+          "wns": -145.0594650199515,
+          "power": 0.0009069268456196773
+        },
+        "metrics_after": {
+          "tns": -1764.6322251775164,
+          "wns": -145.0594650199515,
+          "power": 0.0009069268456196773
+        },
+        "improvements": {
+          "tns": 1796.6268544736135,
+          "power": 1.9230780821218735e-05
+        },
+        "score": 1796.6268737043943,
+        "reward": 42.033404204416385,
+        "success": false,
+        "log_prob": -7.039273262023926,
+        "value": 16.24303436279297
+      },
+      {
+        "step": 154,
+        "action": {
+          "candidate_idx": 35,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI311xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1773.1687300479693,
+          "wns": -145.05222081468688,
+          "power": 0.0009058091848439982
+        },
+        "metrics_after": {
+          "tns": -1773.1687300479693,
+          "wns": -145.05222081468688,
+          "power": 0.0009058091848439982
+        },
+        "improvements": {
+          "tns": 1788.0903496031606,
+          "power": 2.034844159689783e-05
+        },
+        "score": 1788.0903699516023,
+        "reward": 41.89996814130667,
+        "success": false,
+        "log_prob": -4.890955924987793,
+        "value": 16.21152687072754
+      },
+      {
+        "step": 155,
+        "action": {
+          "candidate_idx": 41,
+          "replacement_idx": 0,
+          "candidate_cell": "O2A1O1Ixp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1775.6876040563038,
+          "wns": -145.05222081468688,
+          "power": 0.0009053798084894156
+        },
+        "metrics_after": {
+          "tns": -1775.6876040563038,
+          "wns": -145.05222081468688,
+          "power": 0.0009053798084894156
+        },
+        "improvements": {
+          "tns": 1785.571475594826,
+          "power": 2.0777817951480454e-05
+        },
+        "score": 1785.571496372644,
+        "reward": 41.888460651628215,
+        "success": false,
+        "log_prob": -4.887360095977783,
+        "value": 16.21844482421875
+      },
+      {
+        "step": 156,
+        "action": {
+          "candidate_idx": 63,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1769.2700708591174,
+          "wns": -145.0578829521351,
+          "power": 0.000906047897805573
+        },
+        "metrics_after": {
+          "tns": -1769.2700708591174,
+          "wns": -145.0578829521351,
+          "power": 0.000906047897805573
+        },
+        "improvements": {
+          "tns": 1791.9890087920126,
+          "power": 2.010972863532301e-05
+        },
+        "score": 1791.9890289017412,
+        "reward": 41.964046496018604,
+        "success": false,
+        "log_prob": -4.887914657592773,
+        "value": 16.220962524414062
+      },
+      {
+        "step": 157,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1762.4461960332947,
+          "wns": -145.0578829521351,
+          "power": 0.0009066932982473019
+        },
+        "metrics_after": {
+          "tns": -1762.4461960332947,
+          "wns": -145.0578829521351,
+          "power": 0.0009066932982473019
+        },
+        "improvements": {
+          "tns": 1798.8128836178353,
+          "power": 1.9464328193594116e-05
+        },
+        "score": 1798.8129030821635,
+        "reward": 42.03704885509862,
+        "success": false,
+        "log_prob": -4.884771347045898,
+        "value": 16.217172622680664
+      },
+      {
+        "step": 158,
+        "action": {
+          "candidate_idx": 27,
+          "replacement_idx": 4,
+          "candidate_cell": "AO32x1_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1759.8489402791083,
+          "wns": -145.0577996854079,
+          "power": 0.0009076695589275985
+        },
+        "metrics_after": {
+          "tns": -1759.8489402791083,
+          "wns": -145.0577996854079,
+          "power": 0.0009076695589275985
+        },
+        "improvements": {
+          "tns": 1801.4101393720216,
+          "power": 1.8488067513297568e-05
+        },
+        "score": 1801.4101578600892,
+        "reward": 41.991801356737,
+        "success": false,
+        "log_prob": -6.043756484985352,
+        "value": 16.212642669677734
+      },
+      {
+        "step": 159,
+        "action": {
+          "candidate_idx": 10,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI22xp5_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1755.8488067054002,
+          "wns": -145.0577996854079,
+          "power": 0.0009101410079150954
+        },
+        "metrics_after": {
+          "tns": -1755.8488067054002,
+          "wns": -145.0577996854079,
+          "power": 0.0009101410079150954
+        },
+        "improvements": {
+          "tns": 1805.4102729457297,
+          "power": 1.6016618525800663e-05
+        },
+        "score": 1805.4102889623482,
+        "reward": 41.85606838012824,
+        "success": false,
+        "log_prob": -6.454531669616699,
+        "value": 16.21500587463379
+      },
+      {
+        "step": 160,
+        "action": {
+          "candidate_idx": 59,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI31xp67_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1727.233918354372,
+          "wns": -145.0577996854079,
+          "power": 0.000908936782986227
+        },
+        "metrics_after": {
+          "tns": -1727.233918354372,
+          "wns": -145.0577996854079,
+          "power": 0.000908936782986227
+        },
+        "improvements": {
+          "tns": 1834.025161296758,
+          "power": 1.7220843454669038e-05
+        },
+        "score": 1834.0251785176013,
+        "reward": 42.55705424854467,
+        "success": false,
+        "log_prob": -5.966302394866943,
+        "value": 16.222366333007812
+      },
+      {
+        "step": 161,
+        "action": {
+          "candidate_idx": 40,
+          "replacement_idx": 0,
+          "candidate_cell": "AO221x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1730.9507230110637,
+          "wns": -145.0577996854079,
+          "power": 0.0009072831809038527
+        },
+        "metrics_after": {
+          "tns": -1730.9507230110637,
+          "wns": -145.0577996854079,
+          "power": 0.0009072831809038527
+        },
+        "improvements": {
+          "tns": 1830.3083566400662,
+          "power": 1.8874445537043344e-05
+        },
+        "score": 1830.3083755145117,
+        "reward": 42.566893222132094,
+        "success": false,
+        "log_prob": -5.737683296203613,
+        "value": 16.181943893432617
+      },
+      {
+        "step": 162,
+        "action": {
+          "candidate_idx": 8,
+          "replacement_idx": 3,
+          "candidate_cell": "OAI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1732.8941684234355,
+          "wns": -145.17001547807027,
+          "power": 0.0009108635187542145
+        },
+        "metrics_after": {
+          "tns": -1732.8941684234355,
+          "wns": -145.17001547807027,
+          "power": 0.0009108635187542145
+        },
+        "improvements": {
+          "tns": 1828.3649112276944,
+          "power": 1.529410768668152e-05
+        },
+        "score": 1828.364926521802,
+        "reward": 42.213284000236754,
+        "success": false,
+        "log_prob": -5.816134452819824,
+        "value": 16.1804256439209
+      },
+      {
+        "step": 163,
+        "action": {
+          "candidate_idx": 29,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1738.2749753560845,
+          "wns": -145.17001547807027,
+          "power": 0.0009098032852390241
+        },
+        "metrics_after": {
+          "tns": -1738.2749753560845,
+          "wns": -145.17001547807027,
+          "power": 0.0009098032852390241
+        },
+        "improvements": {
+          "tns": 1822.9841042950454,
+          "power": 1.6354341201871986e-05
+        },
+        "score": 1822.9841206493866,
+        "reward": 42.20900237132788,
+        "success": false,
+        "log_prob": -4.895667552947998,
+        "value": 16.202816009521484
+      },
+      {
+        "step": 164,
+        "action": {
+          "candidate_idx": 33,
+          "replacement_idx": 1,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1744.8007552986044,
+          "wns": -145.03581726943247,
+          "power": 0.0009025474950091726
+        },
+        "metrics_after": {
+          "tns": -1744.8007552986044,
+          "wns": -145.03581726943247,
+          "power": 0.0009025474950091726
+        },
+        "improvements": {
+          "tns": 1816.4583243525256,
+          "power": 2.361013143172344e-05
+        },
+        "score": 1816.458347962657,
+        "reward": 42.74248949846417,
+        "success": false,
+        "log_prob": -5.963339805603027,
+        "value": 16.206045150756836
+      },
+      {
+        "step": 165,
+        "action": {
+          "candidate_idx": 22,
+          "replacement_idx": 13,
+          "candidate_cell": "NOR2xp67_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1737.466399924019,
+          "wns": -145.04250636318258,
+          "power": 0.0009028999528488367
+        },
+        "metrics_after": {
+          "tns": -1737.466399924019,
+          "wns": -145.04250636318258,
+          "power": 0.0009028999528488367
+        },
+        "improvements": {
+          "tns": 1823.792679727111,
+          "power": 2.3257673592059352e-05
+        },
+        "score": 1823.7927029847845,
+        "reward": 42.83374524076571,
+        "success": false,
+        "log_prob": -7.0531840324401855,
+        "value": 16.17754364013672
+      },
+      {
+        "step": 166,
+        "action": {
+          "candidate_idx": 35,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1743.2433344334372,
+          "wns": -145.04250636318258,
+          "power": 0.0009027671847917466
+        },
+        "metrics_after": {
+          "tns": -1743.2433344334372,
+          "wns": -145.04250636318258,
+          "power": 0.0009027671847917466
+        },
+        "improvements": {
+          "tns": 1818.0157452176927,
+          "power": 2.3390441649149413e-05
+        },
+        "score": 1818.0157686081343,
+        "reward": 42.71959844200719,
+        "success": false,
+        "log_prob": -6.285940647125244,
+        "value": 16.171716690063477
+      },
+      {
+        "step": 167,
+        "action": {
+          "candidate_idx": 16,
+          "replacement_idx": 5,
+          "candidate_cell": "OAI21x1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1726.6868004456505,
+          "wns": -145.04250636318258,
+          "power": 0.0009004558791020668
+        },
+        "metrics_after": {
+          "tns": -1726.6868004456505,
+          "wns": -145.04250636318258,
+          "power": 0.0009004558791020668
+        },
+        "improvements": {
+          "tns": 1834.5722792054794,
+          "power": 2.5701747338829212e-05
+        },
+        "score": 1834.5723049072267,
+        "reward": 43.27756172868436,
+        "success": false,
+        "log_prob": -6.798239231109619,
+        "value": 16.180727005004883
+      },
+      {
+        "step": 168,
+        "action": {
+          "candidate_idx": 16,
+          "replacement_idx": 4,
+          "candidate_cell": "OAI21xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1732.3783588041338,
+          "wns": -145.04250636318258,
+          "power": 0.0008985620776745494
+        },
+        "metrics_after": {
+          "tns": -1732.3783588041338,
+          "wns": -145.04250636318258,
+          "power": 0.0008985620776745494
+        },
+        "improvements": {
+          "tns": 1828.8807208469962,
+          "power": 2.759554876634665e-05
+        },
+        "score": 1828.880748442545,
+        "reward": 43.29395226255065,
+        "success": false,
+        "log_prob": -6.510527610778809,
+        "value": 16.150705337524414
+      },
+      {
+        "step": 169,
+        "action": {
+          "candidate_idx": 71,
+          "replacement_idx": 4,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1740.920303767429,
+          "wns": -145.04250636318258,
+          "power": 0.0008983413175784986
+        },
+        "metrics_after": {
+          "tns": -1740.920303767429,
+          "wns": -145.04250636318258,
+          "power": 0.0008983413175784986
+        },
+        "improvements": {
+          "tns": 1820.338775883701,
+          "power": 2.7816308862397415e-05
+        },
+        "score": 1820.3388037000097,
+        "reward": 43.14501013097445,
+        "success": false,
+        "log_prob": -6.030289173126221,
+        "value": 16.151683807373047
+      },
+      {
+        "step": 170,
+        "action": {
+          "candidate_idx": 22,
+          "replacement_idx": 6,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1721.3601723968197,
+          "wns": -146.13327273365965,
+          "power": 0.0008980174593432762
+        },
+        "metrics_after": {
+          "tns": -1721.3601723968197,
+          "wns": -146.13327273365965,
+          "power": 0.0008980174593432762
+        },
+        "improvements": {
+          "tns": 1839.8989072543102,
+          "power": 2.8140167097619878e-05
+        },
+        "score": 1839.8989353944773,
+        "reward": 43.58097416733389,
+        "success": false,
+        "log_prob": -6.0810346603393555,
+        "value": 16.163917541503906
+      },
+      {
+        "step": 171,
+        "action": {
+          "candidate_idx": 0,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1734.5795980038538,
+          "wns": -146.13327273365965,
+          "power": 0.0008978705013380182
+        },
+        "metrics_after": {
+          "tns": -1734.5795980038538,
+          "wns": -146.13327273365965,
+          "power": 0.0008978705013380182
+        },
+        "improvements": {
+          "tns": 1826.6794816472761,
+          "power": 2.8287125102877814e-05
+        },
+        "score": 1826.6795099344013,
+        "reward": 43.30280347452296,
+        "success": false,
+        "log_prob": -4.877569198608398,
+        "value": 16.16234588623047
+      },
+      {
+        "step": 172,
+        "action": {
+          "candidate_idx": 62,
+          "replacement_idx": 4,
+          "candidate_cell": "AND2x4_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1734.6956163103905,
+          "wns": -146.13327273365965,
+          "power": 0.000903827187411315
+        },
+        "metrics_after": {
+          "tns": -1734.6956163103905,
+          "wns": -146.13327273365965,
+          "power": 0.000903827187411315
+        },
+        "improvements": {
+          "tns": 1826.5634633407394,
+          "power": 2.2330439029581012e-05
+        },
+        "score": 1826.5634856711783,
+        "reward": 42.787860015477065,
+        "success": false,
+        "log_prob": -6.514249801635742,
+        "value": 16.181034088134766
+      },
+      {
+        "step": 173,
+        "action": {
+          "candidate_idx": 59,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1743.546203275765,
+          "wns": -146.13327273365965,
+          "power": 0.000903139795422031
+        },
+        "metrics_after": {
+          "tns": -1743.546203275765,
+          "wns": -146.13327273365965,
+          "power": 0.000903139795422031
+        },
+        "improvements": {
+          "tns": 1817.7128763753649,
+          "power": 2.301783101886501e-05
+        },
+        "score": 1817.7128993931958,
+        "reward": 42.68327270245385,
+        "success": false,
+        "log_prob": -5.949979782104492,
+        "value": 16.21001625061035
+      },
+      {
+        "step": 174,
+        "action": {
+          "candidate_idx": 11,
+          "replacement_idx": 4,
+          "candidate_cell": "NAND3x2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1748.235119216703,
+          "wns": -146.13327273365965,
+          "power": 0.0008932658526314557
+        },
+        "metrics_after": {
+          "tns": -1748.235119216703,
+          "wns": -146.13327273365965,
+          "power": 0.0008932658526314557
+        },
+        "improvements": {
+          "tns": 1813.023960434427,
+          "power": 3.2891773809440306e-05
+        },
+        "score": 1813.0239933262008,
+        "reward": 43.48919224190582,
+        "success": false,
+        "log_prob": -6.509026527404785,
+        "value": 16.220556259155273
+      },
+      {
+        "step": 175,
+        "action": {
+          "candidate_idx": 29,
+          "replacement_idx": 2,
+          "candidate_cell": "AO32x2_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1750.8378150637316,
+          "wns": -146.13335600038684,
+          "power": 0.0008922892174416247
+        },
+        "metrics_after": {
+          "tns": -1750.8378150637316,
+          "wns": -146.13335600038684,
+          "power": 0.0008922892174416247
+        },
+        "improvements": {
+          "tns": 1810.4212645873984,
+          "power": 3.386840899927135e-05
+        },
+        "score": 1810.4212984558073,
+        "reward": 43.48696432445295,
+        "success": false,
+        "log_prob": -6.039643287658691,
+        "value": 16.184337615966797
+      },
+      {
+        "step": 176,
+        "action": {
+          "candidate_idx": 31,
+          "replacement_idx": 2,
+          "candidate_cell": "DFFHQNx1_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1496.8615296011046,
+          "wns": -121.18925356149573,
+          "power": 0.0008855715532407743
+        },
+        "metrics_after": {
+          "tns": -1496.8615296011046,
+          "wns": -121.18925356149573,
+          "power": 0.0008855715532407743
+        },
+        "improvements": {
+          "tns": 2064.3975500500255,
+          "power": 4.058607320012175e-05
+        },
+        "score": 2064.397590636099,
+        "reward": 49.8904600545066,
+        "success": false,
+        "log_prob": -6.5247697830200195,
+        "value": 16.18539810180664
+      },
+      {
+        "step": 177,
+        "action": {
+          "candidate_idx": 26,
+          "replacement_idx": 14,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1489.4089354739242,
+          "wns": -121.18656127065026,
+          "power": 0.000887069168212587
+        },
+        "metrics_after": {
+          "tns": -1489.4089354739242,
+          "wns": -121.18656127065026,
+          "power": 0.000887069168212587
+        },
+        "improvements": {
+          "tns": 2071.850144177206,
+          "power": 3.9088458228309086e-05
+        },
+        "score": 2071.8501832656643,
+        "reward": 48.847233825309424,
+        "success": false,
+        "log_prob": -7.123404026031494,
+        "value": 15.299090385437012
+      },
+      {
+        "step": 178,
+        "action": {
+          "candidate_idx": 38,
+          "replacement_idx": 0,
+          "candidate_cell": "AO221x1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1500.3998103947233,
+          "wns": -121.18656127065026,
+          "power": 0.0008866626138870487
+        },
+        "metrics_after": {
+          "tns": -1500.3998103947233,
+          "wns": -121.18656127065026,
+          "power": 0.0008866626138870487
+        },
+        "improvements": {
+          "tns": 2060.8592692564066,
+          "power": 3.949501255384735e-05
+        },
+        "score": 2060.859308751419,
+        "reward": 48.65870039348609,
+        "success": false,
+        "log_prob": -5.725883483886719,
+        "value": 15.296845436096191
+      },
+      {
+        "step": 179,
+        "action": {
+          "candidate_idx": 3,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1504.1175032298383,
+          "wns": -121.18656127065026,
+          "power": 0.0008859898986788295
+        },
+        "metrics_after": {
+          "tns": -1504.1175032298383,
+          "wns": -121.18656127065026,
+          "power": 0.0008859898986788295
+        },
+        "improvements": {
+          "tns": 2057.1415764212916,
+          "power": 4.016772776206656e-05
+        },
+        "score": 2057.141616589019,
+        "reward": 48.65037038085933,
+        "success": false,
+        "log_prob": -4.877141952514648,
+        "value": 15.311541557312012
+      },
+      {
+        "step": 180,
+        "action": {
+          "candidate_idx": 32,
+          "replacement_idx": 7,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1500.5567959310326,
+          "wns": -121.18656127065026,
+          "power": 0.0008868952446856176
+        },
+        "metrics_after": {
+          "tns": -1500.5567959310326,
+          "wns": -121.18656127065026,
+          "power": 0.0008868952446856176
+        },
+        "improvements": {
+          "tns": 2060.7022837200975,
+          "power": 3.926238175527841e-05
+        },
+        "score": 2060.7023229824795,
+        "reward": 48.64479949900306,
+        "success": false,
+        "log_prob": -6.282697677612305,
+        "value": 15.316875457763672
+      },
+      {
+        "step": 181,
+        "action": {
+          "candidate_idx": 21,
+          "replacement_idx": 0,
+          "candidate_cell": "OAI311xp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1487.7569236066809,
+          "wns": -121.589017118685,
+          "power": 0.0008871401557572905
+        },
+        "metrics_after": {
+          "tns": -1487.7569236066809,
+          "wns": -121.589017118685,
+          "power": 0.0008871401557572905
+        },
+        "improvements": {
+          "tns": 2073.5021560444493,
+          "power": 3.9017470683605504e-05
+        },
+        "score": 2073.50219506192,
+        "reward": 48.8823776895983,
+        "success": false,
+        "log_prob": -4.867548942565918,
+        "value": 15.320228576660156
+      },
+      {
+        "step": 182,
+        "action": {
+          "candidate_idx": 15,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI31xp67_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1409.5344947596172,
+          "wns": -112.74972667263123,
+          "power": 0.0008848578575148675
+        },
+        "metrics_after": {
+          "tns": -1409.5344947596172,
+          "wns": -112.74972667263123,
+          "power": 0.0008848578575148675
+        },
+        "improvements": {
+          "tns": 2151.7245848915127,
+          "power": 4.12997689260286e-05
+        },
+        "score": 2151.7246261912815,
+        "reward": 50.87002748092757,
+        "success": false,
+        "log_prob": -5.7209625244140625,
+        "value": 15.31751823425293
+      },
+      {
+        "step": 183,
+        "action": {
+          "candidate_idx": 62,
+          "replacement_idx": 0,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1412.2014725200286,
+          "wns": -112.74972667263123,
+          "power": 0.0008842065745241524
+        },
+        "metrics_after": {
+          "tns": -1412.2014725200286,
+          "wns": -112.74972667263123,
+          "power": 0.0008842065745241524
+        },
+        "improvements": {
+          "tns": 2149.0576071311016,
+          "power": 4.1951051916743615e-05
+        },
+        "score": 2149.0576490821536,
+        "reward": 50.52613927885538,
+        "success": false,
+        "log_prob": -4.876173973083496,
+        "value": 15.03539752960205
+      },
+      {
+        "step": 184,
+        "action": {
+          "candidate_idx": 36,
+          "replacement_idx": 0,
+          "candidate_cell": "OA21x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1419.0333409516606,
+          "wns": -112.74972667263123,
+          "power": 0.0008835604123806108
+        },
+        "metrics_after": {
+          "tns": -1419.0333409516606,
+          "wns": -112.74972667263123,
+          "power": 0.0008835604123806108
+        },
+        "improvements": {
+          "tns": 2142.2257386994693,
+          "power": 4.259721406028524e-05
+        },
+        "score": 2142.225781296683,
+        "reward": 50.45280578017794,
+        "success": false,
+        "log_prob": -4.872923374176025,
+        "value": 15.038985252380371
+      },
+      {
+        "step": 185,
+        "action": {
+          "candidate_idx": 42,
+          "replacement_idx": 0,
+          "candidate_cell": "AND2x2_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1419.1351484034255,
+          "wns": -112.74972667263123,
+          "power": 0.0008842134728671812
+        },
+        "metrics_after": {
+          "tns": -1419.1351484034255,
+          "wns": -112.74972667263123,
+          "power": 0.0008842134728671812
+        },
+        "improvements": {
+          "tns": 2142.1239312477046,
+          "power": 4.1944153573714865e-05
+        },
+        "score": 2142.123973191858,
+        "reward": 50.39344673489998,
+        "success": false,
+        "log_prob": -6.203816890716553,
+        "value": 15.048404693603516
+      },
+      {
+        "step": 186,
+        "action": {
+          "candidate_idx": 6,
+          "replacement_idx": 6,
+          "candidate_cell": "INVx1_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1433.801749728841,
+          "wns": -112.74972667263123,
+          "power": 0.0008835495259427693
+        },
+        "metrics_after": {
+          "tns": -1433.801749728841,
+          "wns": -112.74972667263123,
+          "power": 0.0008835495259427693
+        },
+        "improvements": {
+          "tns": 2127.457329922289,
+          "power": 4.2608100498126716e-05
+        },
+        "score": 2127.4573725303894,
+        "reward": 50.175020538540394,
+        "success": false,
+        "log_prob": -7.488974571228027,
+        "value": 15.055220603942871
+      },
+      {
+        "step": 187,
+        "action": {
+          "candidate_idx": 27,
+          "replacement_idx": 7,
+          "candidate_cell": "NAND3xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1456.4749464729384,
+          "wns": -112.74972667263123,
+          "power": 0.0008829424869035256
+        },
+        "metrics_after": {
+          "tns": -1456.4749464729384,
+          "wns": -112.74972667263123,
+          "power": 0.0008829424869035256
+        },
+        "improvements": {
+          "tns": 2104.7841331781915,
+          "power": 4.321513953737047e-05
+        },
+        "score": 2104.784176393331,
+        "reward": 49.800307755151955,
+        "success": false,
+        "log_prob": -6.283640384674072,
+        "value": 15.074405670166016
+      },
+      {
+        "step": 188,
+        "action": {
+          "candidate_idx": 55,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI211xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1456.9305820040654,
+          "wns": -112.74972667263123,
+          "power": 0.0008839788664497354
+        },
+        "metrics_after": {
+          "tns": -1456.9305820040654,
+          "wns": -112.74972667263123,
+          "power": 0.0008839788664497354
+        },
+        "improvements": {
+          "tns": 2104.3284976470645,
+          "power": 4.2178759991160636e-05
+        },
+        "score": 2104.3285398258245,
+        "reward": 49.70564634201793,
+        "success": false,
+        "log_prob": -5.945187568664551,
+        "value": 15.104166984558105
+      },
+      {
+        "step": 189,
+        "action": {
+          "candidate_idx": 4,
+          "replacement_idx": 10,
+          "candidate_cell": "NAND2xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1455.2983321067393,
+          "wns": -112.94917823980211,
+          "power": 0.0008842197300948478
+        },
+        "metrics_after": {
+          "tns": -1455.2983321067393,
+          "wns": -112.94917823980211,
+          "power": 0.0008842197300948478
+        },
+        "improvements": {
+          "tns": 2105.960747544391,
+          "power": 4.1937896346048303e-05
+        },
+        "score": 2105.960789482287,
+        "reward": 49.71843802419869,
+        "success": false,
+        "log_prob": -7.109007835388184,
+        "value": 15.113091468811035
+      },
+      {
+        "step": 190,
+        "action": {
+          "candidate_idx": 35,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI21xp33_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1493.222773623356,
+          "wns": -115.9665978993366,
+          "power": 0.0008860848781439869
+        },
+        "metrics_after": {
+          "tns": -1493.222773623356,
+          "wns": -115.9665978993366,
+          "power": 0.0008860848781439869
+        },
+        "improvements": {
+          "tns": 2068.036306027774,
+          "power": 4.007274829690918e-05
+        },
+        "score": 2068.036346100522,
+        "reward": 48.81907891462404,
+        "success": false,
+        "log_prob": -6.430558204650879,
+        "value": 15.120011329650879
+      },
+      {
+        "step": 191,
+        "action": {
+          "candidate_idx": 25,
+          "replacement_idx": 1,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1493.2226626010531,
+          "wns": -115.9665978993366,
+          "power": 0.0008861252613917882
+        },
+        "metrics_after": {
+          "tns": -1493.2226626010531,
+          "wns": -115.9665978993366,
+          "power": 0.0008861252613917882
+        },
+        "improvements": {
+          "tns": 2068.036417050077,
+          "power": 4.003236504910787e-05
+        },
+        "score": 2068.036457082442,
+        "reward": 48.840861097083895,
+        "success": false,
+        "log_prob": -5.952263832092285,
+        "value": 15.241772651672363
+      },
+      {
+        "step": 192,
+        "action": {
+          "candidate_idx": 31,
+          "replacement_idx": 7,
+          "candidate_cell": "DFFHQNx2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1491.4445293977083,
+          "wns": -115.9665978993366,
+          "power": 0.0008887000519849676
+        },
+        "metrics_after": {
+          "tns": -1491.4445293977083,
+          "wns": -115.9665978993366,
+          "power": 0.0008887000519849676
+        },
+        "improvements": {
+          "tns": 2069.8145502534217,
+          "power": 3.745757445592843e-05
+        },
+        "score": 2069.814587710996,
+        "reward": 48.65520493710078,
+        "success": false,
+        "log_prob": -6.2830610275268555,
+        "value": 15.24605941772461
+      },
+      {
+        "step": 193,
+        "action": {
+          "candidate_idx": 72,
+          "replacement_idx": 3,
+          "candidate_cell": "AOI31xp33_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1497.878493895725,
+          "wns": -115.9665978993366,
+          "power": 0.0008909169381173358
+        },
+        "metrics_after": {
+          "tns": -1497.878493895725,
+          "wns": -115.9665978993366,
+          "power": 0.0008909169381173358
+        },
+        "improvements": {
+          "tns": 2063.3805857554053,
+          "power": 3.5240688323560226e-05
+        },
+        "score": 2063.3806209960935,
+        "reward": 48.33748628409491,
+        "success": false,
+        "log_prob": -5.8022260665893555,
+        "value": 15.259182929992676
+      },
+      {
+        "step": 194,
+        "action": {
+          "candidate_idx": 3,
+          "replacement_idx": 1,
+          "candidate_cell": "A2O1A1Ixp33_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1490.6873572918885,
+          "wns": -115.9665978993366,
+          "power": 0.0008922009960181908
+        },
+        "metrics_after": {
+          "tns": -1490.6873572918885,
+          "wns": -115.9665978993366,
+          "power": 0.0008922009960181908
+        },
+        "improvements": {
+          "tns": 2070.5717223592414,
+          "power": 3.3956630422705275e-05
+        },
+        "score": 2070.571756315872,
+        "reward": 48.379418853126104,
+        "success": false,
+        "log_prob": -5.105827331542969,
+        "value": 15.281088829040527
+      },
+      {
+        "step": 195,
+        "action": {
+          "candidate_idx": 64,
+          "replacement_idx": 6,
+          "candidate_cell": "DFFHQNx2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1494.5544861467151,
+          "wns": -115.9665978993366,
+          "power": 0.0008924235450303818
+        },
+        "metrics_after": {
+          "tns": -1494.5544861467151,
+          "wns": -115.9665978993366,
+          "power": 0.0008924235450303818
+        },
+        "improvements": {
+          "tns": 2066.704593504415,
+          "power": 3.373408141051429e-05
+        },
+        "score": 2066.7046272384964,
+        "reward": 48.27075588884482,
+        "success": false,
+        "log_prob": -6.0767974853515625,
+        "value": 15.28175163269043
+      },
+      {
+        "step": 196,
+        "action": {
+          "candidate_idx": 29,
+          "replacement_idx": 3,
+          "candidate_cell": "AO32x1_ASAP7_75t_SL",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1509.2570586982722,
+          "wns": -115.95166539959573,
+          "power": 0.0008920357208466977
+        },
+        "metrics_after": {
+          "tns": -1509.2570586982722,
+          "wns": -115.95166539959573,
+          "power": 0.0008920357208466977
+        },
+        "improvements": {
+          "tns": 2052.0020209528575,
+          "power": 3.412190559419839e-05
+        },
+        "score": 2052.002055074763,
+        "reward": 48.02784820221666,
+        "success": false,
+        "log_prob": -5.803123950958252,
+        "value": 15.291705131530762
+      },
+      {
+        "step": 197,
+        "action": {
+          "candidate_idx": 43,
+          "replacement_idx": 6,
+          "candidate_cell": "AND2x2_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1520.320320160566,
+          "wns": -115.96953999036361,
+          "power": 0.0008974373681953189
+        },
+        "metrics_after": {
+          "tns": -1520.320320160566,
+          "wns": -115.96953999036361,
+          "power": 0.0008974373681953189
+        },
+        "improvements": {
+          "tns": 2040.9387594905638,
+          "power": 2.872025824557714e-05
+        },
+        "score": 2040.9387882108222,
+        "reward": 47.351869766567326,
+        "success": false,
+        "log_prob": -6.0823469161987305,
+        "value": 15.312435150146484
+      },
+      {
+        "step": 198,
+        "action": {
+          "candidate_idx": 37,
+          "replacement_idx": 0,
+          "candidate_cell": "AOI221xp5_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1520.2994479676197,
+          "wns": -115.96953999036361,
+          "power": 0.0008972981498475245
+        },
+        "metrics_after": {
+          "tns": -1520.2994479676197,
+          "wns": -115.96953999036361,
+          "power": 0.0008972981498475245
+        },
+        "improvements": {
+          "tns": 2040.9596316835102,
+          "power": 2.885947659337154e-05
+        },
+        "score": 2040.9596605429867,
+        "reward": 47.369291593103966,
+        "success": false,
+        "log_prob": -4.8779706954956055,
+        "value": 15.354839324951172
+      },
+      {
+        "step": 199,
+        "action": {
+          "candidate_idx": 5,
+          "replacement_idx": 25,
+          "candidate_cell": "INVx1_ASAP7_75t_L",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1507.3796715561293,
+          "wns": -116.14595442968147,
+          "power": 0.0009238281772230121
+        },
+        "metrics_after": {
+          "tns": -1507.3796715561293,
+          "wns": -116.14595442968147,
+          "power": 0.0009238281772230121
+        },
+        "improvements": {
+          "tns": 2053.8794080950006,
+          "power": 2.3294492178839443e-06
+        },
+        "score": 2053.87941042445,
+        "reward": 45.34146351010309,
+        "success": false,
+        "log_prob": -7.59714412689209,
+        "value": 15.358216285705566
+      },
+      {
+        "step": 200,
+        "action": {
+          "candidate_idx": 8,
+          "replacement_idx": 4,
+          "candidate_cell": "OAI31xp67_ASAP7_75t_R",
+          "target_cell": "unknown"
+        },
+        "metrics_before": {
+          "tns": -1507.3690134150504,
+          "wns": -116.16854746832287,
+          "power": 0.0009289675075584806
+        },
+        "metrics_after": {
+          "tns": -1507.3690134150504,
+          "wns": -116.16854746832287,
+          "power": 0.0009289675075584806
+        },
+        "improvements": {
+          "tns": 2053.8900662360793,
+          "power": -2.809881117584595e-06
+        },
+        "score": 2053.890063426198,
+        "reward": 45.11679445777524,
+        "success": false,
+        "log_prob": -6.015620231628418,
+        "value": 15.46252727508545
+      }
+    ],
+    "actions_taken": [
+      [
+        2,
+        3
+      ],
+      [
+        15,
+        5
+      ],
+      [
+        57,
+        10
+      ],
+      [
+        56,
+        8
+      ],
+      [
+        1,
+        6
+      ],
+      [
+        4,
+        15
+      ],
+      [
+        4,
+        20
+      ],
+      [
+        69,
+        0
+      ],
+      [
+        46,
+        0
+      ],
+      [
+        45,
+        0
+      ],
+      [
+        33,
+        0
+      ],
+      [
+        48,
+        3
+      ],
+      [
+        67,
+        2
+      ],
+      [
+        53,
+        1
+      ],
+      [
+        27,
+        4
+      ],
+      [
+        24,
+        8
+      ],
+      [
+        58,
+        0
+      ],
+      [
+        43,
+        6
+      ],
+      [
+        62,
+        0
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        28,
+        0
+      ],
+      [
+        37,
+        1
+      ],
+      [
+        45,
+        1
+      ],
+      [
+        54,
+        0
+      ],
+      [
+        39,
+        1
+      ],
+      [
+        53,
+        0
+      ],
+      [
+        25,
+        10
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        34,
+        0
+      ],
+      [
+        64,
+        0
+      ],
+      [
+        32,
+        3
+      ],
+      [
+        28,
+        0
+      ],
+      [
+        49,
+        2
+      ],
+      [
+        12,
+        5
+      ],
+      [
+        65,
+        3
+      ],
+      [
+        13,
+        1
+      ],
+      [
+        18,
+        0
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        53,
+        1
+      ],
+      [
+        13,
+        0
+      ],
+      [
+        43,
+        1
+      ],
+      [
+        31,
+        1
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        72,
+        3
+      ],
+      [
+        9,
+        4
+      ],
+      [
+        33,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        34,
+        6
+      ],
+      [
+        34,
+        7
+      ],
+      [
+        68,
+        2
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        59,
+        2
+      ],
+      [
+        63,
+        6
+      ],
+      [
+        61,
+        11
+      ],
+      [
+        32,
+        1
+      ],
+      [
+        15,
+        0
+      ],
+      [
+        25,
+        0
+      ],
+      [
+        7,
+        25
+      ],
+      [
+        31,
+        3
+      ],
+      [
+        33,
+        4
+      ],
+      [
+        44,
+        8
+      ],
+      [
+        20,
+        1
+      ],
+      [
+        58,
+        11
+      ],
+      [
+        37,
+        0
+      ],
+      [
+        39,
+        1
+      ],
+      [
+        71,
+        0
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        60,
+        0
+      ],
+      [
+        50,
+        3
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        21,
+        1
+      ],
+      [
+        16,
+        1
+      ],
+      [
+        41,
+        0
+      ],
+      [
+        18,
+        3
+      ],
+      [
+        33,
+        0
+      ],
+      [
+        55,
+        1
+      ],
+      [
+        17,
+        2
+      ],
+      [
+        63,
+        6
+      ],
+      [
+        18,
+        7
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        28,
+        7
+      ],
+      [
+        18,
+        7
+      ],
+      [
+        62,
+        1
+      ],
+      [
+        67,
+        9
+      ],
+      [
+        49,
+        0
+      ],
+      [
+        45,
+        1
+      ],
+      [
+        34,
+        0
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        63,
+        1
+      ],
+      [
+        33,
+        4
+      ],
+      [
+        69,
+        3
+      ],
+      [
+        43,
+        0
+      ],
+      [
+        40,
+        3
+      ],
+      [
+        45,
+        4
+      ],
+      [
+        64,
+        7
+      ],
+      [
+        69,
+        4
+      ],
+      [
+        16,
+        3
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        14,
+        4
+      ],
+      [
+        58,
+        0
+      ],
+      [
+        34,
+        5
+      ],
+      [
+        36,
+        1
+      ],
+      [
+        44,
+        0
+      ],
+      [
+        18,
+        3
+      ],
+      [
+        34,
+        3
+      ],
+      [
+        33,
+        0
+      ],
+      [
+        55,
+        7
+      ],
+      [
+        41,
+        4
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        24,
+        10
+      ],
+      [
+        18,
+        1
+      ],
+      [
+        37,
+        0
+      ],
+      [
+        31,
+        1
+      ],
+      [
+        26,
+        10
+      ],
+      [
+        22,
+        1
+      ],
+      [
+        72,
+        4
+      ],
+      [
+        34,
+        4
+      ],
+      [
+        29,
+        1
+      ],
+      [
+        30,
+        1
+      ],
+      [
+        60,
+        9
+      ],
+      [
+        25,
+        4
+      ],
+      [
+        63,
+        0
+      ],
+      [
+        15,
+        1
+      ],
+      [
+        59,
+        3
+      ],
+      [
+        23,
+        3
+      ],
+      [
+        66,
+        2
+      ],
+      [
+        49,
+        3
+      ],
+      [
+        37,
+        0
+      ],
+      [
+        42,
+        1
+      ],
+      [
+        46,
+        0
+      ],
+      [
+        17,
+        0
+      ],
+      [
+        45,
+        0
+      ],
+      [
+        70,
+        3
+      ],
+      [
+        48,
+        9
+      ],
+      [
+        57,
+        0
+      ],
+      [
+        15,
+        1
+      ],
+      [
+        37,
+        0
+      ],
+      [
+        50,
+        2
+      ],
+      [
+        40,
+        2
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        28,
+        0
+      ],
+      [
+        28,
+        1
+      ],
+      [
+        19,
+        1
+      ],
+      [
+        60,
+        1
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        38,
+        0
+      ],
+      [
+        49,
+        0
+      ],
+      [
+        12,
+        1
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        63,
+        4
+      ],
+      [
+        21,
+        11
+      ],
+      [
+        35,
+        0
+      ],
+      [
+        41,
+        0
+      ],
+      [
+        63,
+        0
+      ],
+      [
+        37,
+        0
+      ],
+      [
+        27,
+        4
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        59,
+        1
+      ],
+      [
+        40,
+        0
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        29,
+        0
+      ],
+      [
+        33,
+        1
+      ],
+      [
+        22,
+        13
+      ],
+      [
+        35,
+        3
+      ],
+      [
+        16,
+        5
+      ],
+      [
+        16,
+        4
+      ],
+      [
+        71,
+        4
+      ],
+      [
+        22,
+        6
+      ],
+      [
+        0,
+        0
+      ],
+      [
+        62,
+        4
+      ],
+      [
+        59,
+        1
+      ],
+      [
+        11,
+        4
+      ],
+      [
+        29,
+        2
+      ],
+      [
+        31,
+        2
+      ],
+      [
+        26,
+        14
+      ],
+      [
+        38,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        32,
+        7
+      ],
+      [
+        21,
+        0
+      ],
+      [
+        15,
+        0
+      ],
+      [
+        62,
+        0
+      ],
+      [
+        36,
+        0
+      ],
+      [
+        42,
+        0
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        27,
+        7
+      ],
+      [
+        55,
+        1
+      ],
+      [
+        4,
+        10
+      ],
+      [
+        35,
+        1
+      ],
+      [
+        25,
+        1
+      ],
+      [
+        31,
+        7
+      ],
+      [
+        72,
+        3
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        64,
+        6
+      ],
+      [
+        29,
+        3
+      ],
+      [
+        43,
+        6
+      ],
+      [
+        37,
+        0
+      ],
+      [
+        5,
+        25
+      ],
+      [
+        8,
+        4
+      ]
+    ],
+    "overall_best_performances": [
+      {
+        "step": 63,
+        "score": 2360.869276481318,
+        "tns_improvement": 2360.8692872845204,
+        "power_improvement": -1.0803202409410614e-05,
+        "tns": -1200.3897923666095,
+        "wns": -117.6423130282504,
+        "power": 0.0009369608288503067,
+        "case_name": "s1488"
+      },
+      {
+        "step": 64,
+        "score": 2360.8692758975035,
+        "tns_improvement": 2360.8692872845204,
+        "power_improvement": -1.1387016831064176e-05,
+        "tns": -1200.3897923666095,
+        "wns": -117.6423130282504,
+        "power": 0.0009375446432719602,
+        "case_name": "s1488"
+      },
+      {
+        "step": 62,
+        "score": 2329.1335513856397,
+        "tns_improvement": 2329.1335619988004,
+        "power_improvement": -1.0613160487683501e-05,
+        "tns": -1232.1255176523293,
+        "wns": -117.6423130282504,
+        "power": 0.0009367707869285796,
+        "case_name": "s1488"
+      }
+    ]
+  }
+]

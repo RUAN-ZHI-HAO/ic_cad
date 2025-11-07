@@ -46,6 +46,10 @@ class TwoDimensionalInferenceEngine:
         logger.info("建立二維動作空間環境...")
         self.env = OptimizationEnvironment(self.rl_config)
         
+        # 設置推論時的最大步數（覆蓋訓練時的限制）
+        self.env.max_steps_per_episode = self.inference_config.max_actions
+        logger.info(f"推論最大步數設置為: {self.inference_config.max_actions}")
+        
         # 建立智能體
         logger.info("建立二維動作空間智能體...")
         self.agent = TwoDimensionalPPOAgent(
@@ -137,7 +141,10 @@ class TwoDimensionalInferenceEngine:
                     successful_actions += 1
                 
                 # 計算當前步驟的改善和評分
-                current_tns_improvement = initial_tns - next_environment_state.current_tns
+                # TNS/WNS: 負值變小（接近0）是好的 → next - initial 為正表示改善
+                current_tns_improvement = next_environment_state.current_tns - initial_tns
+                current_wns_improvement = next_environment_state.current_wns - initial_wns
+                # Power: 降低是好的 → initial - next 為正表示改善
                 current_power_improvement = initial_power - next_environment_state.current_power
                 
                 # 使用權重計算綜合評分（越高越好）
@@ -200,15 +207,17 @@ class TwoDimensionalInferenceEngine:
                            f"TNS={environment_state.current_tns:.4f}, "
                            f"WNS={environment_state.current_wns:.4f}, "
                            f"Power={environment_state.current_power:.6f}, "
-                           f"評分={current_score:.4f}, 獎勵={reward:.4f}, 成功={step_info['success']}")
+                           f"評分={current_score:.4f}, 獎勵={reward:.4f}\n")
             
             # 計算優化結果
             final_tns = environment_state.current_tns
             final_wns = environment_state.current_wns
             final_power = environment_state.current_power
             
-            tns_improvement = initial_tns - final_tns
-            wns_improvement = initial_wns - final_wns
+            # TNS/WNS: 負值變小（接近0）是好的 → final - initial 為正表示改善
+            tns_improvement = final_tns - initial_tns
+            wns_improvement = final_wns - initial_wns
+            # Power: 降低是好的 → initial - final 為正表示改善
             power_improvement = initial_power - final_power
             success_rate = successful_actions / step_count if step_count > 0 else 0.0
             
@@ -490,6 +499,11 @@ def main():
     inference_config = default_inference_config
     inference_config.actor_model_path = args.model
     inference_config.max_actions = args.max_actions
+
+    print(inference_config.max_actions)
+    aaa = 1
+    aaa = input()
+
     inference_config.greedy = args.greedy
     
     if args.output_dir:
