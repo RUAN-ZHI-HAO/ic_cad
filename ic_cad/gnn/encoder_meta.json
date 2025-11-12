@@ -26,8 +26,8 @@
     "s35932",
     "s38584"
   ],
-  "probe_every": 10,
-  "probe_samples": 30000,
+  "probe_every": 5,
+  "probe_samples": 35000,
   "earlystop_by_probe": false,
   "probe_graph": "s1488",
   "fix_probe_samples": true,

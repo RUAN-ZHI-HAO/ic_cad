@@ -4,8 +4,8 @@
 
 這是一個完整的二維動作空間強化學習系統，專為 IC CAD 優化設計。系統支援 `(candidate_idx, replacement_idx)` 格式的動作空間，能夠進行智能的電路優化。
 
-**最後更新**: 2025年8月23日  
-**狀態**: ✅ 系統已優化，核心檔案精簡，獎勵機制完全修正
+**最後更新**: 2025年11月12日  
+**狀態**: ✅ 系統已優化，核心檔案精簡，PPO參數調優完成
 
 ## 📁 系統架構
 
@@ -21,8 +21,12 @@
 ├── inference.py               # 推論引擎
 ├── training_controller.py     # 訓練控制器
 ├── utils_openroad.py          # OpenROAD介面
+├── utils_openroad1.py         # OpenROAD介面備用版本
 ├── cell_replacement_manager.py # 電池替換管理
-└── README_2D_SYSTEM.md        # 本文件
+├── models/                    # 訓練好的模型存放目錄
+├── logs/                      # 訓練日誌
+├── training_results/          # 訓練結果
+└── README.md                  # 本文件
 ```
 
 ### 依賴關係圖
@@ -64,9 +68,16 @@ python main.py --mode optimize --cases s1488 --model-path models/best_model.pth
 
 ## 📋 最新更新
 
+### 2025-11-12: PPO 參數深度優化
+- 🎯 **學習率精調**: 降低至 1e-4 (Actor) 和 2e-4 (Critic)，避免過度更新
+- 🔧 **PPO 裁剪優化**: eps_clip 降至 0.1，提升訓練穩定性
+- 🌟 **探索性增強**: entropy_coef 提升至 0.05，增加動作探索能力
+- 📊 **更新策略優化**: ppo_epochs 降至 3，避免過擬合
+- ⚡ **KL 散度放寬**: target_kl 提升至 0.02，減少過早停止
+
 ### 2025-08-23: 系統架構優化與檔案精簡
-- �️ **檔案結構優化**: 移除無關檔案，保留核心依賴檔案
-- � **依賴關係清理**: 確保所有保留檔案都與 main.py 有直接依賴關係
+- ⚙️ **檔案結構優化**: 移除無關檔案，保留核心依賴檔案
+- 📊 **依賴關係清理**: 確保所有保留檔案都與 main.py 有直接依賴關係
 - 📁 **系統精簡**: 刪除 smart_training_manager.py, imitation_learning.py 等無關檔案
 - ✅ **架構完整性**: 確認核心功能完整，支援完整的訓練/推論流程
 
@@ -77,7 +88,7 @@ python main.py --mode optimize --cases s1488 --model-path models/best_model.pth
 - 📊 **獎勵範圍調整**: 從 (-2.0, 10.0) 調整為 (-15.0, 15.0)，允許更強的負反饋
 
 ### 2025-08-23: 訓練系統穩定性提升  
-- � **實時監控**: 每回合顯示詳細的 TNS/WNS/Power 指標和獎勵值
+- 📊 **實時監控**: 每回合顯示詳細的 TNS/WNS/Power 指標和獎勵值
 - 🛡️ **錯誤處理**: 增強檔案損壞復原機制和語法錯誤防護
 - 🔄 **依賴修復**: 建立 state_representation.py 解決 import 錯誤
 
@@ -100,16 +111,17 @@ class RLConfig:
     save_interval: int = 100        # 每 100 回合保存，可調整為 50-200
 ```
 
-### 🧠 學習率參數
+### 🧠 學習率參數 (已優化)
 ```python
 # PPO 學習率設定 - 影響學習速度和穩定性
-lr_actor: float = 3e-4             # 演員網路學習率，可調整 1e-4 到 1e-3
-lr_critic: float = 1e-3            # 評論家網路學習率，可調整 5e-4 到 2e-3
-learning_rate: float = 3e-4        # 通用學習率
+lr_actor: float = 1e-4             # 演員網路學習率 (降低避免過度更新)
+lr_critic: float = 2e-4            # 評論家網路學習率 (稍高幫助價值估計)
+learning_rate: float = 1e-4        # 通用學習率 (已優化)
 
 # 學習率調整建議：
-# - 學習太慢：增加學習率 (5e-4, 1e-3)
-# - 學習不穩定：降低學習率 (1e-4, 2e-4)
+# - 學習太慢：增加至 2e-4 或 3e-4
+# - 學習不穩定：降低至 5e-5 或 8e-5
+# - 當前設置已針對穩定訓練優化
 ```
 
 ### 💰 獎勵權重參數 (重要!)
@@ -125,18 +137,22 @@ reward_weight_power: float = 1.0   # 功耗權重，建議 0.5-2.0
 # - 快速收斂：適度增加所有權重
 ```
 
-### 🎯 PPO 算法參數
+### 🎯 PPO 算法參數 (已優化)
 ```python
 # PPO 核心參數 - 影響學習穩定性
-gamma: float = 0.99                # 折扣因子，建議 0.95-0.999
-eps_clip: float = 0.2              # PPO 裁剪參數，建議 0.1-0.3
-entropy_coef: float = 0.01         # 熵係數 (探索性)，建議 0.001-0.1
-batch_size: int = 64               # 批次大小，建議 32-128
+gamma: float = 0.99                # 折扣因子 (標準設定)
+eps_clip: float = 0.1              # PPO 裁剪參數 (降低避免太激進)
+entropy_coef: float = 0.05         # 熵係數 (增加探索能力)
+batch_size: int = 64               # 批次大小
+ppo_epochs: int = 3                # PPO 更新次數 (減少避免過擬合)
+target_kl: float = 0.02            # 目標 KL 散度 (放寬避免頻繁早停)
+max_grad_norm: float = 0.5         # 梯度裁剪 (標準設定)
 
 # 參數調整指南：
-# - 學習不穩定：降低 eps_clip (0.1)，降低學習率
-# - 缺乏探索：增加 entropy_coef (0.05, 0.1)
-# - 記憶體不足：降低 batch_size (32)
+# - 學習不穩定：eps_clip 已優化至 0.1
+# - 探索性：entropy_coef 已提升至 0.05
+# - 過擬合：ppo_epochs 已降至 3
+# - 當前設置已針對穩定和有效訓練優化
 ```
 
 ### 🔄 混合獎勵參數
@@ -150,7 +166,7 @@ relative_weight: float = 0.6       # 相對改善權重，建議 0.4-0.8
 ### 📍 主要配置檔案：`config.py`
 所有系統參數都集中在 `config.py` 文件中，便於統一管理和調整：
 
-### � 基本訓練參數
+### 🔢 基本訓練參數 (已優化)
 ```python
 class RLConfig:
     # 訓練控制
@@ -158,10 +174,10 @@ class RLConfig:
     max_steps_per_episode: int = 50       # 每回合最大步數
     save_interval: int = 100              # 模型保存間隔
     
-    # 學習率設定
-    learning_rate: float = 3e-4           # PPO 學習率
-    lr_actor: float = 3e-4                # 演員網路學習率
-    lr_critic: float = 1e-3               # 評論家網路學習率
+    # 學習率設定 (已優化)
+    learning_rate: float = 1e-4           # PPO 學習率 (降低避免過度更新)
+    lr_actor: float = 1e-4                # 演員網路學習率 (降低)
+    lr_critic: float = 2e-4               # 評論家網路學習率 (稍高幫助價值估計)
 ```
 
 ### 💰 獎勵系統權重（已修正）
@@ -174,13 +190,16 @@ reward_weight_power: float = 1.0         # 功耗權重
 # 獎勵範圍：(-15.0, 15.0) - 允許強負反饋
 ```
 
-### 🎯 PPO 算法參數
+### 🎯 PPO 算法參數 (已優化)
 ```python
-# PPO 核心參數
-gamma: float = 0.99                      # 折扣因子
-eps_clip: float = 0.2                    # PPO 裁剪參數
-entropy_coef: float = 0.01               # 熵係數（探索性）
+# PPO 核心參數 (針對穩定和有效訓練優化)
+gamma: float = 0.99                      # 折扣因子 (標準設定)
+eps_clip: float = 0.1                    # PPO 裁剪參數 (降低避免太激進)
+entropy_coef: float = 0.05               # 熵係數 (增加探索能力)
 batch_size: int = 64                     # 批次大小
+ppo_epochs: int = 3                      # PPO 更新次數 (減少避免過擬合)
+target_kl: float = 0.02                  # 目標 KL 散度 (放寬避免頻繁早停)
+max_grad_norm: float = 0.5               # 梯度裁剪 (標準設定)
 ```
 
 ## 🚀 使用方式

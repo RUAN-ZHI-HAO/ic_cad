@@ -23,16 +23,12 @@
   - 支援 dummy 模式用於快速測試
 
 ### 🎯 訓練相關
-- **`config_train_dgi.py`** - 對比學習訓練腳本（支援 DGI 和 GRACE）
+- **`config_train_dgi.py`** - DGI 訓練腳本（針對低顯存優化）
   - 支援新的 embedding 架構
   - 可配置的 GAT 層數、隱藏維度等
-  - GRACE 節點級對比學習
   - 驗證探頭功能和自動調參
   - 支援投影層和多種損失函數
-
-- **`retrain_gnn.sh`** - 快速重新訓練腳本
-  - 一鍵重新訓練 embedding 模型
-  - 自動清理舊模型檔案
+  - 適配 10GB GPU 環境：梯度累積、batch_size=1、hidden_dim=64、cell_embed_dim=16
 
 ### 📊 數據檔案
 - **`cell_groups.json`** - ASAP7 cell 分組數據
@@ -45,35 +41,26 @@
   - 用於 embedding 層索引
   - 自動從 cell_groups.json 生成
 
-### 🏃‍♂️ 測試工具
-- **`test_embedding.py`** - Embedding 架構測試
-  - 驗證 cell mapping 載入
-  - 測試圖構建功能
-  - 檢查模型前向傳播
-
-- **`check_model.py`** - 模型檢查工具
-  - 驗證模型完整性
-  - 檢查權重和架構
-
 ### 📈 訓練輸出
-- **`encoder_grace.pt`** - GRACE 訓練的模型權重
-- **`encoder_grace_proj.pt`** - 包含投影層的 GRACE 模型
+- **`encoder_dgi.pt`** - DGI 訓練的模型權重（低顯存優化版本）
+- **`encoder_dgi_proj.pt`** - 包含投影層的 DGI 模型
 - **`encoder_meta.json`** - 模型元數據
 - **`best_encoder_all_by_probe.pt`** - 最佳驗證模型
 - **`best_proj_all_by_probe.pt`** - 最佳投影層權重
 - **`loss_*.png`** - 訓練曲線圖
-- **`train.log`** - 訓練日誌檔案
+- **`train.log`** - 訓練日誌檔案（如有生成）
 
 ## 🚀 快速開始
 
-
-### 1. 重新訓練模型
+### 1. 訓練 DGI 模型（低顯存優化版本）
 ```bash
-# 方法1：手動訓練 DGI 模型
-python config_train_dgi.py --test-only --epochs 50 --save-meta
+# 快速測試（10 epochs）
+python config_train_dgi.py --test-only --epochs 10 --save-meta
 
-# 方法2：完整訓練
-python config_train_dgi.py --epochs 200 --save-meta --use-proj
+# 完整訓練（250 epochs，針對 10GB GPU 優化）
+python config_train_dgi.py --epochs 250 --save-meta --use-proj \
+    --hidden-dim 64 --cell-embed-dim 16 --batch-size 1 \
+    --gradient-accumulation 8 --lr 3e-4
 ```
 
 ### 2. 使用訓練好的模型
@@ -81,7 +68,7 @@ python config_train_dgi.py --epochs 200 --save-meta --use-proj
 from gnn.gnn_api import load_encoder, get_embeddings
 
 # 載入模型
-encoder, meta = load_encoder('encoder_grace.pt', 'encoder_meta.json')
+encoder, meta = load_encoder('encoder_dgi.pt', 'encoder_meta.json')
 
 # 生成嵌入
 embeddings = get_embeddings('c17', encoder)
@@ -121,26 +108,28 @@ batch_results = get_batch_embeddings(circuits, encoder)
 
 ## ⚙️ 配置說明
 
-### 模型參數
-- **隱藏維度**: 64（低顯存優化）
+### 模型參數（針對低顯存優化）
+- **隱藏維度**: 64（低顯存優化，從 128 降低）
 - **GAT 層數**: 2
-- **注意力頭數**: [2,1] 調度
-- **Dropout**: 0.3
-- **Learning Rate**: 1e-3
-- **Cell Embedding**: 8 維（低顯存優化）
+- **注意力頭數**: [1,1] 調度（低顯存優化）
+- **Dropout**: 0.1（降低避免過度正則化）
+- **Learning Rate**: 3e-4（降低避免過度擬合）
+- **Cell Embedding**: 16 維（低顯存優化，從 32 降低）
 
-### 訓練參數
+### 訓練參數（適配 10GB GPU）
 - **訓練方法**: DGI（Deep Graph Infomax）對比學習
 - **池化方式**: 平均池化（Mean Pooling）
 - **Epochs**: 250（完整訓練）/ 10（測試）
+- **Batch Size**: 1（強制設為 1 以節省顯存）
+- **梯度累積**: 8 步（模擬 batch_size=8）
 - **損失函數**: Binary Cross Entropy
-- **優化器**: AdamW (lr=1e-3, weight_decay=5e-4)
-- **調度器**: Cosine Annealing + Linear Warmup
+- **優化器**: AdamW (lr=3e-4, weight_decay=1e-4)
+- **調度器**: Cosine Annealing + Linear Warmup（默認）
 
 ### 驗證設置
 - **探頭方法**: Link Prediction AUC
 - **驗證頻率**: 每 10 epochs
-- **早停機制**: 基於 loss 改善 (patience=50)
+- **早停機制**: 基於 loss 改善 (patience=20)
 - **最佳模型保存**: 支援 loss 和 probe 雙重標準
 
 ## 🔧 維護指南
@@ -178,7 +167,23 @@ export DUMMY_GNN_NUM_NODES=50
 
 ## 📝 更新記錄
 
-### v2.2 (2025-09-26) 🚀 **最新更新**
+### v2.3 (2025-11-12) 🚀 **最新更新**
+- ✅ **低顯存深度優化**
+  - Cell embedding 維度從 32 降至 16 維
+  - 隱藏維度維持 64 維（已優化）
+  - Batch size 強制設為 1，梯度累積增至 8 步
+  - 注意力頭數調整為 [1,1]
+- ✅ **訓練策略優化**
+  - 學習率降至 3e-4，避免過度擬合
+  - Dropout 降至 0.1，減少過度正則化
+  - Weight decay 降至 1e-4，避免過度約束
+  - 早停 patience 調整為 20，適度的提前停止
+- ✅ **檔案結構更新**
+  - 模型檔案更新為 `encoder_dgi.pt` 和 `encoder_dgi_proj.pt`
+  - 移除 GRACE 訓練腳本，專注於 DGI 方法
+  - 完善文檔說明，反映當前實際配置
+
+### v2.2 (2025-09-26)
 - ✅ **優化拓撲特徵計算**
   - 移除 degree 特徵，簡化拓撲表示
   - Fanin/Fanout 現在包含 I/O terminals，更準確反映信號流向
@@ -189,17 +194,11 @@ export DUMMY_GNN_NUM_NODES=50
 - ✅ **邊特徵優化**
   - 移除冗餘的連接強度特徵，邊特徵從 4 維降至 3 維
   - 保留核心的網路規模、物理距離、網路重要性特徵
-- ✅ **低顯存優化**
-  - Cell embedding 維度從 32 降至 8 維
-  - 隱藏維度從 128 降至 64 維
-  - 適配 10GB GPU 環境
-- ✅ **DGI 訓練框架更新**
-  - 使用平均池化 (Mean Pooling) 進行全域表示
-  - 支援梯度累積和記憶體優化
-  - 改進的洩漏功率計算（考慮所有輸入條件）
+- ✅ **改進的洩漏功率計算**
+  - 考慮所有輸入條件的洩漏功率
 
 ### v2.1 (2025-09-02)
-- ✅ 實現 GRACE 節點級對比學習訓練
+- ✅ 實現 DGI 節點級對比學習訓練
 - ✅ 支援投影層和多種損失函數
 - ✅ 動態注意力頭數調度
 - ✅ 新增驗證探頭機制
@@ -221,53 +220,32 @@ export DUMMY_GNN_NUM_NODES=50
 
 ## 🎯 下一步
 
-### 🔍 **拓撲特徵改進詳解**
+1. **RL 整合**: 將新 DGI 模型整合到強化學習訓練
+2. **效能評估**: 評估低顯存優化對模型效果的影響
+3. **超參調優**: 基於 10GB GPU 環境進一步調整最佳參數組合
+4. **擴展支援**: 支援更多 technology libraries  
+5. **模型壓縮**: 研究進一步的記憶體優化技術（如量化、剪枝）
 
-#### **舊版拓撲特徵 (3 維)**
-- `degree`: 節點連接的網路總數
-- `fanin`: 只計算邏輯門之間的輸入連接
-- `fanout`: 只計算邏輯門之間的輸出連接
+## 💡 使用建議
 
-#### **舊版物理特徵 (9 維)**
-- 輸入電容統計: sum, max, min, avg, std (5 維)
-- 其他物理特徵: area, leakage, output_load_cap, num_pins (4 維)
+### 針對低顯存環境（10GB GPU）
+當前配置已針對 10GB GPU 環境優化：
+- ✅ Batch size = 1（強制）
+- ✅ 梯度累積 = 8 步（模擬 batch_size=8）
+- ✅ Hidden dim = 64
+- ✅ Cell embedding = 16 維
+- ✅ 注意力頭數 = [1,1]
 
-#### **舊版邊特徵 (4 維)**
-- 網路大小, 物理距離, 網路重要性, 連接強度
-
-#### **新版拓撲特徵 (2 維)**
-- `fanin`: **包含 I/O terminals** 的所有輸入連接
-- `fanout`: **包含 I/O terminals** 的所有輸出連接
-
-#### **新版物理特徵 (8 維)**  
-- 輸入電容統計: max, avg, std (3 維) - **移除冗餘的 sum, min**
-- 其他物理特徵: area, leakage, output_load_cap, num_pins, drive_strength (5 維)
-
-#### **新版邊特徵 (3 維)**
-- 網路大小, 物理距離, 網路重要性 - **移除冗餘的連接強度**
-
-#### **改進效果**
-```python
-# 範例電路: INPUT_A → NAND1 → OUTPUT_Z
-# 舊版計算結果:
-INPUT_A:  fanin=0, fanout=0    # terminals 被忽略
-NAND1:    fanin=1, fanout=0    # 只計算邏輯門間連接
-OUTPUT_Z: fanin=1, fanout=0    # terminals 被忽略
-
-# 新版計算結果:
-INPUT_A:  fanin=0, fanout=1    # ✅ 正確反映驅動1個邏輯門
-NAND1:    fanin=1, fanout=1    # ✅ 正確反映驅動1個輸出端口  
-OUTPUT_Z: fanin=1, fanout=0    # ✅ 正確反映被1個邏輯門驅動
+### 如果有更多顯存（>16GB）
+可以嘗試提升性能：
+```bash
+python config_train_dgi.py --epochs 250 --save-meta --use-proj \
+    --hidden-dim 128 --cell-embed-dim 32 --batch-size 2 \
+    --gradient-accumulation 4 --heads-schedule "2,1"
 ```
 
-**優勢**:
-- 🎯 **更準確**: 完整反映 IC 設計中的信號流向
-- 💾 **更簡潔**: 移除冗餘特徵，降維度 (node: 23→20維, edge: 4→3維)
-- ⚡ **更高效**: 減少記憶體使用和計算複雜度
-- 🔧 **更聚焦**: 保留核心特徵，移除統計冗餘 (如 sum 可由 avg×count 推導)
-
-1. **RL 整合**: 將新 DGI 模型整合到強化學習訓練
-2. **效能評估**: 比較新舊拓撲特徵對模型效果的影響
-3. **超參調優**: 基於低顯存環境調整最佳參數組合
-4. **擴展支援**: 支援更多 technology libraries  
-5. **模型壓縮**: 研究進一步的記憶體優化技術
+### 快速驗證
+使用測試模式快速驗證訓練流程：
+```bash
+python config_train_dgi.py --test-only --epochs 10 --save-meta
+```
