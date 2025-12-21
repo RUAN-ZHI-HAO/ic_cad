@@ -127,7 +127,8 @@ class TwoDimensionalICCADOptimizer:
         # 建立訓練目錄（使用台灣時區 UTC+8）
         tw_tz = timezone(timedelta(hours=8))
         timestamp = datetime.now(tw_tz).strftime("%Y%m%d_%H%M%S")
-        train_dir = f'/root/ruan_workspace/ic_cad/rl/training_results/{timestamp}'
+        cases_str = '_'.join(case_names)
+        train_dir = f'/root/ruan_workspace/ic_cad/rl/training_results/{timestamp}_{cases_str}'
         os.makedirs(train_dir, exist_ok=True)
         
         # 建立訓練管理器
@@ -398,7 +399,7 @@ def main():
     parser.add_argument('--episodes', type=int, default=100,
                        help='訓練回合數')
     parser.add_argument('--max-actions', type=int, default=100,
-                       help='最大優化動作數')
+                       help='最大優化動作數（RL agent 會透過 global_features 接收進度資訊）')
     parser.add_argument('--model-path', type=str,
                        help='模型路徑（train 模式：載入模型繼續訓練；optimize 模式：使用模型進行優化）')
     parser.add_argument('--output-dir', type=str,
@@ -407,11 +408,35 @@ def main():
                        help='TNS 獎勵權重')
     parser.add_argument('--power-weight', type=float, default=1.0,
                        help='Power 獎勵權重')
+    parser.add_argument('--gnn-meta', type=str,
+                       help='GNN 模型 meta 檔案路徑（例如：/path/to/encoder_meta.json）')
+    parser.add_argument('--seed', type=int, default=42,
+                       help='隨機種子（預設: 42，用於確保結果可重現）')
     
     args = parser.parse_args()
     
+    # 🎲 設置隨機種子以確保可重現性
+    import random
+    import numpy as np
+    import torch
+    
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+    print(f"🎲 隨機種子已設置為: {args.seed}")
+    
     # 建立優化器
     optimizer = TwoDimensionalICCADOptimizer()
+    
+    # 如果指定了 GNN meta 路徑，更新實例的 config
+    if args.gnn_meta:
+        optimizer.rl_config.gnn_meta_path = args.gnn_meta
+        print(f"使用 GNN 模型: {args.gnn_meta}")
     
     try:
         if args.mode == 'train':

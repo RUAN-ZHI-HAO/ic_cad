@@ -62,7 +62,7 @@ def parse_args():
 
     # 訓練（低顯存優化）
     p.add_argument('--epochs', type=int, default=250)  
-    p.add_argument('--lr', type=float, default=3e-4)  # 降低學習率，避免過度擬合
+    p.add_argument('--lr', type=float, default=1e-4)  # 降低學習率，避免過度擬合
     p.add_argument('--weight-decay', type=float, default=1e-4)  # 降低正則化，避免過度約束
     p.add_argument('--batch-size', type=int, default=1)  # 強制設為 1
     p.add_argument('--gradient-accumulation', type=int, default=8)  # 從 4 增至 8
@@ -83,6 +83,7 @@ def parse_args():
     p.add_argument('--print-every', type=int, default=10)
     p.add_argument('--save-best', action='store_true')
     p.add_argument('--output-name', type=str, default='encoder_dgi.pt')
+    p.add_argument('--output-dir', type=str, default='', help='輸出目錄 (如 "models/small/"，留空則保存在當前目錄)')
 
     # 資料
     p.add_argument('--benchmarks', type=str, default='c17,c432,c499,c880,c1355')
@@ -427,7 +428,7 @@ def recall_at_k(encoder, data, device, K=10, proj=None, neutralize_cellid=False)
 # 訓練主程式（DGI）
 # ---------------------------
 
-def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag="", probe_data=None):
+def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag="", probe_data=None, output_dir=None):
     encoder.train()
     if proj is not None:
         proj.train()
@@ -611,7 +612,7 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
                 torch.save(proj.state_dict(), f"best_proj_{tag}_by_probe.pt")
 
     # 畫圖
-    fig, ax1 = plt.subplots(figsize=(7,5))
+    fig, ax1 = plt.subplots(figsize=(10,5))
     ax2 = ax1.twinx()
     ax1.plot(loss_history, label='Training Loss')
     ax1.set_xlabel('Epoch'); ax1.set_ylabel('Loss'); ax1.grid(True)
@@ -625,9 +626,17 @@ def train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config
         ax2.yaxis.set_major_formatter(formatter)
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='lower left')
     plt.title(f"DGI: Loss + Probe(AUC) {tag}")
-    out_png = f"loss_probe_{tag if tag else 'all'}.png"
+    
+    # 根據 output_dir 決定圖片保存路徑
+    png_filename = f"loss_probe_{tag if tag else 'all'}.png"
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        out_png = os.path.join(output_dir, png_filename)
+    else:
+        out_png = png_filename
+    
     plt.tight_layout(); plt.savefig(out_png); plt.close()
     print(f"曲線已儲存: {out_png}")
 
@@ -740,7 +749,7 @@ def train_separately(benchmarks, config, device, root_dir, global_cell_types, he
 
         # 使用全域 probe 資料（每個案例都用相同的 probe）
         probe_data = probe_data_global
-        encoder, proj, discriminator = train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag=name, probe_data=probe_data)
+        encoder, proj, discriminator = train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag=name, probe_data=probe_data, output_dir=config.output_dir)
 
     torch.save(encoder.state_dict(), config.output_name)
     if proj is not None:
@@ -805,7 +814,7 @@ def train_all_together(benchmarks, config, device, root_dir, global_cell_types, 
     optimizer = torch.optim.AdamW(params, lr=config.lr, weight_decay=config.weight_decay)
     scheduler = create_scheduler(optimizer, config)
 
-    encoder, proj, discriminator = train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag='all', probe_data=probe_data)
+    encoder, proj, discriminator = train_dgi(encoder, proj, discriminator, loader, optimizer, scheduler, config, device, tag='all', probe_data=probe_data, output_dir=config.output_dir)
 
     torch.save(encoder.state_dict(), config.output_name)
     if proj is not None:
@@ -893,6 +902,9 @@ def main():
             'c1908, c2670, c3540, c5315, c6288, '
             's1238, s1423, s1488, s5378, s9234, s13207, s15850, s35932, s38584'
         )
+        small = 'c1908, c2670, c3540, c5315, c6288, s1238, s1423, s1488, s9234' # s5378
+        medium = 's15850' # s13207
+        large = 's38584' # s35932
         # full = (
         #     # 'c17, c432, c499, c880, c1355, c1908, c2670, c3540, c5315, c6288, '
         #     # 's27, s298, s344, s382, s386, s400, s1196, s1238, s1423, s1488, s5378, s9234, s13207, s15850, s38584'
@@ -914,6 +926,22 @@ def main():
         encoder, proj, input_dim = train_separately(benchmarks, config, device, root_dir, global_cell_types, heads_schedule)
     else:
         encoder, proj, input_dim = train_all_together(benchmarks, config, device, root_dir, global_cell_types, heads_schedule)
+    
+    # 保存模型 - 支援自定義輸出目錄
+    if config.output_dir:
+        os.makedirs(config.output_dir, exist_ok=True)
+        encoder_path = os.path.join(config.output_dir, 'encoder.pt')
+        proj_path = os.path.join(config.output_dir, 'encoder_proj.pt')
+        meta_path = os.path.join(config.output_dir, 'encoder_meta.json')
+    else:
+        encoder_path = config.output_name
+        proj_path = config.output_name.replace('.pt', '_proj.pt')
+        meta_path = 'encoder_meta.json'
+    
+    torch.save(encoder.state_dict(), encoder_path)
+    if proj is not None:
+        torch.save(proj.state_dict(), proj_path)
+    print(f"✅ 模型已保存至: {encoder_path}")
 
     # 訓練後：如需多次隨機抽樣平均（泛化報告）
     if not config.disable_probe and config.final_probe_average > 0 and config.probe_graph:
@@ -946,7 +974,7 @@ def main():
             'weight_decay': config.weight_decay,
             'separate_training': config.separate_training,
             'feature_dim': int(input_dim),
-            'model_file': config.output_name,
+            'model_file': os.path.basename(encoder_path),
             'seed': config.seed,
             'benchmarks': benchmarks,
             'probe_every': config.probe_every,
@@ -959,17 +987,17 @@ def main():
             'corruption': config.corruption,
             'use_proj': bool(config.use_proj),
             'proj_dim': config.proj_dim,
-            'cell_embed_dim': config.cell_embed_dim,  # 新增：cell embedding 維度
-            'batch_size': config.batch_size,           # 新增：批次大小
-            'gradient_accumulation': config.gradient_accumulation,  # 新增：梯度累積
-            'discriminator_chunk': config.discriminator_chunk,            # 新增：判別器分塊大小
-            'scheduler_type': config.scheduler_type,  # 新增：調度器類型
-            'scheduler_patience': config.scheduler_patience,  # 新增：調度器耐心
-            'scheduler_factor': config.scheduler_factor,      # 新增：調度器因子
+            'cell_embed_dim': config.cell_embed_dim,
+            'batch_size': config.batch_size,
+            'gradient_accumulation': config.gradient_accumulation,
+            'discriminator_chunk': config.discriminator_chunk,
+            'scheduler_type': config.scheduler_type,
+            'scheduler_patience': config.scheduler_patience,
+            'scheduler_factor': config.scheduler_factor,
         }
-        with open('encoder_meta.json', 'w') as f:
+        with open(meta_path, 'w') as f:
             json.dump(meta, f, indent=2, ensure_ascii=False)
-        print('已輸出模型中繼資料: encoder_meta.json')
+        print(f'✅ Meta 已保存至: {meta_path}')
 
     elapsed = time.time() - start_time
     print(f"訓練完成！總耗時: {elapsed:.2f} 秒")

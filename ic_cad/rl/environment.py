@@ -476,6 +476,7 @@ class OptimizationEnvironment:
         self._update_dynamic_state()
 
         # 5) 計算 reward（正向加分：改善越多分數越高）
+        remaining_steps = self.current_state.max_steps - self.current_state.step_count
         reward = self._calculate_reward(
             old_tns=self.current_state.current_tns,
             new_tns=new_report.tns,
@@ -484,6 +485,8 @@ class OptimizationEnvironment:
             old_power=self.current_state.current_power,
             new_power=new_report.total_power,
             success=success,
+            remaining_steps=remaining_steps,
+            max_steps=self.current_state.max_steps,
         )
 
         # 6) 更新狀態 - 包括 PPO 代理期望的特徵
@@ -739,15 +742,24 @@ class OptimizationEnvironment:
         old_power: float,
         new_power: float,
         success: bool,
+        remaining_steps: int = 10,
+        max_steps: int = 20,
     ) -> float:
         """
-        改良的獎勵機制：分段 + 對數尾部設計
+        改良的獎勵機制：分段 + 對數尾部設計 + 剩餘步數感知
         - 解決獎勵飽和問題：無上限，持續激勵優化
         - 保持不對稱懲罰：改善高獎勵，惡化低懲罰
         - 數值穩定：後期增速放緩，避免梯度爆炸
+        - 剩餘步數感知：接近完成時，失敗懲罰更重，鼓勵謹慎行動
         """
+        # 計算進度比例 (0.0 = 剛開始, 1.0 = 即將結束)
+        progress_ratio = 1.0 - (remaining_steps / max(1, max_steps))
+        
         if not success:
-            return -0.5  # 減輕失敗懲罰
+            # 失敗懲罰隨進度遞增：早期 -0.5，後期最高 -2.0
+            # 公式：-0.5 * (1 + 3 * progress_ratio)
+            failure_penalty = -0.5 * (1.0 + 3.0 * progress_ratio)
+            return failure_penalty
 
         # 獲取全域初始狀態作為基準
         if self.global_initial_tns is not None:

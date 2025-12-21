@@ -8,6 +8,8 @@ import sys
 import json
 import logging
 import numpy as np
+import torch
+import random
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 import argparse
@@ -23,10 +25,23 @@ logger = logging.getLogger(__name__)
 sys.path.append('/root/ruan_workspace/ic_cad/rl')
 sys.path.append('/root/ruan_workspace/ic_cad/gnn')
 
-from config import InferenceConfig, RLConfig
+from config import InferenceConfig, RLConfig, default_inference_config
 from environment import OptimizationEnvironment
 from ppo_agent import TwoDimensionalPPOAgent
 from utils_openroad import OptimizationAction
+
+def set_seed(seed: int):
+    """設置所有隨機種子以確保可重現性"""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        # 確保 CUDA 操作的確定性
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+    logger.info(f"🎲 隨機種子已設置為: {seed}")
 
 class TwoDimensionalInferenceEngine:
     """二維動作空間推論引擎"""
@@ -46,9 +61,11 @@ class TwoDimensionalInferenceEngine:
         logger.info("建立二維動作空間環境...")
         self.env = OptimizationEnvironment(self.rl_config)
         
-        # 設置推論時的最大步數（覆蓋訓練時的限制）
+        # 🔥 關鍵：設置推論時的最大步數（覆蓋訓練時的限制）
+        # 這會影響環境的 global_features 中的進度資訊
         self.env.max_steps_per_episode = self.inference_config.max_actions
-        logger.info(f"推論最大步數設置為: {self.inference_config.max_actions}")
+        logger.info(f"✅ 推論最大步數設置為: {self.inference_config.max_actions}")
+        logger.info(f"📊 RL Agent 將在 global_features[3] 和 [6] 中接收進度資訊")
         
         # 建立智能體
         logger.info("建立二維動作空間智能體...")
@@ -109,24 +126,47 @@ class TwoDimensionalInferenceEngine:
             # 追蹤最佳表現的前三名
             best_performances = []  # 存儲 (step, score, tns_improvement, power_improvement, metrics)
             
+            # 追蹤單項最佳指標
+            best_tns_val = float('-inf')
+            best_tns_record = None
+            
+            best_power_val = float('inf')
+            best_power_record = None
+            
             # 記錄初始狀態作為 step 0
             initial_score = 0.0  # 初始狀態評分為 0
-            best_performances.append({
+            initial_record = {
                 'step': 0,
+                'time': 0.0,
                 'score': initial_score,
                 'tns_improvement': 0.0,
                 'power_improvement': 0.0,
                 'tns': initial_tns,
                 'wns': initial_wns,
                 'power': initial_power
-            })
+            }
+            best_performances.append(initial_record)
+            
+            # 初始化最佳單項紀錄
+            best_tns_val = initial_tns
+            best_tns_record = initial_record
+            best_power_val = initial_power
+            best_power_record = initial_record
+            
+            # 🔍 顯示初始進度資訊（幫助理解 RL agent 接收到的狀態）
+            if hasattr(environment_state, 'global_features') and len(environment_state.global_features) >= 7:
+                progress_ratio = environment_state.global_features[3]  # step_count / max_steps
+                remaining_ratio = environment_state.global_features[6]  # remaining_steps_ratio
+                logger.info(f"📊 初始進度資訊 - 當前進度: {progress_ratio:.2%}, 剩餘: {remaining_ratio:.2%}, "
+                           f"max_actions: {self.inference_config.max_actions}")
             
             step_count = 0
             while not environment_state.done and step_count < self.inference_config.max_actions:
                 # 獲取二維動作
+                # 💡 使用非確定性採樣但有固定種子，確保在相同種子下結果一致
                 action, info = self.agent.get_action(
                     environment_state, 
-                    deterministic=self.inference_config.greedy
+                    deterministic=False  # 使用隨機採樣（配合種子確保可重現）
                 )
                 
                 # 記錄二維動作資訊
@@ -151,9 +191,13 @@ class TwoDimensionalInferenceEngine:
                 current_score = (tns_weight * current_tns_improvement + 
                                power_weight * current_power_improvement)
                 
+                # 計算經過時間
+                current_elapsed = (datetime.now() - start_time).total_seconds()
+                
                 # 記錄步驟詳細資訊
                 step_info = {
                     'step': step_count + 1,
+                    'time': current_elapsed,
                     'action': {
                         'candidate_idx': candidate_idx,
                         'replacement_idx': replacement_idx,
@@ -186,6 +230,7 @@ class TwoDimensionalInferenceEngine:
                 # 更新最佳表現記錄
                 performance_record = {
                     'step': step_count + 1,
+                    'time': current_elapsed,
                     'score': current_score,
                     'tns_improvement': current_tns_improvement,
                     'power_improvement': current_power_improvement,
@@ -193,6 +238,16 @@ class TwoDimensionalInferenceEngine:
                     'wns': next_environment_state.current_wns,
                     'power': next_environment_state.current_power
                 }
+                
+                # 檢查是否為最佳 TNS
+                if next_environment_state.current_tns > best_tns_val:
+                    best_tns_val = next_environment_state.current_tns
+                    best_tns_record = performance_record
+                
+                # 檢查是否為最佳 Power
+                if next_environment_state.current_power < best_power_val:
+                    best_power_val = next_environment_state.current_power
+                    best_power_record = performance_record
                 
                 # 將當前表現插入到最佳表現列表中（保持按評分降序排列）
                 best_performances.append(performance_record)
@@ -202,6 +257,13 @@ class TwoDimensionalInferenceEngine:
                 # 更新狀態
                 environment_state = next_environment_state
                 step_count += 1
+                
+                # 🔍 每 10 步顯示一次進度資訊（幫助驗證 RL agent 的進度感知）
+                if step_count % 10 == 0 and hasattr(environment_state, 'global_features') and len(environment_state.global_features) >= 7:
+                    progress_ratio = environment_state.global_features[3]  # step_count / max_steps
+                    remaining_ratio = environment_state.global_features[6]  # remaining_steps_ratio
+                    logger.info(f"📊 步驟 {step_count} 進度資訊 - 當前進度: {progress_ratio:.2%}, "
+                               f"剩餘: {remaining_ratio:.2%} ({int(remaining_ratio * self.inference_config.max_actions)} 步)")
                 
                 logger.info(f"步驟 {step_count}: 候選{candidate_idx}({candidate_cell})→替換{replacement_idx}, "
                            f"TNS={environment_state.current_tns:.4f}, "
@@ -232,11 +294,25 @@ class TwoDimensionalInferenceEngine:
             logger.info("=" * 60)
             logger.info(f"🏆 最佳表現前三名 (權重 TNS:{tns_weight:.2f}, Power:{power_weight:.2f}):")
             for i, perf in enumerate(best_performances[:3], 1):
-                logger.info(f"第{i}名 - 步驟 {perf['step']}: "
+                logger.info(f"第{i}名 - 步驟 {perf['step']} (時間 {perf['time']:.2f}s): "
                            f"評分={perf['score']:.4f}, "
                            f"TNS改善={perf['tns_improvement']:+.4f}, "
                            f"Power改善={perf['power_improvement']:+.6f}, "
                            f"TNS={perf['tns']:.4f}, Power={perf['power']:.6f}")
+            
+            # 輸出單項最佳紀錄
+            if best_tns_record:
+                logger.info("-" * 60)
+                logger.info(f"⚡ TNS 最佳時刻 (步驟 {best_tns_record['step']}, 時間 {best_tns_record['time']:.2f}s):")
+                logger.info(f"  TNS: {best_tns_record['tns']:.4f} ns (改善: {best_tns_record['tns_improvement']:+.4f})")
+                logger.info(f"  Power: {best_tns_record['power']:.6f} W")
+            
+            if best_power_record:
+                logger.info("-" * 60)
+                logger.info(f"🔋 Power 最佳時刻 (步驟 {best_power_record['step']}, 時間 {best_power_record['time']:.2f}s):")
+                logger.info(f"  Power: {best_power_record['power']:.6f} W (改善: {best_power_record['power_improvement']:+.6f})")
+                logger.info(f"  TNS: {best_power_record['tns']:.4f} ns")
+            
             logger.info("=" * 60)
             
             result = {
@@ -273,6 +349,8 @@ class TwoDimensionalInferenceEngine:
                     'power_weight': power_weight
                 },
                 'best_performances': best_performances,  # 新增：最佳表現前三名
+                'best_tns_record': best_tns_record,      # 新增：最佳 TNS 紀錄
+                'best_power_record': best_power_record,  # 新增：最佳 Power 紀錄
                 'optimization_steps': optimization_steps,
                 'actions_taken': actions_taken
             }
@@ -492,17 +570,21 @@ def main():
     parser.add_argument('--greedy', action='store_true', help='使用貪婪策略')
     parser.add_argument('--output_dir', type=str, help='輸出目錄')
     parser.add_argument('--save_actions', action='store_true', help='儲存動作序列而非執行')
+    parser.add_argument('--seed', type=int, default=42, help='隨機種子（預設: 42，用於確保結果可重現）')
     
     args = parser.parse_args()
+    
+    # 🎲 設置隨機種子以確保結果可重現
+    set_seed(args.seed)
     
     # 建立配置
     inference_config = default_inference_config
     inference_config.actor_model_path = args.model
     inference_config.max_actions = args.max_actions
 
-    print(inference_config.max_actions)
-    aaa = 1
-    aaa = input()
+    # print(inference_config.max_actions)
+    # aaa = 1
+    # aaa = input()
 
     inference_config.greedy = args.greedy
     
@@ -518,9 +600,10 @@ def main():
     logger.info(f"測試案例: {test_cases}")
     logger.info(f"最大動作數: {args.max_actions}")
     logger.info(f"貪婪策略: {args.greedy}")
+    logger.info(f"隨機種子: {args.seed}")
     
     # 建立推論引擎
-    engine = InferenceEngine(inference_config)
+    engine = TwoDimensionalInferenceEngine(inference_config, RLConfig())
     
     if args.save_actions:
         # 僅生成動作序列

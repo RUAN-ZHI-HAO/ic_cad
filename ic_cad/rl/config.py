@@ -151,7 +151,7 @@ class InferenceConfig:
     
     # === 推論參數 ===
     max_actions: int = 10      # 最大動作數量
-    greedy: bool = False       # 是否使用貪婪策略
+    greedy: bool = True        # 是否使用貪婪策略（推論時建議 True 以獲得穩定結果）
     temperature: float = 1.0   # 溫度參數 (用於動作採樣)
     
     # === 輸出設定 ===

@@ -195,6 +195,9 @@ def get_graph_data(circuit_name: str) -> torch.nn.Module:
 # === 取得 embeddings ===
 
 def get_embeddings(circuit_name: str, encoder: torch.nn.Module) -> torch.Tensor:
+    # 🔒 確保編碼器在評估模式（關閉 dropout 等隨機操作）
+    encoder.eval()
+    
     # Dummy 模式：快速繞過圖構建（例如僅測 RL pipeline）
     if os.environ.get('USE_DUMMY_GNN') == '1':
         hidden = getattr(encoder, 'convs', [None])[0].out_channels if hasattr(encoder, 'convs') and len(encoder.convs) > 0 else 128
@@ -241,8 +244,8 @@ def get_embeddings(circuit_name: str, encoder: torch.nn.Module) -> torch.Tensor:
             emb = encoder(data.x, data.edge_index)
         return emb
     except Exception as e:
-        # 最後退路：回傳隨機向量避免整體流程中斷（並提示）
-        print(f'⚠️ 取得 {circuit_name} 圖或嵌入失敗，使用隨機嵌入: {e}')
+        # 最後退路：回傳零向量避免整體流程中斷（確保確定性）
+        print(f'⚠️ 取得 {circuit_name} 圖或嵌入失敗，使用零嵌入: {e}')
         # 計算正確的輸出維度
         hidden = 128  # 預設值
         try:
@@ -258,7 +261,8 @@ def get_embeddings(circuit_name: str, encoder: torch.nn.Module) -> torch.Tensor:
             pass
         
         num_nodes = data.x.shape[0]
-        return torch.randn((num_nodes, hidden))
+        # 🔒 改用零向量而非隨機向量以確保確定性
+        return torch.zeros((num_nodes, hidden))
 
 # 批次
 

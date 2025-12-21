@@ -613,8 +613,8 @@ class OpenRoadInterface:
         power_candidates = [name for name, _ in cells_by_power[:top_power]]
         slew_candidates = [name for name, _ in cells_by_output_slew[:top_slew]]
 
-        # 合併並去重 instance names
-        candidate_instances = list(set(delay_candidates + power_candidates + slew_candidates))
+        # 合併並去重 instance names（使用排序確保順序穩定）
+        candidate_instances = sorted(set(delay_candidates + power_candidates + slew_candidates))
 
         # 返回 (instance_name, cell_type) 對
         candidate_pairs = []

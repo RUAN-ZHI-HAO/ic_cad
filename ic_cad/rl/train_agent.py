@@ -79,6 +79,9 @@ class TwoDimensionalTrainingManager:
         self.episode_wns_improvements = []
         self.episode_power_improvements = []
         self.episode_success_rates = []
+        self.episode_final_tns = []
+        self.episode_final_wns = []
+        self.episode_final_power = []
         
         # Global initial state tracking (第一次重置時的電路狀態)
         self.global_initial_tns = None
@@ -125,6 +128,13 @@ class TwoDimensionalTrainingManager:
         os.makedirs(os.path.join(output_dir, 'plots'), exist_ok=True)
         
         best_avg_reward = float('-inf')
+        best_episode_info = None  # 記錄最佳 episode 的詳細資訊 (基於獎勵)
+        
+        # 追蹤最佳 TNS 和 Power 的 episode
+        best_tns = float('-inf')
+        best_tns_episode_info = None
+        best_power = float('inf')
+        best_power_episode_info = None
         
         # Training loop
         for episode in range(self.config.max_episodes):
@@ -164,6 +174,9 @@ class TwoDimensionalTrainingManager:
             self.episode_wns_improvements.append(global_wns_improvement)
             self.episode_power_improvements.append(global_power_improvement)
             self.episode_success_rates.append(episode_stats['success_rate'])
+            self.episode_final_tns.append(episode_stats['final_tns'])
+            self.episode_final_wns.append(episode_stats['final_wns'])
+            self.episode_final_power.append(episode_stats['final_power'])
             
             # Update agent - 改用更合適的更新策略
             buffer_steps = len(self.agent.buffer['rewards']) if 'rewards' in self.agent.buffer else 0
@@ -195,6 +208,34 @@ class TwoDimensionalTrainingManager:
             final_tns = episode_stats['final_tns']
             final_wns = episode_stats['final_wns']
             final_power = episode_stats['final_power']
+            
+            # 檢查並更新最佳 TNS 紀錄
+            if final_tns > best_tns:
+                best_tns = final_tns
+                best_tns_episode_info = {
+                    'episode': episode + 1,
+                    'case_name': case_name,
+                    'total_reward': current_reward,
+                    'final_tns': final_tns,
+                    'final_wns': final_wns,
+                    'final_power': final_power,
+                    'tns_improvement': global_tns_improvement,
+                    'power_improvement': global_power_improvement
+                }
+                
+            # 檢查並更新最佳 Power 紀錄
+            if final_power < best_power:
+                best_power = final_power
+                best_power_episode_info = {
+                    'episode': episode + 1,
+                    'case_name': case_name,
+                    'total_reward': current_reward,
+                    'final_tns': final_tns,
+                    'final_wns': final_wns,
+                    'final_power': final_power,
+                    'tns_improvement': global_tns_improvement,
+                    'power_improvement': global_power_improvement
+                }
             
             # 記錄全域初始狀態 (第一回合的初始狀態)
             if self.global_initial_tns is None:
@@ -246,10 +287,37 @@ class TwoDimensionalTrainingManager:
                     f"({global_power_improvement:+.6f}W, {power_pct})"
                 )
             
+            # 每回合檢查是否為最佳成效（靜默更新，不顯示）
+            avg_reward = np.mean(self.episode_rewards[-min(100, len(self.episode_rewards)):])
+            if avg_reward > best_avg_reward:
+                best_avg_reward = avg_reward
+                # Ensure models directory exists
+                models_dir = os.path.join(output_dir, 'models')
+                os.makedirs(models_dir, exist_ok=True)
+                
+                best_model_path = os.path.join(output_dir, 'models', 'best_model.pth')
+                self.agent.save_model(best_model_path)
+                
+                # 記錄最佳 episode 資訊
+                best_episode_info = {
+                    'episode': episode + 1,
+                    'case_name': case_name,
+                    'avg_reward': avg_reward,
+                    'total_reward': episode_stats['total_reward'],
+                    'tns_improvement': episode_stats['tns_improvement'],
+                    'wns_improvement': episode_stats['wns_improvement'],
+                    'power_improvement': episode_stats['power_improvement'],
+                    'success_rate': episode_stats['success_rate'],
+                    'initial_tns': episode_stats['initial_tns'],
+                    'final_tns': episode_stats['final_tns'],
+                    'initial_wns': episode_stats['initial_wns'],
+                    'final_wns': episode_stats['final_wns'],
+                    'initial_power': episode_stats['initial_power'],
+                    'final_power': episode_stats['final_power']
+                }
+            
             # Evaluation and saving
             if episode % self.config.save_interval == 0 and episode > 0:
-                avg_reward = np.mean(self.episode_rewards[-100:])
-                
                 logger.info(f"💾 回合 {episode + 1}/{self.config.max_episodes} - 模型保存檢查點")
                 logger.info(f"📈 平均獎勵: {avg_reward:.4f}, "
                           f"最新獎勵: {episode_stats['total_reward']:.4f}, "
@@ -259,12 +327,9 @@ class TwoDimensionalTrainingManager:
                 models_dir = os.path.join(output_dir, 'models')
                 os.makedirs(models_dir, exist_ok=True)
                 
-                # Save best model
-                if avg_reward > best_avg_reward:
-                    best_avg_reward = avg_reward
-                    best_model_path = os.path.join(models_dir, 'best_model.pth')
-                    self.agent.save_model(best_model_path)
-                    logger.info(f"🏆 儲存最佳模型 - 平均獎勵: {best_avg_reward:.4f}")
+                # best_model 已經在上面的每回合檢查中保存了
+                if False:  # 不再需要這段，已經移到上面
+                    pass
                 
                 # Regular checkpoint
                 checkpoint_path = os.path.join(models_dir, f'checkpoint_{episode + 1}.pth')
@@ -273,6 +338,7 @@ class TwoDimensionalTrainingManager:
                 
                 # Plot training curves
                 self._plot_training_curves(output_dir)
+                self._plot_absolute_metrics(output_dir)
         
         # Training completed
         models_dir = os.path.join(output_dir, 'models')
@@ -284,7 +350,47 @@ class TwoDimensionalTrainingManager:
         self._save_training_stats(output_dir)
         
         training_time = datetime.now() - self.start_time
-        logger.info(f"2D action space training completed - Total time: {training_time}")
+        logger.info("=" * 80)
+        logger.info(f"✅ 2D 動作空間訓練完成 - 總時間: {training_time}")
+        logger.info("=" * 80)
+        
+        # 顯示最佳成效紀錄 (基於獎勵)
+        if best_episode_info:
+            logger.info(f"🏆 最佳成效紀錄 (基於平均獎勵):")
+            logger.info(f"  回合: {best_episode_info['episode']}/{self.config.max_episodes}")
+            logger.info(f"  案例: {best_episode_info['case_name']}")
+            logger.info(f"  平均獎勵: {best_episode_info['avg_reward']:.4f}")
+            logger.info(f"  總獎勵: {best_episode_info['total_reward']:.4f}")
+            logger.info(f"  成功率: {best_episode_info['success_rate']:.2%}")
+            logger.info(f"  TNS: {best_episode_info['initial_tns']:.4f} → {best_episode_info['final_tns']:.4f} ({best_episode_info['tns_improvement']:+.4f} ns)")
+            logger.info(f"  WNS: {best_episode_info['initial_wns']:.4f} → {best_episode_info['final_wns']:.4f} ({best_episode_info['wns_improvement']:+.4f} ns)")
+            logger.info(f"  Power: {best_episode_info['initial_power']:.6f} → {best_episode_info['final_power']:.6f} ({best_episode_info['power_improvement']:+.6f} W)")
+            logger.info("=" * 80)
+            
+        # 顯示最佳 TNS 紀錄
+        if best_tns_episode_info:
+            logger.info(f"⚡ TNS 優化最多的時候:")
+            logger.info(f"  回合: {best_tns_episode_info['episode']}")
+            logger.info(f"  TNS: {best_tns_episode_info['final_tns']:.4f} ns")
+            logger.info(f"  Power: {best_tns_episode_info['final_power']:.6f} W")
+            logger.info("=" * 80)
+
+        # 顯示最佳 Power 紀錄
+        if best_power_episode_info:
+            logger.info(f"🔋 Power 優化最多的時候:")
+            logger.info(f"  回合: {best_power_episode_info['episode']}")
+            logger.info(f"  TNS: {best_power_episode_info['final_tns']:.4f} ns")
+            logger.info(f"  Power: {best_power_episode_info['final_power']:.6f} W")
+            logger.info("=" * 80)
+        
+        logger.info(f"📊 訓練統計:")
+        logger.info(f"  平均獎勵: {np.mean(self.episode_rewards):.4f}")
+        logger.info(f"  最高獎勵: {np.max(self.episode_rewards):.4f}")
+        logger.info(f"  平均 TNS 改善: {np.mean(self.episode_tns_improvements):+.4f} ns")
+        logger.info(f"  平均 WNS 改善: {np.mean(self.episode_wns_improvements):+.4f} ns")
+        logger.info(f"  平均 Power 改善: {np.mean(self.episode_power_improvements):+.6f} W")
+        logger.info(f"  平均成功率: {np.mean(self.episode_success_rates):.2%}")
+        logger.info("=" * 80)
         
         results = {
             'episode_rewards': self.episode_rewards,
@@ -320,6 +426,11 @@ class TwoDimensionalTrainingManager:
         initial_tns = state.current_tns
         initial_wns = state.current_wns
         initial_power = state.current_power
+        
+        # 🔍 顯示訓練回合的進度配置（與推論保持一致）
+        if episode % 50 == 0:  # 每 50 回合顯示一次
+            logger.info(f"🎯 回合 {episode + 1} 進度配置 - max_steps: {max_steps}, "
+                       f"RL agent 將透過 global_features[3] 和 [6] 接收進度資訊")
         
         for step in range(max_steps):
             # Get action from agent
@@ -392,20 +503,35 @@ class TwoDimensionalTrainingManager:
             axes[0, 0].grid(True)
             
             # TNS improvements
-            axes[0, 1].plot(self.episode_tns_improvements)
+            tns_data = np.array(self.episode_tns_improvements)
+            axes[0, 1].plot(tns_data)
             axes[0, 1].set_title('TNS Improvements (vs Initial)')
             axes[0, 1].set_xlabel('Episode')
             axes[0, 1].set_ylabel('TNS Improvement (ns)')
             axes[0, 1].axhline(y=0, color='r', linestyle='--', alpha=0.3)
             axes[0, 1].grid(True)
             
+            # 自動檢測是否需要對數刻度 (當數據範圍過大時)
+            if len(tns_data) > 0:
+                tns_range = np.max(tns_data) - np.min(tns_data)
+                if tns_range > 10000:  # 範圍超過 10000 ns
+                    axes[0, 1].set_yscale('symlog', linthresh=100)
+                    axes[0, 1].set_title('TNS Improvements (vs Initial) [SymLog Scale]')
+            
             # WNS improvements
-            axes[1, 0].plot(self.episode_wns_improvements)
+            wns_data = np.array(self.episode_wns_improvements)
+            axes[1, 0].plot(wns_data)
             axes[1, 0].set_title('WNS Improvements (vs Initial)')
             axes[1, 0].set_xlabel('Episode')
             axes[1, 0].set_ylabel('WNS Improvement (ns)')
             axes[1, 0].axhline(y=0, color='r', linestyle='--', alpha=0.3)
             axes[1, 0].grid(True)
+            
+            if len(wns_data) > 0:
+                wns_range = np.max(wns_data) - np.min(wns_data)
+                if wns_range > 1000:  # 範圍超過 1000 ns
+                    axes[1, 0].set_yscale('symlog', linthresh=10)
+                    axes[1, 0].set_title('WNS Improvements (vs Initial) [SymLog Scale]')
             
             # Power improvements
             axes[1, 1].plot(self.episode_power_improvements)
@@ -426,6 +552,58 @@ class TwoDimensionalTrainingManager:
             
         except Exception as e:
             logger.warning(f"Failed to plot training curves: {e}")
+
+    def _plot_absolute_metrics(self, output_dir: str):
+        """Plot absolute metrics (TNS, WNS, Power)"""
+        try:
+            fig, axes = plt.subplots(3, 1, figsize=(10, 15))
+            
+            # Final TNS
+            tns_data = np.array(self.episode_final_tns)
+            axes[0].plot(tns_data)
+            axes[0].set_title('Final TNS per Episode')
+            axes[0].set_xlabel('Episode')
+            axes[0].set_ylabel('TNS (ns)')
+            axes[0].grid(True)
+            
+            if len(tns_data) > 0:
+                tns_range = np.max(tns_data) - np.min(tns_data)
+                if tns_range > 10000 or np.min(tns_data) < -10000:
+                    axes[0].set_yscale('symlog', linthresh=100)
+                    axes[0].set_title('Final TNS per Episode [SymLog Scale]')
+
+            # Final WNS
+            wns_data = np.array(self.episode_final_wns)
+            axes[1].plot(wns_data)
+            axes[1].set_title('Final WNS per Episode')
+            axes[1].set_xlabel('Episode')
+            axes[1].set_ylabel('WNS (ns)')
+            axes[1].grid(True)
+            
+            if len(wns_data) > 0:
+                wns_range = np.max(wns_data) - np.min(wns_data)
+                if wns_range > 1000 or np.min(wns_data) < -1000:
+                    axes[1].set_yscale('symlog', linthresh=10)
+                    axes[1].set_title('Final WNS per Episode [SymLog Scale]')
+
+            # Final Power
+            axes[2].plot(self.episode_final_power)
+            axes[2].set_title('Final Power per Episode')
+            axes[2].set_xlabel('Episode')
+            axes[2].set_ylabel('Power (W)')
+            axes[2].grid(True)
+            
+            plt.tight_layout()
+            
+            # Save plot
+            plot_path = os.path.join(output_dir, 'plots', 'training_metrics_absolute.png')
+            plt.savefig(plot_path, dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            logger.info(f"Absolute metrics curves saved to: {plot_path}")
+            
+        except Exception as e:
+            logger.warning(f"Failed to plot absolute metrics: {e}")
     
     def _save_training_stats(self, output_dir: str):
         """Save training statistics"""
@@ -450,6 +628,9 @@ class TwoDimensionalTrainingManager:
                 'wns_improvements': self.episode_wns_improvements,
                 'power_improvements': self.episode_power_improvements,
                 'success_rates': self.episode_success_rates,
+                'final_tns': self.episode_final_tns,
+                'final_wns': self.episode_final_wns,
+                'final_power': self.episode_final_power,
                 'agent_stats': self.agent.training_stats
             },
             'summary': {
