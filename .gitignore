@@ -1,4 +1,45 @@
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# ---- ML / checkpoints ----
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.npy
+*.npz
+
+# ---- Plots / images ----
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# ---- Logs / reports ----
+*.log
+*.out
+*.rpt
+
+# ---- EDA artifacts (看你需求可加可減) ----
+*.def
+*.lef
+*.sdc
+*.spef
+*.sdf
+*.db
+*.vcd
+*.fsdb
+*.aux
+
+# ---- Your generated results (強烈建議整包忽略) ----
+ic_cad/rl/inference_results/
+ic_cad/rl/training_results/
+ic_cad/gnn/models/
+
+# ---- Keep your existing ignores ----
 ic_cad/parser/parsed_cells.json
 ic_cad/parser/parsed_cells_multi_timing.json
 docker_ruan/RosettaStone/
-
